@@ -1,0 +1,1 @@
+# COMP49X-24-25-insect-detection-project
