@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build_and_lint:
 
     runs-on: ubuntu-latest
 
@@ -26,7 +26,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest numpy torchvision torch tensorflow pandas
+        pip install flake8 pytest numpy torchvision torch tensorflow pandas pylint
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
@@ -37,4 +37,7 @@ jobs:
     - name: Test with pytest
       run: |
         pytest testing/
+    - name: Analysing the code with pylint
+      run: |
+        pylint $(git ls-files '*.py')
 
