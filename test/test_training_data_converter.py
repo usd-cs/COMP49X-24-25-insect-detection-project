@@ -3,8 +3,8 @@ import unittest
 from unittest.mock import patch, MagicMock, mock_open
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from training_data_converter import TrainingDataConverter
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 class TestTrainingDataConverter(unittest.TestCase):
     """
