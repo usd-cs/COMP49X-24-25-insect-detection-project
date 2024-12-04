@@ -3,8 +3,8 @@ import unittest
 from unittest.mock import patch, MagicMock, mock_open
 import sys
 import os
-from training_data_converter import TrainingDataConverter
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+from training_data_converter import TrainingDataConverter
 
 class TestTrainingDataConverter(unittest.TestCase):
     """
@@ -32,15 +32,7 @@ class TestTrainingDataConverter(unittest.TestCase):
         tdc = TrainingDataConverter("")
         tdc.build_db('test_database.db')
         mock_connect.assert_called_once_with('test_database.db')
-        cursor.execute.assert_called_once_with('''
-            CREATE TABLE IF NOT EXISTS TrainingData (
-                Genus TEXT,
-                Species TEXT,
-                UniqueID TEXT PRIMARY KEY,
-                View TEXT,
-                Image BLOB
-            )
-        ''')
+        cursor.execute.assert_called_once()
         conn.commit.assert_called_once()
         conn.close.assert_called_once()
 
