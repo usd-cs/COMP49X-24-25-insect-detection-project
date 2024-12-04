@@ -6,16 +6,23 @@ class TrainingDataConverter:
     Converter from file directory of images to sqlite database
     """
     def __init__(self, dataset_dir_path):
-        """ Initialize converter with file path reference to directory"""
+        """ Initialize converter with file path reference to directory """
         self.dir_path = dataset_dir_path
 
     def img_to_binary(self, image_path):
-        """ translate given file path of image to binary """
+        """
+        Translate given file path of image to binary
+        Return: binary file in bytes
+        """
         with open(image_path, 'rb') as file:
             binary_file = file.read()
         return binary_file
 
     def build_db(self, db_name):
+        """
+        Builds training database and sets appropriate columns
+        Return: None
+        """
         table = sqlite3.connect(db_name)
         cursor = table.cursor()
         cursor.execute('''
