@@ -5,6 +5,7 @@ Creates and manages the user-input database
 import sqlite3
 import uuid
 
+
 class user_input_database:
 
     def __init__(self, stored_dbase):
@@ -12,7 +13,27 @@ class user_input_database:
         Sets up the database when the class is called. Creates an empty dbase 
         if no input, initializes based on the previous version if given an input
         """
-        pass
+        self.user_input_db = 'user_input_database.db'
+
+    def build_user_db(self):
+        """
+        Initialize database for successful user inputs
+        """
+        table = sqlite3.connect(self.user_input_db)
+        cursor = table.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS SuccessUserInput (
+                UserID TEXT,
+                Genus TEXT,
+                Species TEXT,
+                UniqueID TEXT PRIMARY KEY,
+                View TEXT,
+                Image BLOB,
+                Certainty TEXT
+            )
+        ''')
+        table.commit()
+        table.close()
         
     def uuid_generator(self):
         """
