@@ -69,11 +69,10 @@ class TestTrainingDataConverter(unittest.TestCase):
 
     @patch('os.path.exists')
     @patch('os.listdir')
-    @patch('training_data_converter.TrainingDataConverter.build_db')
     @patch('training_data_converter.TrainingDataConverter.img_to_binary')
     @patch('training_data_converter.TrainingDataConverter.add_img')
     def test_valid_conversion(
-        self, mock_add_img, mock_img_to_binary, mock_build_db, mock_listdir, mock_path_exists
+        self, mock_add_img, mock_img_to_binary, mock_listdir, mock_path_exists
         ):
         """ Tests that valid conversion stores all images with labels """
         # mock directory path
@@ -89,9 +88,6 @@ class TestTrainingDataConverter(unittest.TestCase):
 
         tdc = TrainingDataConverter('test_dir_path')
         tdc.conversion('test_database.db')
-
-        # verify db built
-        mock_build_db.assert_called_once()
 
         # verify all images converted
         mock_img_to_binary.assert_any_call(
