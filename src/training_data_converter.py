@@ -52,12 +52,12 @@ class TrainingDataConverter:
             # ensure array contains correct data
             if len(image_data) != 4:
                 raise ValueError("image_data invalid, needs: [genus, species, unique_id, view]")
-                
+
             cursor.execute('''
             INSERT INTO TrainingData (Genus, Species, UniqueID, View, Image) 
             VALUES (?, ?, ?, ?, ?)
             ''', image_data + [image_binary,])
-            
+
             table.commit()
             print(f"Inserted Image UniqueID: {image_data[2]}")
         except sqlite3.IntegrityError:
@@ -82,7 +82,7 @@ class TrainingDataConverter:
             # loop through image files
             if filename.lower().endswith(('png', 'jpg', 'jpeg', 'bmp', 'gif')):
                 file_path = os.path.join(self.dir_path, filename)
-                name_parts = os.path.splitext(filename)[0].split('_')
+                name_parts = os.path.splitext(filename)[0].split('_') # placeholder parsing
                 if len(name_parts) >= 4:
                     image_data = name_parts[:4]
                     image_binary = self.img_to_binary(file_path)

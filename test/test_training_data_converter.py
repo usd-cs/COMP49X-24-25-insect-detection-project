@@ -40,6 +40,7 @@ class TestTrainingDataConverter(unittest.TestCase):
 
     @patch('sqlite3.connect')
     def test_add_img_success(self, mock_connect):
+        """ Tests the image is successfully added to database with proper format """
         conn = MagicMock()
         cursor = MagicMock()
         mock_connect.return_value = conn
@@ -71,7 +72,10 @@ class TestTrainingDataConverter(unittest.TestCase):
     @patch('training_data_converter.TrainingDataConverter.build_db')
     @patch('training_data_converter.TrainingDataConverter.img_to_binary')
     @patch('training_data_converter.TrainingDataConverter.add_img')
-    def test_valid_conversion(self, mock_add_img, mock_img_to_binary, mock_build_db, mock_listdir, mock_path_exists):
+    def test_valid_conversion(
+        self, mock_add_img, mock_img_to_binary, mock_build_db, mock_listdir, mock_path_exists
+        ):
+        """ Tests that valid conversion stores all images with labels """
         # mock directory path
         mock_path_exists.return_value = True
 
@@ -90,8 +94,12 @@ class TestTrainingDataConverter(unittest.TestCase):
         mock_build_db.assert_called_once()
 
         # verify all images converted
-        mock_img_to_binary.assert_any_call(os.path.join('test_dir_path', 'genus_species_123_view1.png'))
-        mock_img_to_binary.assert_any_call(os.path.join('test_dir_path', 'genus_species_124_view2.jpg'))
+        mock_img_to_binary.assert_any_call(
+            os.path.join('test_dir_path', 'genus_species_123_view1.png')
+            )
+        mock_img_to_binary.assert_any_call(
+            os.path.join('test_dir_path', 'genus_species_124_view2.jpg')
+            )
 
         mock_add_img.assert_has_calls([
             call(['genus', 'species', '123', 'view1'], b'binary_data'),
@@ -100,6 +108,7 @@ class TestTrainingDataConverter(unittest.TestCase):
 
     @patch('os.path.exists')
     def test_conversion_without_directory(self, mock_path_exists):
+        """ Tests that function prints that directory doesn't exist if true """
         # mock that directory doesn't exist
         mock_path_exists.return_value = False
 
@@ -118,6 +127,7 @@ class TestTrainingDataConverter(unittest.TestCase):
     @patch('os.path.exists')
     @patch('os.listdir')
     def test_conversion_with_invalid_file(self, mock_listdir, mock_path_exists):
+        """ Tests that function prints that file is invalid if true """
         mock_path_exists.return_value = True
         mock_listdir.return_value = ['invalid.png']
 
