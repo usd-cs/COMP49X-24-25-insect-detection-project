@@ -41,23 +41,29 @@ class TrainingDataConverter:
         table.commit()
         table.close()
 
-    def add_img(self, genus, species, unique_id, view, image_binary):
+    def add_img(self, image_data, image_binary):
         """
-        Inserts individual image as record in database
+        Inserts individual image as record in database.
         Returns: None
         """
         table = sqlite3.connect(self.db)
         cursor = table.cursor()
         try:
+            # ensure array contains correct data
+            if len(image_data) != 4:
+                raise ValueError("image_data invalid, needs: [genus, species, unique_id, view]")
+                
             cursor.execute('''
             INSERT INTO TrainingData (Genus, Species, UniqueID, View, Image) 
             VALUES (?, ?, ?, ?, ?)
-            ''', (genus, species, unique_id, view, image_binary))
+            ''', image_data + [image_binary,])
+            
             table.commit()
-            print(f"Inserted Image UniqueID: {unique_id}")
+            print(f"Inserted Image UniqueID: {image_data[2]}")
         except sqlite3.IntegrityError:
-            print(f"Image labeled, UniqueID {unique_id}, already exists.")
-        table.close()
+            print(f"Image labeled, UniqueID {image_data[2]}, already exists.")
+        finally:
+            table.close()
 
     def conversion(self, db_name):
         """
@@ -69,7 +75,7 @@ class TrainingDataConverter:
         if not os.path.exists(self.dir_path):
             print(f"Directory, {self.dir_path}, does not exist.")
             return
-        
+
         self.build_db()
 
         for filename in os.listdir(self.dir_path):
@@ -78,8 +84,8 @@ class TrainingDataConverter:
                 file_path = os.path.join(self.dir_path, filename)
                 name_parts = os.path.splitext(filename)[0].split('_')
                 if len(name_parts) >= 4:
-                    genus, species, unique_id, view = name_parts[:4]
+                    image_data = name_parts[:4]
                     image_binary = self.img_to_binary(file_path)
-                    self.add_img(genus, species, unique_id, view, image_binary)
+                    self.add_img(image_data, image_binary)
                 else:
                     print(f"File, {filename}, has invalid naming format.")

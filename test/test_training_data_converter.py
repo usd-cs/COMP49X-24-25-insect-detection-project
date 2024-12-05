@@ -49,20 +49,17 @@ class TestTrainingDataConverter(unittest.TestCase):
         tdc.db = 'test_database.db'
 
         # mock parameters
-        genus = 'TestGenus'
-        species = 'TestSpecies'
-        unique_id = '12345'
-        view = 'test_view'
+        data = ['TestGenus', 'TestSpecies', '12345', 'test_view']
         image_binary = b'test_binary_data'
 
-        tdc.add_img(genus, species, unique_id, view, image_binary)
+        tdc.add_img(data, image_binary)
 
         # check that img is added to database
         cursor.execute.assert_called_once_with(
             '''
             INSERT INTO TrainingData (Genus, Species, UniqueID, View, Image) 
             VALUES (?, ?, ?, ?, ?)
-            ''', (genus, species, unique_id, view, image_binary)
+            ''', data + [image_binary,]
         )
 
         # check for committing and closing db
@@ -97,8 +94,8 @@ class TestTrainingDataConverter(unittest.TestCase):
         mock_img_to_binary.assert_any_call(os.path.join('test_dir_path', 'genus_species_124_view2.jpg'))
 
         mock_add_img.assert_has_calls([
-            call('genus', 'species', '123', 'view1', b'binary_data'),
-            call('genus', 'species', '124', 'view2', b'binary_data')
+            call(['genus', 'species', '123', 'view1'], b'binary_data'),
+            call(['genus', 'species', '124', 'view2'], b'binary_data')
         ])
 
     @patch('os.path.exists')
