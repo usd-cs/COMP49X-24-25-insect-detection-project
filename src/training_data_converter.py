@@ -89,3 +89,9 @@ class TrainingDataConverter:
                     self.add_img(image_data, image_binary)
                 else:
                     print(f"File, {filename}, has invalid naming format.")
+
+if __name__ == "__main__":
+    dir_path = input("Please input the file path of the data set directory: ")
+    tdc = TrainingDataConverter(dir_path)
+    tdc.conversion("training.db")
+    print("Process Completed")
