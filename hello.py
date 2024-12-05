@@ -1,2 +1,0 @@
-""" Docstring """
-print("Hello")
