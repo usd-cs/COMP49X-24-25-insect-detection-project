@@ -25,4 +25,24 @@ class DatabaseReader:
         self.dataframe = self.load_data()
 
     def load_data(self):
-        pass
+        """
+        Loads data from the database using the provided query. If database is invalid or empty,
+        this method returns an empty DataFrame.
+        
+        Returns: 
+            pd.DataFrame: the queried data from the SQLite database as a Pandas DataFrame.
+        """
+        try:
+            # connect to database specifiec by database instance
+            with sqlite3.connect(self.database) as connection:
+                # return DataFrame object
+                return pd.read_sql_query(self.query, connection)
+        except (sqlite3.DatabaseError, pd.io.sql.DatabaseError) as e:
+            # if error is raised, then print error and return empty DataFrame
+            print(f"Error reading database: {e}")
+            return pd.DataFrame()
+        
+if __name__ == "__main__":
+    database = input("Please input the file path of the SQLite database: ")
+    reader = DatabaseReader(database)
+    print("Process Completed")
