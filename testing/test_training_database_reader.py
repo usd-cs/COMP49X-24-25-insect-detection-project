@@ -1,7 +1,8 @@
-import unittest
-import sqlite3
-import sys
+""" test_training_database_reader.py """
 import os
+import sys
+import sqlite3
+import unittest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from training_database_reader import DatabaseReader
 

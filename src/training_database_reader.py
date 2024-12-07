@@ -1,8 +1,8 @@
 """ training_database_reader.py """
-import sqlite3
-import pandas as pd
 import os
 import sys
+import sqlite3
+import pandas as pd
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 class DatabaseReader:
@@ -41,7 +41,7 @@ class DatabaseReader:
             # if error is raised, then print error and return empty DataFrame
             print(f"Error reading database: {e}")
             return pd.DataFrame()
-        
+
 if __name__ == "__main__":
     database = input("Please input the file path of the SQLite database: ")
     reader = DatabaseReader(database)
