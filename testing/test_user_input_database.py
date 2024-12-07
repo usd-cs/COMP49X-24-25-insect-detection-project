@@ -16,7 +16,7 @@ class test_user_input_database(unittest.TestCase):
         """
         Test proper return and format of uuid
         """
-        db = user_input_database()
+        db = user_input_database('')
         generated = db.uuid_generator()
         try:
             # Try parsing the UUID to ensure it's valid
@@ -30,13 +30,39 @@ class test_user_input_database(unittest.TestCase):
         """
         Test proper uniqueness of uuid
         """
-        db = user_input_database()
+        db = user_input_database('')
         uuids = {db.uuid_generator() for _ in range(1000)}  # Generate 1000 UUIDs
         assert len(uuids) == 1000, "UUIDs are not unique"
         print("Test passed: UUIDs are unique")
 
-    def test_add_image(self):
-        pass
+    @patch('sqlite3.connect')
+    def test_add_image(self, mock_connect):
+        """ Tests the image is successfully added to database with proper format """
+        conn = MagicMock()
+        cursor = MagicMock()
+        mock_connect.return_value = conn
+        conn.cursor.return_value = cursor
+
+        tdc = user_input_database('')
+        tdc.user_input_db = 'test_database.db'
+
+        # mock parameters
+        data = ['TestID', 'TestGenus', 'TestSpecies', '12345', 'test_view', 'test_certainty']
+        image_binary = b'test_binary_data'
+
+        tdc.add_image(data, image_binary)
+
+        # check that img is added to database
+        cursor.execute.assert_called_once_with(
+            '''
+            INSERT INTO TrainingData (UserID, Genus, Species, UniqueID, View, Certainty, Image) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', data + [image_binary]
+        )
+
+        # check for committing and closing db
+        conn.commit.assert_called_once()
+        conn.close.assert_called_once()
 
     def test_export_dbase(self):
         pass
@@ -48,8 +74,8 @@ class test_user_input_database(unittest.TestCase):
         cursor = MagicMock()
         mock_connect.return_value = conn
         conn.cursor.return_value = cursor
-        tdc = user_input_database()
-        tdc.db = 'test_database.db'
+        tdc = user_input_database('')
+        tdc.user_input_db = 'test_database.db'
         tdc.build_user_db()
         mock_connect.assert_called_once_with('test_database.db')
         cursor.execute.assert_called_once()
