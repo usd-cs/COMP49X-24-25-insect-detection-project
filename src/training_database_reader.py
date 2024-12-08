@@ -38,10 +38,9 @@ class DatabaseReader:
             if self.connection:
                 # use the provided connection
                 return pd.read_sql_query(self.query, self.connection)
-            else:
-                # Create a new connection if none is provided
-                with sqlite3.connect(self.database) as conn:
-                    return pd.read_sql_query(self.query, conn)
+            # create a new connection if none is provided
+            with sqlite3.connect(self.database) as conn:
+                return pd.read_sql_query(self.query, conn)
         except (sqlite3.DatabaseError, pd.io.sql.DatabaseError) as e:
             # if error is raised, then print error and return empty DataFrame
             print(f"Error reading database: {e}")
