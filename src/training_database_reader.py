@@ -49,6 +49,6 @@ class DatabaseReader:
         return self.dataframe
 
 if __name__ == "__main__":
-    database = input("Please input the file path of the SQLite database: ")
-    reader = DatabaseReader(database)
+    db_path = input("Please input the file path of the SQLite database: ")
+    reader = DatabaseReader(db_path)
     print("Process Completed")
