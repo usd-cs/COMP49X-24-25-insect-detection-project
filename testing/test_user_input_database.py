@@ -73,7 +73,7 @@ class TestUserInputDatabase(unittest.TestCase):
         cursor = MagicMock()
         mock_connect.return_value = conn
         conn.cursor.return_value = cursor
-        tdc = UserInputDatabase('')
+        UserInputDatabase('')
 
         mock_connect.assert_called_once_with('user_input_database.db')
         cursor.execute.assert_called_once()
