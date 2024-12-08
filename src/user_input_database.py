@@ -8,13 +8,34 @@ import uuid
 
 class user_input_database:
 
-    def __init__(self, dataset_dir_path):
+    def __init__(self, dataset_dir_path, backup_file = None):
         """
         Sets up the database when the class is called. Creates an empty dbase 
         if no input, initializes based on the previous version if given an input
         """
         self.dir_path = dataset_dir_path
         self.user_input_db = 'user_input_database.db'
+
+        #if no data exists on startup as given by input, initialize empty db
+        if backup_file == None:
+            self.build_user_db()
+
+        #initialize db via file contents if given a backup
+        else:
+            conn = sqlite3.connect(self.user_input_db)
+            cursor = conn.cursor()
+
+            with open(backup_file, "r") as file:
+                sql_contents = file.read()
+
+            try:
+                cursor.executescript(sql_contents)
+            except sqlite3.Error as e:
+                print(f"An error occured: {e}")
+            
+            conn.commit()
+            conn.close()
+
 
     def img_to_binary(self, image_path):
         """
@@ -62,10 +83,11 @@ class user_input_database:
         table = sqlite3.connect(self.user_input_db)
         cursor = table.cursor()
         try:
-            # ensure array contains correct data
+            # ensure array contains correct amount of data
             if len(image_data) != 6:
                 raise ValueError("image_data invalid, needs: [genus, species, unique_id, view]")
 
+            #inserts data into the db
             cursor.execute('''
             INSERT INTO TrainingData (UserID, Genus, Species, UniqueID, View, Certainty, Image) 
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -73,14 +95,23 @@ class user_input_database:
 
             table.commit()
             print(f"Inserted Image UniqueID: {image_data[3]}")
+
+        #Check in case there is a duplicate uuid
         except sqlite3.IntegrityError:
             print(f"Image labeled, UniqueID {image_data[3]}, already exists.")
         finally:
             table.close()
 
-    def export_dbase(self, filename):
+    def export_dbase(self, filename = "user_input_db_backup.sql"):
         """
         Exports the dbase to be stored when called
         Returns: None
         """
+        conn = sqlite3.connect(self.user_input_db)
+
+        with open(filename, "w") as file:
+            for line in conn.iterdump():
+                file.write(f"{line}\n")
+        
+        conn.close()
 

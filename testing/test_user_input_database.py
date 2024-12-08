@@ -44,7 +44,7 @@ class test_user_input_database(unittest.TestCase):
         conn.cursor.return_value = cursor
 
         tdc = user_input_database('')
-        tdc.user_input_db = 'test_database.db'
+        
 
         # mock parameters
         data = ['TestID', 'TestGenus', 'TestSpecies', '12345', 'test_view', 'test_certainty']
@@ -53,7 +53,7 @@ class test_user_input_database(unittest.TestCase):
         tdc.add_image(data, image_binary)
 
         # check that img is added to database
-        cursor.execute.assert_called_once_with(
+        cursor.execute.assert_called_with(
             '''
             INSERT INTO TrainingData (UserID, Genus, Species, UniqueID, View, Certainty, Image) 
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -61,11 +61,9 @@ class test_user_input_database(unittest.TestCase):
         )
 
         # check for committing and closing db
-        conn.commit.assert_called_once()
-        conn.close.assert_called_once()
+        conn.commit.assert_called()
+        conn.close.assert_called()
 
-    def test_export_dbase(self):
-        pass
 
     @patch('sqlite3.connect')
     def test_init(self, mock_connect):
@@ -75,9 +73,8 @@ class test_user_input_database(unittest.TestCase):
         mock_connect.return_value = conn
         conn.cursor.return_value = cursor
         tdc = user_input_database('')
-        tdc.user_input_db = 'test_database.db'
-        tdc.build_user_db()
-        mock_connect.assert_called_once_with('test_database.db')
+        
+        mock_connect.assert_called_once_with('user_input_database.db')
         cursor.execute.assert_called_once()
         conn.commit.assert_called_once()
         conn.close.assert_called_once()
