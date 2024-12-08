@@ -9,16 +9,18 @@ class DatabaseReader:
     """
     Reads from SQLite database, and creates a pandas dataframe
     """
-    def __init__(self, database, table="TrainingData", query=None):
+    def __init__(self, database, connection=None, table="TrainingData", query=None):
         """
         Initialize DatabaseReader and loads data into a Pandas DataFrame. 
         
         Arguements:
             database (str): path to the SQLite database file.
+            connection (sqlite3.Connection): shared SQLite connection(this is optional).
             table (str): name of the table in the database to query.
             query (str): SQL query to execute(this is optional).
         """
         self.database = database
+        self.connection = connection
         self.table = table
         # if query is specified, set it to the specified, else set to default query if query=None
         self.query = query or f"SELECT Genus, Species, UniqueID, View FROM {self.table}"
@@ -33,10 +35,13 @@ class DatabaseReader:
             pd.DataFrame: the queried data from the SQLite database as a Pandas DataFrame.
         """
         try:
-            # connect to database specifiec by database instance
-            with sqlite3.connect(self.database, uri=True) as connection:
-                # return DataFrame object
-                return pd.read_sql_query(self.query, connection)
+            if self.connection:
+                # use the provided connection
+                return pd.read_sql_query(self.query, self.connection)
+            else:
+                # Create a new connection if none is provided
+                with sqlite3.connect(self.database) as conn:
+                    return pd.read_sql_query(self.query, conn)
         except (sqlite3.DatabaseError, pd.io.sql.DatabaseError) as e:
             # if error is raised, then print error and return empty DataFrame
             print(f"Error reading database: {e}")
