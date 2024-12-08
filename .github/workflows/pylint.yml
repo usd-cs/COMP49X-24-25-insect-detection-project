@@ -17,8 +17,15 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylint
-    - name: Analysing the code with pylint
+        pip install pandas pylint
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Analyse the code with pylint
       run: |
-        pylint --disable=C0413 $(git ls-files '*.py')
-
+        # Explicitly invoke pylint with python -m
+        python -m pylint --disable=C0413 $(git ls-files '*.py')
+    - name: Autoformat and fix linting issues
+      run: |
+        # Autoformat code with Black and sort imports with isort
+        pip install black isort
+        black .
+        isort .
