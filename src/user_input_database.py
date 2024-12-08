@@ -6,9 +6,13 @@ import sqlite3
 import uuid
 
 
-class user_input_database:
+class UserInputDatabase:
+    """
+    Creates and manages the user input database. This database has two extra fields which are not
+    needed in the training database. This database is also separate from the training database
+    """
 
-    def __init__(self, dataset_dir_path, backup_file = None):
+    def __init__(self, dataset_dir_path, backup_file=None):
         """
         Sets up the database when the class is called. Creates an empty dbase 
         if no input, initializes based on the previous version if given an input
@@ -25,14 +29,14 @@ class user_input_database:
             conn = sqlite3.connect(self.user_input_db)
             cursor = conn.cursor()
 
-            with open(backup_file, "r") as file:
+            with open(backup_file, "r", encoding="utf-8") as file:
                 sql_contents = file.read()
 
             try:
                 cursor.executescript(sql_contents)
             except sqlite3.Error as e:
                 print(f"An error occured: {e}")
-            
+
             conn.commit()
             conn.close()
 
@@ -67,14 +71,14 @@ class user_input_database:
         ''')
         table.commit()
         table.close()
-        
+
     def uuid_generator(self):
         """
         generates uuids for new images in the database
         Returns: new uuid
         """
         return uuid.uuid4()
-    
+
     def add_image(self, image_data, image_binary):
         """
         Adds a new input image to the database
@@ -109,9 +113,8 @@ class user_input_database:
         """
         conn = sqlite3.connect(self.user_input_db)
 
-        with open(filename, "w") as file:
+        with open(filename, "w", encoding="utf-8") as file:
             for line in conn.iterdump():
                 file.write(f"{line}\n")
-        
-        conn.close()
 
+        conn.close()
