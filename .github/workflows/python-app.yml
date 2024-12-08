@@ -14,7 +14,6 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -30,18 +29,20 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest numpy torchvision torch tensorflow pandas pylint
+        python -m pip install pandas --force-reinstall
+        pip install flake8 pytest numpy torchvision torch tensorflow pylint
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Verify installed packages
+      run: |
+        python -m pip freeze
     - name: Autoformat and sort imports
       run: |
         pip install black isort
-        black .  # Formats code to follow PEP8
-        isort .  # Sorts imports to follow convention
+        black .
+        isort .
     - name: Lint with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Lint with pylint
       run: |
