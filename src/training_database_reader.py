@@ -34,7 +34,7 @@ class DatabaseReader:
         """
         try:
             # connect to database specifiec by database instance
-            with sqlite3.connect(self.database) as connection:
+            with sqlite3.connect(self.database, uri=True) as connection:
                 # return DataFrame object
                 return pd.read_sql_query(self.query, connection)
         except (sqlite3.DatabaseError, pd.io.sql.DatabaseError) as e:
