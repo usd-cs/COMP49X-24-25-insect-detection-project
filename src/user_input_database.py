@@ -21,7 +21,7 @@ class UserInputDatabase:
         self.user_input_db = 'user_input_database.db'
 
         #if no data exists on startup as given by input, initialize empty db
-        if backup_file == None:
+        if backup_file is None:
             self.build_user_db()
 
         #initialize db via file contents if given a backup
