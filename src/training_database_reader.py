@@ -41,13 +41,13 @@ class DatabaseReader:
             # if error is raised, then print error and return empty DataFrame
             print(f"Error reading database: {e}")
             return pd.DataFrame()
-        
+
     def get_dataframe(self):
         """
         Simple getter method that returns the objects DataFrame
         """
         return self.dataframe
-        
+
 if __name__ == "__main__":
     database = input("Please input the file path of the SQLite database: ")
     reader = DatabaseReader(database)

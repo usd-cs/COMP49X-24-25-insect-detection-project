@@ -84,7 +84,7 @@ class TestDatabaseReader(unittest.TestCase):
         """
         Test handling of reading from a non-existent table.
         """
-        # create DatabaseReader object with an invalid table name 
+        # create DatabaseReader object with an invalid table name
         reader = DatabaseReader(self.test_db, table="InvalidTable")
         df = reader.dataframe
 
