@@ -17,8 +17,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylint
-    - name: Analysing the code with pylint
+        pip install pandas pylint
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Analyse the code with pylint
       run: |
-        pylint --disable=C0413 $(git ls-files '*.py')
-
+        python -m pylint --disable=C0413 $(git ls-files '*.py')
