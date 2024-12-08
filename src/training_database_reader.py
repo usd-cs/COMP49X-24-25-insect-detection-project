@@ -41,7 +41,7 @@ class DatabaseReader:
             # if error is raised, then print error and return empty DataFrame
             print(f"Error reading database: {e}")
             return pd.DataFrame()
-
+        
 if __name__ == "__main__":
     database = input("Please input the file path of the SQLite database: ")
     reader = DatabaseReader(database)
