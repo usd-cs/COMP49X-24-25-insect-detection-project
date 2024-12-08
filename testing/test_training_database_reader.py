@@ -13,17 +13,18 @@ class TestDatabaseReader(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """
-        Mock a temporary SQLite database for testing DatabaseReader class
+        Create an in-memory SQLite database for testing DatabaseReader class.
         """
-        cls.test_db = "test_database.db"
+        # create an in-memory database with shared cache mode
+        cls.test_db = "file::memory:?mode=memory&cache=shared"
 
         # connect to the database
-        connection = sqlite3.connect(cls.test_db)
+        connection = sqlite3.connect(cls.test_db, uri=True)
         cursor = connection.cursor()
 
-        # initialize the test table with the same expected format
+        # initialize the test table
         cursor.execute("""
-            CREATE TABLE TrainingData (
+            CREATE TABLE IF NOT EXISTS TrainingData (
                 Genus TEXT,
                 Species TEXT,
                 UniqueID TEXT PRIMARY KEY,
@@ -37,21 +38,15 @@ class TestDatabaseReader(unittest.TestCase):
             ("GenusB", "SpeciesB", "ID2", "View2"),
             ("GenusC", "SpeciesC", "ID3", "View3"),
         ]
+        # ensure table is empty before inserting rows
+        cursor.execute("DELETE FROM TrainingData")
         cursor.executemany("""
-            INSERT INTO TrainingData (Genus, Species, UniqueID, View)
+            INSERT OR IGNORE INTO TrainingData (Genus, Species, UniqueID, View)
             VALUES (?, ?, ?, ?)
         """, sample_data)
 
         connection.commit()
         connection.close()
-
-    @classmethod
-    def tearDownClass(cls):
-        """
-        Clean up by removing the temporary database.
-        """
-        if os.path.exists(cls.test_db):
-            os.remove(cls.test_db)
 
     def test_load_valid_data(self):
         """
