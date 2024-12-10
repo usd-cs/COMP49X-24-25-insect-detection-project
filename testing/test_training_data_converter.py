@@ -80,8 +80,8 @@ class TestTrainingDataConverter(unittest.TestCase):
 
         #mock directory files
         mock_listdir.return_value = [
-            'genus_species_123_view1.png', 
-            'genus_species_124_view2.jpg'
+            'genus species 123 5XEXT view1.png', 
+            'genus species 124 5XEXT view2.jpg'
         ]
         # mock binary data conversion
         mock_img_to_binary.return_value = b'binary_data'
@@ -91,15 +91,15 @@ class TestTrainingDataConverter(unittest.TestCase):
 
         # verify all images converted
         mock_img_to_binary.assert_any_call(
-            os.path.join('test_dir_path', 'genus_species_123_view1.png')
+            os.path.join('test_dir_path', 'genus species 123 5XEXT view1.png')
             )
         mock_img_to_binary.assert_any_call(
-            os.path.join('test_dir_path', 'genus_species_124_view2.jpg')
+            os.path.join('test_dir_path', 'genus species 124 5XEXT view2.jpg')
             )
 
         mock_add_img.assert_has_calls([
-            call(['genus', 'species', '123', 'view1'], b'binary_data'),
-            call(['genus', 'species', '124', 'view2'], b'binary_data')
+            call(('genus', 'species', '123', 'view1'), b'binary_data'),
+            call(('genus', 'species', '124', 'view2'), b'binary_data')
         ])
 
     @patch('os.path.exists')
