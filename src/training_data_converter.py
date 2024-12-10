@@ -64,7 +64,7 @@ class TrainingDataConverter:
             print(f"Image labeled, UniqueID {image_data[2]}, already exists.")
         finally:
             table.close()
-    
+
     def parse_name(self, name: str):
         """
         Parses file name into column values
