@@ -56,7 +56,7 @@ class TrainingDataConverter:
             cursor.execute('''
             INSERT INTO TrainingData (Genus, Species, UniqueID, View, Image) 
             VALUES (?, ?, ?, ?, ?)
-            ''', image_data + [image_binary,])
+            ''', image_data + (image_binary,))
 
             table.commit()
             print(f"Inserted Image UniqueID: {image_data[2]}")

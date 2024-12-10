@@ -50,7 +50,7 @@ class TestTrainingDataConverter(unittest.TestCase):
         tdc.db = 'test_database.db'
 
         # mock parameters
-        data = ['TestGenus', 'TestSpecies', '12345', 'test_view']
+        data = ('TestGenus', 'TestSpecies', '12345', 'test_view')
         image_binary = b'test_binary_data'
 
         tdc.add_img(data, image_binary)
@@ -60,7 +60,7 @@ class TestTrainingDataConverter(unittest.TestCase):
             '''
             INSERT INTO TrainingData (Genus, Species, UniqueID, View, Image) 
             VALUES (?, ?, ?, ?, ?)
-            ''', data + [image_binary,]
+            ''', data + (image_binary,)
         )
 
         # check for committing and closing db
