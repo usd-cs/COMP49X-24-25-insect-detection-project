@@ -65,6 +65,25 @@ class TrainingDataConverter:
         finally:
             table.close()
 
+    def parse_name(self, name: str):
+        """
+        Parses file name into column values
+        Returns: Tuple (Genus, Species, UniqueID, View)
+        """
+        name_parts = name.split(' ')
+        if len(name_parts) < 5:
+            return None
+        cur_index= len(name_parts)-1
+        view = name_parts[cur_index][:name_parts[cur_index].find('.')]
+        cur_index -= 2
+        unique_id = name_parts[cur_index]
+        cur_index -= 1
+        species = name_parts[cur_index]
+        cur_index -= 1
+        genus = name_parts[cur_index][name_parts[cur_index].find('/')+1:]
+
+        return (genus, species, unique_id, view)
+
     def conversion(self, db_name):
         """
         Main function handling building database then iterating through images and adding them
@@ -82,8 +101,10 @@ class TrainingDataConverter:
             # loop through image files
             if filename.lower().endswith(('png', 'jpg', 'jpeg', 'bmp', 'gif')):
                 file_path = os.path.join(self.dir_path, filename)
-                name_parts = os.path.splitext(filename)[0].split('_') # placeholder parsing
-                if len(name_parts) >= 4:
+
+                name_parts = self.parse_name(file_path) # placeholder parsing
+
+                if name_parts:
                     image_data = name_parts[:4]
                     image_binary = self.img_to_binary(file_path)
                     self.add_img(image_data, image_binary)
