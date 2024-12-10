@@ -138,5 +138,18 @@ class TestTrainingDataConverter(unittest.TestCase):
         # Verify the invalid naming format message is printed
         self.assertIn('File, invalid.png, has invalid naming format.', captured_output.getvalue())
 
+    def test_valid_name(self):
+        test_name = "data/Genus Species 12345 5XEXT side.jpg"
+        expected = ("Genus", "Species", "12345", "side")
+        tdc = TrainingDataConverter("")
+        result = tdc.parse_name(test_name)
+        self.assertEqual(result, expected)
+
+    def test_invalid_name_too_short(self):
+        test_name = "data/Genus Species"
+        tdc = TrainingDataConverter("")
+        result = tdc.parse_name(test_name)
+        self.assertIsNone(result)
+
 if __name__ == '__main__':
     unittest.main()
