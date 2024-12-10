@@ -139,6 +139,7 @@ class TestTrainingDataConverter(unittest.TestCase):
         self.assertIn('File, invalid.png, has invalid naming format.', captured_output.getvalue())
 
     def test_valid_name(self):
+        """ Tests that parsing returns proper results with valid input """
         test_name = "data/Genus Species 12345 5XEXT side.jpg"
         expected = ("Genus", "Species", "12345", "side")
         tdc = TrainingDataConverter("")
@@ -146,6 +147,7 @@ class TestTrainingDataConverter(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_invalid_name_too_short(self):
+        """ Tests that parsing function returns None when given invalid input """
         test_name = "data/Genus Species"
         tdc = TrainingDataConverter("")
         result = tdc.parse_name(test_name)
