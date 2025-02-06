@@ -17,4 +17,4 @@ COPY . .
 ENV NAME InsectDetection
 
 # Run app.py when the container launches
-CMD ["python", "simulator.py"]
+CMD ["python", "src/simulator.py"]
