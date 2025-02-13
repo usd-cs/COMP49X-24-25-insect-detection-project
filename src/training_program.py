@@ -23,7 +23,7 @@ class TrainingProgram:
         
         Args: view_type (string): View type column value (e.g., 'CAUD', 'DORS', 'FRON', 'LATE')
        
-        Return: pd.DataFrame: Subset of the database if column value valid, otherwise empty dataframe
+        Return: pd.DataFrame: Subset of database if column value valid, otherwise empty dataframe
         """
         return dataframe[dataframe["View"] == view_type] if not dataframe.empty else pd.DataFrame()
 
