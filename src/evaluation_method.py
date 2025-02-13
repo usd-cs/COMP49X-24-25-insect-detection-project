@@ -14,8 +14,9 @@ class EvaluationMethod:
         Load the trained models for usage and have the class prepared for user input.
         During testing phases, determining which evaluation method defined below will be chosen here as well
         """
+        self.use_method = 1     #1 = heaviest, 2 = weighted, 3 = stacked
+
         #INTEGRATION: call method to load the models here once task is completed
-        pass
 
     def evaluate_image(self, late=None, dors=None, fron=None, caud=None):
         """
@@ -27,16 +28,16 @@ class EvaluationMethod:
         """
         pass
 
-    def heaviest_is_best(self):
+    def heaviest_is_best(self, fron_cert, dors_cert, late_cert, caud_cert):
         """
         Takes the certainties of the models and returns the most 
-        certain model
+        certain model's specification
 
-        Returns: trained model
+        Returns: specifies most certain model
         """
         pass
 
-    def weighted_eval(self):
+    def weighted_eval(self, fron_cert, dors_cert, late_cert, caud_cert):
         """
         Takes the classifications of the models and combines them based on programmer determined
         weights to create a single output
@@ -50,6 +51,16 @@ class EvaluationMethod:
         Takes the classifications of the models and runs them through another model that determines
         the overall output
 
+        REACH CASE 
+
         Returns: classification of combined models
+        """
+        pass
+
+    def transform_input(self, input):
+        """
+        Takes the app side's image and transforms it to fit our model
+
+        Returns: transformed image for classification
         """
         pass
