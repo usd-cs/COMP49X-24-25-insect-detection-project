@@ -1,13 +1,13 @@
 """ training_program.py """
 import os
 import sys
+from io import BytesIO
 import pandas as pd
 from torchvision import transforms, models
 import torch
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
-from io import BytesIO
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 class TrainingProgram:
@@ -87,13 +87,16 @@ class TrainingProgram:
         return [train_x, test_x, train_y, test_y]
 
     def training_evaluation_caudal(self, num_epochs, train_loader, test_loader):
+        """
+        Code for training algorithm and evaluating model
+        """
         # Model Training
         self.caud_model.train()
          # define loss function, optimization function, and image transformation
         criterion = torch.nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(self.caud_model.parameters(), lr=0.001)
         for epoch in range(num_epochs):
-            runningLoss = 0.0
+            running_loss = 0.0
             for inputs, labels in train_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
 
@@ -108,8 +111,8 @@ class TrainingProgram:
                 loss.backward()
                 optimizer.step()
 
-                runningLoss += loss.item()
-            print(f"Epoch {epoch+1}/{num_epochs}, Loss: {runningLoss/len(train_loader):.4f}")
+                running_loss += loss.item()
+            print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
 
         # evaluate testing machine
         self.caud_model.eval()
@@ -127,13 +130,16 @@ class TrainingProgram:
             print(f"Accuracy: {100 * correct / total:.2f}%")
 
     def training_evaluation_dorsal(self, num_epochs, train_loader, test_loader):
+        """
+        Code for training algorithm and evaluating model
+        """
         # Model Training
         self.dors_model.train()
          # define loss function, optimization function, and image transformation
         criterion = torch.nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(self.dors_model.parameters(), lr=0.001)
         for epoch in range(num_epochs):
-            runningLoss = 0.0
+            running_loss = 0.0
             for inputs, labels in train_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
 
@@ -148,9 +154,9 @@ class TrainingProgram:
                 loss.backward()
                 optimizer.step()
 
-                runningLoss += loss.item()
+                running_loss += loss.item()
 
-                print(f"Epoch {epoch+1}/{num_epochs}, Loss: {runningLoss/len(train_loader):.4f}")
+                print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
 
         # evaluate testing machine
         self.dors_model.eval()
@@ -169,13 +175,16 @@ class TrainingProgram:
             print(f"Accuracy: {100 * correct / total:.2f}%")
 
     def training_evaluation_frontal(self, num_epochs, train_loader, test_loader):
+        """
+        Code for training algorithm and evaluating model
+        """
         # Model Training
         self.fron_model.train()
          # define loss function, optimization function, and image transformation
         criterion = torch.nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(self.fron_model.parameters(), lr=0.001)
         for epoch in range(num_epochs):
-            runningLoss = 0.0
+            running_loss = 0.0
             for inputs, labels in train_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
 
@@ -190,9 +199,9 @@ class TrainingProgram:
                 loss.backward()
                 optimizer.step()
 
-                runningLoss += loss.item()
+                running_loss += loss.item()
 
-            print(f"Epoch {epoch+1}/{num_epochs}, Loss: {runningLoss/len(train_loader):.4f}")
+            print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
 
         # evaluate testing machine
         self.fron_model.eval()
@@ -211,13 +220,16 @@ class TrainingProgram:
             print(f"Accuracy: {100 * correct / total:.2f}%")
 
     def training_evaluation_lateral(self, num_epochs, train_loader, test_loader):
+        """
+        Code for training algorithm and evaluating model
+        """
         # Model Training
         self.late_model.train()
          # define loss function, optimization function, and image transformation
         criterion = torch.nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(self.late_model.parameters(), lr=0.001)
         for epoch in range(num_epochs):
-            runningLoss = 0.0
+            running_loss = 0.0
             for inputs, labels in train_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
 
@@ -232,9 +244,9 @@ class TrainingProgram:
                 loss.backward()
                 optimizer.step()
 
-                runningLoss += loss.item()
+                running_loss += loss.item()
 
-                print(f"Epoch {epoch+1}/{num_epochs}, Loss: {runningLoss/len(train_loader):.4f}")
+                print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
 
         # evaluate testing machine
         self.late_model.eval()
@@ -388,7 +400,7 @@ class TrainingProgram:
 
         return model
 
-    def saveModels(self, caud_filename, dors_filename, 
+    def save_models(self, caud_filename, dors_filename,
                    fron_filename, late_filename, height_filename):
         """
         Saves trained models to their respective files and image height file
