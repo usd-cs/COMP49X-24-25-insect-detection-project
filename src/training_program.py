@@ -149,7 +149,7 @@ class TrainingProgram:
                 optimizer.step()
 
                 runningLoss += loss.item()
-            
+
                 print(f"Epoch {epoch+1}/{num_epochs}, Loss: {runningLoss/len(train_loader):.4f}")
 
         # evaluate testing machine
@@ -164,7 +164,7 @@ class TrainingProgram:
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
-        
+
         if total != 0:
             print(f"Accuracy: {100 * correct / total:.2f}%")
 
@@ -191,7 +191,7 @@ class TrainingProgram:
                 optimizer.step()
 
                 runningLoss += loss.item()
-                
+
             print(f"Epoch {epoch+1}/{num_epochs}, Loss: {runningLoss/len(train_loader):.4f}")
 
         # evaluate testing machine
@@ -206,7 +206,7 @@ class TrainingProgram:
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
-        
+
         if total != 0:
             print(f"Accuracy: {100 * correct / total:.2f}%")
 
@@ -233,7 +233,7 @@ class TrainingProgram:
                 optimizer.step()
 
                 runningLoss += loss.item()
-            
+
                 print(f"Epoch {epoch+1}/{num_epochs}, Loss: {runningLoss/len(train_loader):.4f}")
 
         # evaluate testing machine
@@ -248,7 +248,7 @@ class TrainingProgram:
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
-        
+
         if total != 0:
             print(f"Accuracy: {100 * correct / total:.2f}%")
 
@@ -388,7 +388,8 @@ class TrainingProgram:
 
         return model
 
-    def saveModels(self, caud_filename, dors_filename, fron_filename, late_filename, height_filename):
+    def saveModels(self, caud_filename, dors_filename, 
+                   fron_filename, late_filename, height_filename):
         """
         Saves trained models to their respective files and image height file
         
