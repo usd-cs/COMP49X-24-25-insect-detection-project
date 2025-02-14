@@ -10,6 +10,7 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
+# pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, unspecified-encoding
 class TrainingProgram:
     """
     Reads 4 subsets of pandas database from DatabaseReader, and trains and saves 4 models
