@@ -19,8 +19,10 @@ class TestTrainingProgram(unittest.TestCase):
         """
         # Create a mock DataFrame for testing
         self.mock_dataframe = pd.DataFrame({
-            "Genus": ["GenusA", "GenusB", "GenusC", "GenusD", "GenusE", "GenusF", "GenusG", "GenusH", "GenusI", "GenusJ"],
-            "Species": ["SpeciesA", "SpeciesB", "SpeciesC", "SpeciesD", "SpeciesE", "SpeciesF", "SpeciesG", "SpeciesH", "SpeciesI", "SpeciesJ"],
+            "Genus": ["GenusA", "GenusB", "GenusC", "GenusD", "GenusE",
+                      "GenusF", "GenusG", "GenusH", "GenusI", "GenusJ"],
+            "Species": ["SpeciesA", "SpeciesB", "SpeciesC", "SpeciesD", "SpeciesE",
+                        "SpeciesF", "SpeciesG", "SpeciesH", "SpeciesI", "SpeciesJ"],
             "UniqueID": ["ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8", "ID9", "ID10"],
             "View": ["CAUD", "DORS", "FRON", "LATE", "CAUD", "DORS", "FRON", "LATE", "CAUD", "DORS"]
         })
@@ -82,7 +84,7 @@ class TestTrainingProgram(unittest.TestCase):
     def test_get_train_test_split(self):
         """Test get_train_test_split returns correctly split data"""
         df = self.mock_dataframe[self.mock_dataframe["View"] == "CAUD"]
-        
+
         result = self.training_program.get_train_test_split(df)
         train_x, test_x, train_y, test_y = result
 
@@ -114,10 +116,12 @@ class TestTrainingProgram(unittest.TestCase):
 
         # Mock DataLoader
         mock_loader = MagicMock(spec=DataLoader)
-        mock_loader.__iter__.return_value = iter([(torch.randn(2, 3, 224, 224), torch.tensor([0, 1]))])
+        mock_loader.__iter__.return_value = iter([(torch.randn(2, 3, 224, 224),
+                                                torch.tensor([0, 1]))])
         mock_loader.__len__.return_value = 2  # Mocked DataLoader length
         # Mock train-test split
-        self.training_program.get_train_test_split = MagicMock(return_value=[mock_train_x, mock_test_x, mock_train_y, mock_test_y])
+        self.training_program.get_train_test_split = MagicMock(
+            return_value=[mock_train_x, mock_test_x, mock_train_y, mock_test_y])
         # Mock evaluation function
         self.training_program.training_evaluation_caudal = MagicMock()
         # Run train_caudal
@@ -147,10 +151,12 @@ class TestTrainingProgram(unittest.TestCase):
 
         # Mock DataLoader
         mock_loader = MagicMock(spec=DataLoader)
-        mock_loader.__iter__.return_value = iter([(torch.randn(2, 3, 224, 224), torch.tensor([0, 1]))])
+        mock_loader.__iter__.return_value = iter([(torch.randn(2, 3, 224, 224),
+                                                torch.tensor([0, 1]))])
         mock_loader.__len__.return_value = 2  # Mocked DataLoader length
         # Mock train-test split
-        self.training_program.get_train_test_split = MagicMock(return_value=[mock_train_x, mock_test_x, mock_train_y, mock_test_y])
+        self.training_program.get_train_test_split = MagicMock(
+            return_value=[mock_train_x, mock_test_x, mock_train_y, mock_test_y])
         # Mock evaluation function
         self.training_program.training_evaluation_frontal = MagicMock()
         # Run train_caudal
@@ -180,10 +186,12 @@ class TestTrainingProgram(unittest.TestCase):
 
         # Mock DataLoader
         mock_loader = MagicMock(spec=DataLoader)
-        mock_loader.__iter__.return_value = iter([(torch.randn(2, 3, 224, 224), torch.tensor([0, 1]))])
+        mock_loader.__iter__.return_value = iter([(torch.randn(2, 3, 224, 224),
+                                                torch.tensor([0, 1]))])
         mock_loader.__len__.return_value = 2  # Mocked DataLoader length
         # Mock train-test split
-        self.training_program.get_train_test_split = MagicMock(return_value=[mock_train_x, mock_test_x, mock_train_y, mock_test_y])
+        self.training_program.get_train_test_split = MagicMock(
+            return_value=[mock_train_x, mock_test_x, mock_train_y, mock_test_y])
         # Mock evaluation function
         self.training_program.training_evaluation_dorsal = MagicMock()
         # Run train_caudal
@@ -213,10 +221,12 @@ class TestTrainingProgram(unittest.TestCase):
 
         # Mock DataLoader
         mock_loader = MagicMock(spec=DataLoader)
-        mock_loader.__iter__.return_value = iter([(torch.randn(2, 3, 224, 224), torch.tensor([0, 1]))])
+        mock_loader.__iter__.return_value = iter([(torch.randn(2, 3, 224, 224),
+                                                torch.tensor([0, 1]))])
         mock_loader.__len__.return_value = 2  # Mocked DataLoader length
         # Mock train-test split
-        self.training_program.get_train_test_split = MagicMock(return_value=[mock_train_x, mock_test_x, mock_train_y, mock_test_y])
+        self.training_program.get_train_test_split = MagicMock(
+            return_value=[mock_train_x, mock_test_x, mock_train_y, mock_test_y])
         # Mock evaluation function
         self.training_program.training_evaluation_lateral = MagicMock()
         # Run train_caudal
