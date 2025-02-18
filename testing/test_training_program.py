@@ -233,6 +233,25 @@ class TestTrainingProgram(unittest.TestCase):
         self.training_program.train_lateral(1)
         # Ensure training_evaluation_caudal was called once
         self.training_program.training_evaluation_lateral.assert_called_once()
+    
+    @patch("torch.save")
+    @patch("builtins.open", new_callable=unittest.mock.mock_open)
+    def test_save_models(self, mock_open, mock_torch_save):
+        """ Test that save_models writes to proper files """
+        self.training_program.save_models("caud.pth", "dors.pth", "fron.pth", "late.pth", "height.txt")
+
+        # Verify that height file is written
+        mock_open.assert_called_with(os.path.join("models", "height.txt"), "w")
+        mock_open().write.assert_called_with("224")
+
+        # Verify torch.save is called for each model, ignoring exact state_dict() content
+        expected_calls = [
+            ((unittest.mock.ANY, os.path.join("models", "caud.pth")),),
+            ((unittest.mock.ANY, os.path.join("models", "dors.pth")),),
+            ((unittest.mock.ANY, os.path.join("models", "fron.pth")),),
+            ((unittest.mock.ANY, os.path.join("models", "late.pth")),)
+        ]
+        mock_torch_save.assert_has_calls(expected_calls, any_order=True)
 
 if __name__ == "__main__":
     unittest.main()
