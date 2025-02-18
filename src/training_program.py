@@ -408,6 +408,13 @@ class TrainingProgram:
         
         Returns: None
         """
+
+        caud_filename = os.path.join("models", caud_filename)
+        dors_filename = os.path.join("models", dors_filename)
+        fron_filename = os.path.join("models", fron_filename)
+        late_filename = os.path.join("models", late_filename)
+        height_filename = os.path.join("models", height_filename)
+
         with open(height_filename, "w") as file:
             file.write(str(self.height))
         print(f"Height saved to, {height_filename}.")
