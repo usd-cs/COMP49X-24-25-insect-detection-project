@@ -1,7 +1,5 @@
 """test_evaluation_method.py"""
 import unittest
-import sys
-import os
 import torch
 
 
@@ -18,7 +16,7 @@ class TestEvaluationMethod(unittest.TestCase):
         INTEGRATION TEST ONLY
         
         eval = EvaluationMethod("height_mock.txt")
-        
+
         """
     """def testEvaluateImage(self):
         
@@ -30,27 +28,27 @@ class TestEvaluationMethod(unittest.TestCase):
     """
 
 
-    def testHeaviestIsBest(self):
+    def test_heaviest_is_best(self):
         """test heaviest is best for proper tracking of highest certainty"""
-        eval = EvaluationMethod("height_mock.txt")
+        evaluation = EvaluationMethod("height_mock.txt")
         
-        assert eval.heaviest_is_best(0.1, 0.3, 0.5, 0.4) == 2
-        assert eval.heaviest_is_best(0.1, 0.9, 0.6, 0.32) == 1
+        assert evaluation.heaviest_is_best(0.1, 0.3, 0.5, 0.4) == 2
+        assert evaluation.heaviest_is_best(0.1, 0.9, 0.6, 0.32) == 1
 
-    def testWeightedEval(self):
+    def test_weighted_eval(self):
         """test weighted eval for proper calculation"""
-        eval = EvaluationMethod("height_mock.txt")
+        evaluation = EvaluationMethod("height_mock.txt")
         conf_scores = [0.8, 0.6, 0.9, 0.7]
         species_predictions = [1, 2, 2, 3]
 
-        prediction, score = eval.weighted_eval(conf_scores, species_predictions)
+        prediction, score = evaluation.weighted_eval(conf_scores, species_predictions)
         assert prediction == 2
 
-    def testTransformInput(self):
+    def test_transform_input(self):
         """test transform input for proper image transformation"""
-        eval = EvaluationMethod("height_mock.txt")
-        eval.height = 224
+        evaluation = EvaluationMethod("height_mock.txt")
+        evaluation.height = 224
         fake_input = torch.rand(3, 224, 224)
-        result = eval.transform_input(fake_input)
+        result = evaluation.transform_input(fake_input)
 
         assert result.shape == (1, 3, 224, 224)
