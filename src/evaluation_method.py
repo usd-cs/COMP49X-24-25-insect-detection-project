@@ -34,14 +34,10 @@ class EvaluationMethod:
         its respective model and then run the output of the models through the evaluation method
         and return the classification
 
-        Returns: Classification of input images and confidence score. A return of None, -1 indicates an error
+        Returns: Classification of input images and confidence score. 
+                A return of None, -1 indicates an error
         """
-        #Stores whether an input was given for each view
-        late_in = False
-        dors_in = False
-        fron_in = False
-        caud_in = False
-
+        """
         #define variables outside the if statements so they can be used in other method calls
         late_predicted_species = None
         late_confidence_score = 0
@@ -53,7 +49,6 @@ class EvaluationMethod:
         caud_predicted_species = None
 
         if late:
-            late_in = True
             late_image = self.transform_input(late)
 
             with torch.no_grad():
@@ -67,7 +62,6 @@ class EvaluationMethod:
 
         if dors:
             #mirrors above usage but for the dors angle
-            dors_in = True
             dors_image = self.transform_input(dors)
 
             with torch.no_grad():
@@ -80,7 +74,6 @@ class EvaluationMethod:
 
         if fron:
             #mirrors above usage but for the fron angle
-            fron_in = True
             fron_image = self.transform_input(fron)
 
             with torch.no_grad():
@@ -93,7 +86,6 @@ class EvaluationMethod:
 
         if caud:
             #mirrors above usage but for the caud angle
-            caud_in = True
             caud_image = self.transform_input(caud)
 
             with torch.no_grad():
@@ -105,7 +97,7 @@ class EvaluationMethod:
             caud_predicted_species = predictedIndex.item()
 
         if self.use_method == 1:
-            use_model = self.heaviest_is_best(fron_confidence_score, dors_confidence_score, 
+            use_model = self.heaviest_is_best(fron_confidence_score, dors_confidence_score,
                                               late_confidence_score, caud_confidence_score)
 
             #match uses the index returned from the method to decide which prediction to return
@@ -122,9 +114,9 @@ class EvaluationMethod:
                     return None, -1
 
         elif self.use_method == 2:
-            return self.weighted_eval([fron_confidence_score, dors_confidence_score, 
+            return self.weighted_eval([fron_confidence_score, dors_confidence_score,
                                        late_confidence_score, caud_confidence_score],
-                                      [fron_predicted_species, dors_predicted_species, 
+                                      [fron_predicted_species, dors_predicted_species,
                                        late_predicted_species, caud_predicted_species])
 
         elif self.use_method == 3:
@@ -132,7 +124,7 @@ class EvaluationMethod:
 
         else:
             return None, -1
-
+        """
 
     def heaviest_is_best(self, fron_cert, dors_cert, late_cert, caud_cert):
         """
@@ -168,7 +160,7 @@ class EvaluationMethod:
 
             if species_predictions[i] in species_scores:
                 species_scores[species_predictions[i]] += weighted_score
-            
+
             else:
                 species_scores[species_predictions[i]] = weighted_score
 
@@ -191,7 +183,6 @@ class EvaluationMethod:
 
         Returns: classification of combined models
         """
-        
 
     def transform_input(self, image_input):
         """

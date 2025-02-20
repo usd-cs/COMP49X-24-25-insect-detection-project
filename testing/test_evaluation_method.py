@@ -12,7 +12,6 @@ class TestEvaluationMethod(unittest.TestCase):
 
     """def testInitializer(self):
     
-        test initializer of the class
         INTEGRATION TEST ONLY
         
         eval = EvaluationMethod("height_mock.txt")
@@ -20,7 +19,6 @@ class TestEvaluationMethod(unittest.TestCase):
         """
     """def testEvaluateImage(self):
         
-        test evaluate image method for proper execution
         INTEGRATION TEST ONLY
         
         eval = EvaluationMethod("height_mock.txt")
@@ -31,18 +29,21 @@ class TestEvaluationMethod(unittest.TestCase):
     def test_heaviest_is_best(self):
         """test heaviest is best for proper tracking of highest certainty"""
         evaluation = EvaluationMethod("height_mock.txt")
-        
+
         assert evaluation.heaviest_is_best(0.1, 0.3, 0.5, 0.4) == 2
         assert evaluation.heaviest_is_best(0.1, 0.9, 0.6, 0.32) == 1
 
     def test_weighted_eval(self):
         """test weighted eval for proper calculation"""
         evaluation = EvaluationMethod("height_mock.txt")
+        #must be changed if weights are adjusted in code
+        given_weights = [0.25, 0.25, 0.25, 0.25]
         conf_scores = [0.8, 0.6, 0.9, 0.7]
         species_predictions = [1, 2, 2, 3]
 
         prediction, score = evaluation.weighted_eval(conf_scores, species_predictions)
         assert prediction == 2
+        assert score == given_weights[1] * conf_scores[1] + given_weights[2] * conf_scores[2]
 
     def test_transform_input(self):
         """test transform input for proper image transformation"""
