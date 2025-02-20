@@ -2,6 +2,7 @@
 import unittest
 import sys
 import os
+from unittest.mock import patch, MagicMock, mock_open
 import torch
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from evaluation_method import EvaluationMethod
@@ -30,7 +31,8 @@ class TestEvaluationMethod(unittest.TestCase):
         assert prediction == 2
         assert score == given_weights[1] * conf_scores[1] + given_weights[2] * conf_scores[2]
 
-    def test_transform_input(self):
+    @patch("builtins.open", new_callable=mock_open, read_data="224")
+    def test_transform_input(self, mock_file):
         """test transform input for proper image transformation"""
         evaluation = EvaluationMethod("height_mock.txt")
         evaluation.height = 224
