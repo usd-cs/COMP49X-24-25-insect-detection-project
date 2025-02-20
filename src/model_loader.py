@@ -75,7 +75,6 @@ class ModelLoader:
                 torch.load(weights_file_path, map_location=self.device, weights_only=True))
         except FileNotFoundError:
             print(f"Weights File for {key} Model Does Not Exist.")
-            return
 
     def get_models(self):
         """

@@ -4,9 +4,9 @@ import unittest
 from unittest.mock import patch, MagicMock
 import sys
 import os
-import torch
-import torchvision.models as models
 from io import StringIO
+import torch
+from torchvision import models
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from model_loader import ModelLoader
