@@ -13,85 +13,65 @@ from model_loader import TrainedModels
 
 class TestModelLoader(unittest.TestCase):
 
-    @patch("builtins.open", new_callable=mock_open, read_data="224\n")
-    @patch("torch.load")  # Mock torch.load for simulating loading model weights
-    def test_load_model_weights(self, mock_torch_load, mock_open_file):
-        # create mock model
-        height_file_paths = {
-            "caud" : "mock_height.txt",
-            "dors" : "mock_height.txt",
-            "fron" : "mock_height.txt",
-            "late" : "mock_height.txt"
-        }
-        weights_file_paths = {
-            "caud" : "mock_weights.pth",
-            "dors" : "mock_weights.pth",
-            "fron" : "mock_weights.pth",
-            "late" : "mock_weights.pth"
-        }
+    @patch("torch.load")  # Mock torch.load to prevent actual file loading
+    def test_load_model_weights(self, mock_torch_load):
+        """Test that load_model_weights correctly loads weights into the model."""
+        # create a testing instance of the TrainedModels object with test mode enabled
+        weights_file_paths = {"caud": "mock_weights.pth"}
+        testing_instance = TrainedModels(weights_file_paths, test=True)
+        testing_instance.models["caud"] = MagicMock()
+        testing_instance.device = torch.device("cpu")
 
-        testing_instance = TrainedModels(weights_file_paths, height_file_paths, test=True)
-        testing_instance.models = {
-            "caud" : MagicMock(),
-            "dors" : MagicMock(),
-            "fron" : MagicMock(),
-            "late" : MagicMock()
-        }
+        # mock the return value of torch.load
+        mock_torch_load.return_value = {"mock_key": torch.tensor([1.0])}
         
-        # Create a mock ResNet18 model and extract a valid state_dict
-        real_model = models.resnet18(weights=None)
-        num_features = real_model.fc.in_features
-        real_model.fc = torch.nn.Linear(num_features, 15)
-        valid_state_dict = real_model.state_dict()
+        # call the load_model_weights method for testing
+        testing_instance.load_model_weights("caud")
 
-        # Mock torch.load to return a valid state_dict
-        mock_torch_load.return_value = valid_state_dict
-
-        # Mock load_state_dict to prevent size mismatch error
-        for model in testing_instance.models.values():
-            model.load_state_dict = MagicMock()
-        
-        testing_instance.model_initializer()
-
-        # Verify that height is correctly loaded
-        for key in ["caud", "dors", "fron", "late"]:
-            self.assertEqual(testing_instance.heights[key], 224)
-        # Ensure torch.load() was called correctly
-        for key in ["caud", "dors", "fron", "late"]:
-            mock_torch_load.assert_any_call(weights_file_paths[key], map_location=testing_instance.device)
-        # Ensure load_state_dict() was called on the models
-        for key in ["caud", "dors", "fron", "late"]:
-            model = testing_instance.models[key]
-            model.load_state_dict.assert_called_once_with(valid_state_dict)
-
+        # assert torch.load was called with the correct arguments, and the load_state_dict was called on the model
+        mock_torch_load.assert_called_once_with("mock_weights.pth", map_location=testing_instance.device, weights_only=True)
+        testing_instance.models["caud"].load_state_dict.assert_called_once_with(mock_torch_load.return_value)
 
     @patch('builtins.open', side_effect=FileNotFoundError)
     @patch('sys.stdout', new_callable=StringIO)
-    def test_load_model_weights_file_not_found(self, mock_std_out, mock_open):
-        # create mock model
-        height_file_paths = {
-            "caud" : "mock_height.txt",
-            "dors" : "mock_height.txt",
-            "fron" : "mock_height.txt",
-            "late" : "mock_height.txt"
-        }
-        weights_file_paths = {
-            "caud" : "mock_weights.pth",
-            "dors" : "mock_weights.pth",
-            "fron" : "mock_weights.pth",
-            "late" : "mock_weights.pth"
-        }
-        testing_instance = TrainedModels(weights_file_paths, height_file_paths, test=True)
-        testing_instance.models = {
-            "caud" : MagicMock(),
-            "dors" : MagicMock(),
-            "fron" : MagicMock(),
-            "late" : MagicMock()
-        }
-        # Call load_model_weights with false file paths
-        testing_instance.model_initializer()
+    def test_load_model_weights_file_not_found(self, mock_stdout, mock_open):
+        """Test that load_model_weights handles FileNotFoundError correctly."""
+
+        weights_file_paths = {"caud": "non_existent_weights.pth"}
+        testing_instance = TrainedModels(weights_file_paths, test=True)
+        testing_instance.models["caud"] = MagicMock()
+        testing_instance.device = torch.device("cpu")
+        
+        # Call loadModelWeights with false file paths
+        testing_instance.load_model_weights("caud")
+        
         # Assert that the correct error message was printed
-        self.assertIn("Height File for caud Model Does Not Exist.", mock_std_out.getvalue())
+        self.assertIn("Weights File for caud Model Does Not Exist.", mock_stdout.getvalue())
+
+    @patch("torch.load")  # Mock torch.load to simulate loading model weights
+    @patch.object(TrainedModels, "load_model_weights")  # Mock load_model_weights
+    def test_model_initializer(self, mock_load_model_weights, mock_torch_load):
+        # Create mock weights paths to create the testing instance for TrainedModels
+        weights_file_paths = {
+            "caud": "mock_weights.pth",
+            "dors": "mock_weights.pth",
+            "fron": "mock_weights.pth",
+            "late": "mock_weights.pth"
+        }
+        testing_instance = TrainedModels(weights_file_paths, test=True)
+
+        # Mock the models to be ResNet instances
+        testing_instance.models = {
+            key: MagicMock(spec=models.ResNet) for key in weights_file_paths
+        }
+
+        # Call the model_initializer method for testing
+        testing_instance.model_initializer()
+
+        # Assert that load_model_weights was called for each model key and nothing else
+        for key in weights_file_paths:
+            mock_load_model_weights.assert_any_call(key)
+        self.assertEqual(mock_load_model_weights.call_count, len(weights_file_paths))
 
 if __name__ == "__main__":
     unittest.main()
