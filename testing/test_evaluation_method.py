@@ -3,6 +3,7 @@ import unittest
 import sys
 import os
 from unittest.mock import patch, MagicMock, mock_open
+from PIL import Image
 import torch
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from evaluation_method import EvaluationMethod
@@ -38,7 +39,7 @@ class TestEvaluationMethod(unittest.TestCase):
         """test transform input for proper image transformation"""
         evaluation = EvaluationMethod("height_mock.txt")
         evaluation.height = 224
-        fake_input = torch.rand(3, 224, 224)
+        fake_input = Image.new("RGB", (224, 224))
         result = evaluation.transform_input(fake_input)
 
         assert result.shape == (1, 3, 224, 224)
