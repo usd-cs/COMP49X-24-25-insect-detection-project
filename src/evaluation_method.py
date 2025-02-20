@@ -56,7 +56,7 @@ class EvaluationMethod:
             late_image = self.transform_input(late)
 
             with torch.no_grad():
-                late_output = self.model(late_image)
+                late_output = self.model(late_image)    #CHANGE TO CORRECT MODEL
 
             # Get the predicted class and confidence score
             _, predictedIndex = torch.max(late_output, 1)
@@ -69,7 +69,7 @@ class EvaluationMethod:
             dors_image = self.transform_input(dors)
 
             with torch.no_grad():
-                dors_output = self.model(dors_image)
+                dors_output = self.model(dors_image)#CHANGE TO CORRECT MODEL
 
             _, predictedIndex = torch.max(dors_output, 1)
             dors_confidenceScore = torch.nn.functional.softmax(dors_output, dim=1)[0][predictedIndex].item()
@@ -81,7 +81,7 @@ class EvaluationMethod:
             fron_image = self.transform_input(fron)
 
             with torch.no_grad():
-                fron_output = self.model(fron_image)
+                fron_output = self.model(fron_image)#CHANGE TO CORRECT MODEL
 
             _, predictedIndex = torch.max(fron_output, 1)
             fron_confidenceScore = torch.nn.functional.softmax(fron_output, dim=1)[0][predictedIndex].item()
@@ -93,7 +93,7 @@ class EvaluationMethod:
             caud_image = self.transform_input(caud)
 
             with torch.no_grad():
-                caud_output = self.model(caud_image)
+                caud_output = self.model(caud_image)#CHANGE TO CORRECT MODEL
 
             _, predictedIndex = torch.max(caud_output, 1)
             caud_confidenceScore = torch.nn.functional.softmax(caud_output, dim=1)[0][predictedIndex].item()
@@ -180,7 +180,7 @@ class EvaluationMethod:
         Takes the classifications of the models and runs them through another model that determines
         the overall output
 
-        REACH CASE 
+        REACH CASE/STUB FOR SPRINT 3
 
         Returns: classification of combined models
         """
