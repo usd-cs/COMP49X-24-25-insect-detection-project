@@ -22,7 +22,7 @@ class EvaluationMethod:
         self.weights = [0.25, 0.25, 0.25, 0.25]
 
         self.height = None
-        with open("models/" + height_filename, 'r', 'utf-8') as file:
+        with open("models/" + height_filename, 'r', encoding='utf-8') as file:
             self.height = int(file.readline().strip())
 
         #INTEGRATION: call method to load the models here once task is completed
