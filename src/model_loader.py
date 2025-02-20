@@ -3,10 +3,19 @@
 from torchvision import models
 import torch
 
-class TrainedModels:
-    def __init__(self, weights_file_paths = None, test = False):
-        """Initialize class variables. User can specify height parameter for model."""
-        self.weights_file_paths = weights_file_paths or {}
+class ModelLoader:
+    """
+    Initializes and loads four models with the designated pretrained weights for the different image angles.
+    """
+    def __init__(self, weights_file_paths, test = False):
+        """
+        Initializes the TrainedModels class.
+
+        Args:
+            weights_file_paths (dict): A dictionary mapping model keys to their weight file paths.
+            test (bool, optional): If True, skips model initialization for testing purposes. Defaults to False.
+        """
+        self.weights_file_paths = weights_file_paths
 
         self.models = {
             "caud" : None, 
@@ -22,10 +31,19 @@ class TrainedModels:
             self.model_initializer()
     
     def model_initializer(self):
+        """
+        Initializes ResNet50 models for each key in self.models and replaces the fully connected layer
+        to output 15 classes. Lastly, loads pretrained weights into the initialized model with
+        load_model_weights(key).
+
+        Returns:
+            None
+        """
         for key in self.models:
             # Initialize a fresh model with weights = None, so there are no weights
-            self.models[key] = models.resnet18(weights=None)
+            self.models[key] = models.resnet50(weights=None)
 
+            # Initialize the models to have 15 outputs(~number of species to be identified)
             num_features = self.models[key].fc.in_features
             self.models[key].fc = torch.nn.Linear(num_features, 15)
 
@@ -35,15 +53,20 @@ class TrainedModels:
 
     def load_model_weights(self, key):
         """
-        Loads the specified model with weights and height stored in each file specified by filename.
+        Loads the specified model with the pre-trained weights.
 
-        Returns: None
+        This method retrieves the file path from the self.weights_file_paths for the model weights 
+        based on the provided key and loads them into the model instance loacated at key in the
+        self.models dictionary. If no weight file paths are provided, it prompts the user for input.
+
+        Args:
+            key (str): The identifier for the model and the corresponding weights to be loaded.
+
+        Returns:
+            None
         """
 
-        if not self.weights_file_paths:
-            weights_file_path = input(f"Please input the file path of the saved weights for the {key} trained model: ")
-        else:
-            weights_file_path = self.weights_file_paths[key]
+        weights_file_path = self.weights_file_paths[key]
 
         # Load weights from file path into the model
         try:
@@ -53,7 +76,18 @@ class TrainedModels:
             return
     
     def get_models(self):
+        """
+        Returns:
+            dict: A dictionary containing all models(ResNet).
+        """
         return self.models
 
     def get_model(self, key):
+        """
+        Args:
+            key (str): The key identifying the desired model.
+
+        Returns:
+            torch.nn.Module: The corresponding ResNet model.
+        """
         return self.models[key]

@@ -1,7 +1,7 @@
 """ test_model_loader.py """
 
 import unittest
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock
 import sys
 import os
 import torch
@@ -9,36 +9,38 @@ import torchvision.models as models
 from io import StringIO
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from model_loader import TrainedModels
+from model_loader import ModelLoader
 
 class TestModelLoader(unittest.TestCase):
-
+    """
+    Unit testing for Model Loader 
+    """
     @patch("torch.load")  # Mock torch.load to prevent actual file loading
     def test_load_model_weights(self, mock_torch_load):
-        """Test that load_model_weights correctly loads weights into the model."""
-        # create a testing instance of the TrainedModels object with test mode enabled
+        """ Test that load_model_weights correctly loads weights into the model. """
+        # Create a testing instance of the ModelLoader object with test mode enabled
         weights_file_paths = {"caud": "mock_weights.pth"}
-        testing_instance = TrainedModels(weights_file_paths, test=True)
+        testing_instance = ModelLoader(weights_file_paths, test=True)
         testing_instance.models["caud"] = MagicMock()
         testing_instance.device = torch.device("cpu")
 
-        # mock the return value of torch.load
+        # Mock the return value of torch.load
         mock_torch_load.return_value = {"mock_key": torch.tensor([1.0])}
         
-        # call the load_model_weights method for testing
+        # Call the load_model_weights method for testing
         testing_instance.load_model_weights("caud")
 
-        # assert torch.load was called with the correct arguments, and the load_state_dict was called on the model
+        # Assert torch.load was called with the correct arguments, and the load_state_dict was called on the model
         mock_torch_load.assert_called_once_with("mock_weights.pth", map_location=testing_instance.device, weights_only=True)
         testing_instance.models["caud"].load_state_dict.assert_called_once_with(mock_torch_load.return_value)
 
     @patch('builtins.open', side_effect=FileNotFoundError)
     @patch('sys.stdout', new_callable=StringIO)
     def test_load_model_weights_file_not_found(self, mock_stdout, mock_open):
-        """Test that load_model_weights handles FileNotFoundError correctly."""
-
+        """ Test that load_model_weights handles FileNotFoundError correctly. """
+        # testing instance setup
         weights_file_paths = {"caud": "non_existent_weights.pth"}
-        testing_instance = TrainedModels(weights_file_paths, test=True)
+        testing_instance = ModelLoader(weights_file_paths, test=True)
         testing_instance.models["caud"] = MagicMock()
         testing_instance.device = torch.device("cpu")
         
@@ -49,21 +51,21 @@ class TestModelLoader(unittest.TestCase):
         self.assertIn("Weights File for caud Model Does Not Exist.", mock_stdout.getvalue())
 
     @patch("torch.load")  # Mock torch.load to simulate loading model weights
-    @patch.object(TrainedModels, "load_model_weights")  # Mock load_model_weights
+    @patch.object(ModelLoader, "load_model_weights")  # Mock load_model_weights
     def test_model_initializer(self, mock_load_model_weights, mock_torch_load):
-        # Create mock weights paths to create the testing instance for TrainedModels
+        """ Test that model_initializer correctly initializes the model. """
+        # Create mock weights paths to create the testing instance for ModelLoader
         weights_file_paths = {
             "caud": "mock_weights.pth",
             "dors": "mock_weights.pth",
             "fron": "mock_weights.pth",
             "late": "mock_weights.pth"
         }
-        testing_instance = TrainedModels(weights_file_paths, test=True)
+        testing_instance = ModelLoader(weights_file_paths, test=True)
 
         # Mock the models to be ResNet instances
-        testing_instance.models = {
-            key: MagicMock(spec=models.ResNet) for key in weights_file_paths
-        }
+        for key in weights_file_paths:
+            testing_instance.models[key] = MagicMock(spec=models.ResNet)
 
         # Call the model_initializer method for testing
         testing_instance.model_initializer()
