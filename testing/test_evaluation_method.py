@@ -40,3 +40,6 @@ class TestEvaluationMethod(unittest.TestCase):
         result = evaluation.transform_input(fake_input)
 
         assert result.shape == (1, 3, 224, 224)
+
+if __name__ == "__main__":
+    unittest.main()
