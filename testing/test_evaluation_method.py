@@ -12,14 +12,16 @@ class TestEvaluationMethod(unittest.TestCase):
     Test the evaluation method class methods
     """
 
-    def test_heaviest_is_best(self):
+    @patch("builtins.open", new_callable=mock_open, read_data="224")
+    def test_heaviest_is_best(self, mock_file):
         """test heaviest is best for proper tracking of highest certainty"""
         evaluation = EvaluationMethod("height_mock.txt")
 
         assert evaluation.heaviest_is_best(0.1, 0.3, 0.5, 0.4) == 2
         assert evaluation.heaviest_is_best(0.1, 0.9, 0.6, 0.32) == 1
 
-    def test_weighted_eval(self):
+    @patch("builtins.open", new_callable=mock_open, read_data="224")
+    def test_weighted_eval(self, mock_file):
         """test weighted eval for proper calculation"""
         evaluation = EvaluationMethod("height_mock.txt")
         #must be changed if weights are adjusted in code
