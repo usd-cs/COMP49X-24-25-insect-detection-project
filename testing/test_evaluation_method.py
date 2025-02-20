@@ -11,36 +11,46 @@ class TestEvaluationMethod(unittest.TestCase):
     """
     Test the evaluation method class methods
     """
-    def testEvaluateImage(self):
-        eval = EvaluationMethod()
+
+    """def testInitializer(self):
+    
+        test initializer of the class
+        INTEGRATION TEST ONLY
+        
+        eval = EvaluationMethod("height_mock.txt")
+        
+        """
+    """def testEvaluateImage(self):
+        
+        test evaluate image method for proper execution
+        INTEGRATION TEST ONLY
+        
+        eval = EvaluationMethod("height_mock.txt")
         eval.use_method = 1
+    """
 
 
     def testHeaviestIsBest(self):
-        eval = EvaluationMethod()
-        fron_cert = 98.7
-        dors_cert = 45.9
-        late_cert = 99.1
-        caud_cert = 79.1
-
-        answer = eval.heaviest_is_best(fron_cert, dors_cert, late_cert, caud_cert)
-        self.assertEqual()
+        """test heaviest is best for proper tracking of highest certainty"""
+        eval = EvaluationMethod("height_mock.txt")
+        
+        assert eval.heaviest_is_best(0.1, 0.3, 0.5, 0.4) == 2
+        assert eval.heaviest_is_best(0.1, 0.9, 0.6, 0.32) == 1
 
     def testWeightedEval(self):
-        eval = EvaluationMethod()
-        fron_cert = 98.7
-        dors_cert = 45.9
-        late_cert = 99.1
-        caud_cert = 79.1
+        """test weighted eval for proper calculation"""
+        eval = EvaluationMethod("height_mock.txt")
+        conf_scores = [0.8, 0.6, 0.9, 0.7]
+        species_predictions = [1, 2, 2, 3]
 
-        answer = eval.weighted_eval(fron_cert, dors_cert, late_cert, caud_cert)
-        self.assertEqual()
-
-    def testStackedEval(self):
-        eval = EvaluationMethod()
-        
-        answer = eval.stacked_eval()
-        self.assertEqual()
+        prediction, score = eval.weighted_eval(conf_scores, species_predictions)
+        assert prediction == 2
 
     def testTransformInput(self):
-        pass
+        """test transform input for proper image transformation"""
+        eval = EvaluationMethod("height_mock.txt")
+        eval.height = 224
+        fake_input = torch.rand(3, 224, 224)
+        result = eval.transform_input(fake_input)
+
+        assert result.shape == (1, 3, 224, 224)
