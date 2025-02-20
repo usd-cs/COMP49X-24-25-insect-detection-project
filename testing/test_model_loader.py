@@ -49,7 +49,7 @@ class TestModelLoader(unittest.TestCase):
 
         # Call loadModelWeights with false file paths
         testing_instance.load_model_weights("caud")
-        
+
         # Assert that the correct error message was printed
         self.assertIn("Weights File for caud Model Does Not Exist.", mock_stdout.getvalue())
 
