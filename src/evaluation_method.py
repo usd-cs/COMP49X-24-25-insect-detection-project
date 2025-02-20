@@ -2,7 +2,7 @@
 Method that takes in a user input image or set of user images and runs them through 
 the loaded trained models and creates a combined classification output
 """
-from torchvision import models, transforms
+from torchvision import transforms
 import torch
 
 class EvaluationMethod:
@@ -14,7 +14,8 @@ class EvaluationMethod:
     def __init__(self, height_filename):
         """
         Load the trained models for usage and have the class prepared for user input.
-        During testing phases, determining which evaluation method defined below will be chosen here as well
+        During testing phases, determining which evaluation method defined below will 
+        be chosen here as well
         """
         self.use_method = 1     #1 = heaviest, 2 = weighted, 3 = stacked
 
@@ -42,14 +43,14 @@ class EvaluationMethod:
         caud_in = False
 
         #define variables outside the if statements so they can be used in other method calls
-        late_predictedSpecies = None
-        late_confidenceScore = 0
-        dors_confidenceScore = 0
-        dors_predictedSpecies = None
-        fron_confidenceScore = 0
-        fron_predictedSpecies = None
-        caud_confidenceScore = 0
-        caud_predictedSpecies = None
+        late_predicted_species = None
+        late_confidence_score = 0
+        dors_confidence_score = 0
+        dors_predicted_species = None
+        fron_confidence_score = 0
+        fron_predicted_species = None
+        caud_confidence_score = 0
+        caud_predicted_species = None
 
         if late:
             late_in = True
@@ -60,8 +61,9 @@ class EvaluationMethod:
 
             # Get the predicted class and confidence score
             _, predictedIndex = torch.max(late_output, 1)
-            late_confidenceScore = torch.nn.functional.softmax(late_output, dim=1)[0][predictedIndex].item()
-            late_predictedSpecies = predictedIndex.item()
+            late_confidence_score = torch.nn.functional.softmax(
+                late_output, dim=1)[0][predictedIndex].item()
+            late_predicted_species = predictedIndex.item()
 
         if dors:
             #mirrors above usage but for the dors angle
@@ -72,8 +74,9 @@ class EvaluationMethod:
                 dors_output = self.model(dors_image)#CHANGE TO CORRECT MODEL
 
             _, predictedIndex = torch.max(dors_output, 1)
-            dors_confidenceScore = torch.nn.functional.softmax(dors_output, dim=1)[0][predictedIndex].item()
-            dors_predictedSpecies = predictedIndex.item()
+            dors_confidence_score = torch.nn.functional.softmax(
+                dors_output, dim=1)[0][predictedIndex].item()
+            dors_predicted_species = predictedIndex.item()
 
         if fron:
             #mirrors above usage but for the fron angle
@@ -84,8 +87,9 @@ class EvaluationMethod:
                 fron_output = self.model(fron_image)#CHANGE TO CORRECT MODEL
 
             _, predictedIndex = torch.max(fron_output, 1)
-            fron_confidenceScore = torch.nn.functional.softmax(fron_output, dim=1)[0][predictedIndex].item()
-            fron_predictedSpecies = predictedIndex.item()
+            fron_confidence_score = torch.nn.functional.softmax(
+                fron_output, dim=1)[0][predictedIndex].item()
+            fron_predicted_species = predictedIndex.item()
 
         if caud:
             #mirrors above usage but for the caud angle
@@ -96,28 +100,32 @@ class EvaluationMethod:
                 caud_output = self.model(caud_image)#CHANGE TO CORRECT MODEL
 
             _, predictedIndex = torch.max(caud_output, 1)
-            caud_confidenceScore = torch.nn.functional.softmax(caud_output, dim=1)[0][predictedIndex].item()
-            caud_predictedSpecies = predictedIndex.item()
+            caud_confidence_score = torch.nn.functional.softmax(
+                caud_output, dim=1)[0][predictedIndex].item()
+            caud_predicted_species = predictedIndex.item()
 
         if self.use_method == 1:
-            use_model = self.heaviest_is_best(fron_confidenceScore, dors_confidenceScore, late_confidenceScore, caud_confidenceScore)
+            use_model = self.heaviest_is_best(fron_confidence_score, dors_confidence_score, 
+                                              late_confidence_score, caud_confidence_score)
 
             #match uses the index returned from the method to decide which prediction to return
             match use_model:
                 case 0:
-                    return fron_predictedSpecies, fron_confidenceScore
+                    return fron_predicted_species, fron_confidence_score
                 case 1:
-                    return dors_predictedSpecies, dors_confidenceScore
+                    return dors_predicted_species, dors_confidence_score
                 case 2:
-                    return late_predictedSpecies, late_confidenceScore
+                    return late_predicted_species, late_confidence_score
                 case 3:
-                    return caud_predictedSpecies, caud_confidenceScore
+                    return caud_predicted_species, caud_confidence_score
                 case _:
                     return None, -1
 
         elif self.use_method == 2:
-            return self.weighted_eval([fron_confidenceScore, dors_confidenceScore, late_confidenceScore, caud_confidenceScore],
-                                      [fron_predictedSpecies, dors_predictedSpecies, late_predictedSpecies, caud_predictedSpecies])
+            return self.weighted_eval([fron_confidence_score, dors_confidence_score, 
+                                       late_confidence_score, caud_confidence_score],
+                                      [fron_predicted_species, dors_predicted_species, 
+                                       late_predicted_species, caud_predicted_species])
 
         elif self.use_method == 3:
             return self.stacked_eval()
@@ -144,7 +152,6 @@ class EvaluationMethod:
 
             ind_tracker += 1
 
-        
         return index
 
     def weighted_eval(self, conf_scores, species_predictions):
@@ -184,9 +191,9 @@ class EvaluationMethod:
 
         Returns: classification of combined models
         """
-        pass
+        
 
-    def transform_input(self, input):
+    def transform_input(self, image_input):
         """
         Takes the app side's image and transforms it to fit our model
 
@@ -198,9 +205,7 @@ class EvaluationMethod:
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
-        transformedImage = transformation(input)
-        transformedImage = transformedImage.unsqueeze(0)
+        transformed_image = transformation(image_input)
+        transformed_image = transformed_image.unsqueeze(0)
 
-        return transformedImage
-
-
+        return transformed_image
