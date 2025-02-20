@@ -79,8 +79,8 @@ class EvaluationMethod:
         highest_species = None
 
         for i, j in species_scores.items():
-            if j > highest:
-                highest = j
+            if j > highest_score:
+                highest_score = j
                 highest_species = i
 
         return highest_species, highest_score
