@@ -10,22 +10,6 @@ class TestEvaluationMethod(unittest.TestCase):
     Test the evaluation method class methods
     """
 
-    """def testInitializer(self):
-    
-        INTEGRATION TEST ONLY
-        
-        eval = EvaluationMethod("height_mock.txt")
-
-        """
-    """def testEvaluateImage(self):
-        
-        INTEGRATION TEST ONLY
-        
-        eval = EvaluationMethod("height_mock.txt")
-        eval.use_method = 1
-    """
-
-
     def test_heaviest_is_best(self):
         """test heaviest is best for proper tracking of highest certainty"""
         evaluation = EvaluationMethod("height_mock.txt")

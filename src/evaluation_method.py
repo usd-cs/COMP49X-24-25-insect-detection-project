@@ -3,7 +3,6 @@ Method that takes in a user input image or set of user images and runs them thro
 the loaded trained models and creates a combined classification output
 """
 from torchvision import transforms
-import torch
 
 class EvaluationMethod:
     """
@@ -23,7 +22,7 @@ class EvaluationMethod:
         self.weights = [0.25, 0.25, 0.25, 0.25]
 
         self.height = None
-        with open("models/" + height_filename, 'r') as file:
+        with open("models/" + height_filename, 'r', 'utf-8') as file:
             self.height = int(file.readline().strip())
 
         #INTEGRATION: call method to load the models here once task is completed
@@ -36,94 +35,6 @@ class EvaluationMethod:
 
         Returns: Classification of input images and confidence score. 
                 A return of None, -1 indicates an error
-        """
-        """
-        #define variables outside the if statements so they can be used in other method calls
-        late_predicted_species = None
-        late_confidence_score = 0
-        dors_confidence_score = 0
-        dors_predicted_species = None
-        fron_confidence_score = 0
-        fron_predicted_species = None
-        caud_confidence_score = 0
-        caud_predicted_species = None
-
-        if late:
-            late_image = self.transform_input(late)
-
-            with torch.no_grad():
-                late_output = self.model(late_image)    #CHANGE TO CORRECT MODEL
-
-            # Get the predicted class and confidence score
-            _, predictedIndex = torch.max(late_output, 1)
-            late_confidence_score = torch.nn.functional.softmax(
-                late_output, dim=1)[0][predictedIndex].item()
-            late_predicted_species = predictedIndex.item()
-
-        if dors:
-            #mirrors above usage but for the dors angle
-            dors_image = self.transform_input(dors)
-
-            with torch.no_grad():
-                dors_output = self.model(dors_image)#CHANGE TO CORRECT MODEL
-
-            _, predictedIndex = torch.max(dors_output, 1)
-            dors_confidence_score = torch.nn.functional.softmax(
-                dors_output, dim=1)[0][predictedIndex].item()
-            dors_predicted_species = predictedIndex.item()
-
-        if fron:
-            #mirrors above usage but for the fron angle
-            fron_image = self.transform_input(fron)
-
-            with torch.no_grad():
-                fron_output = self.model(fron_image)#CHANGE TO CORRECT MODEL
-
-            _, predictedIndex = torch.max(fron_output, 1)
-            fron_confidence_score = torch.nn.functional.softmax(
-                fron_output, dim=1)[0][predictedIndex].item()
-            fron_predicted_species = predictedIndex.item()
-
-        if caud:
-            #mirrors above usage but for the caud angle
-            caud_image = self.transform_input(caud)
-
-            with torch.no_grad():
-                caud_output = self.model(caud_image)#CHANGE TO CORRECT MODEL
-
-            _, predictedIndex = torch.max(caud_output, 1)
-            caud_confidence_score = torch.nn.functional.softmax(
-                caud_output, dim=1)[0][predictedIndex].item()
-            caud_predicted_species = predictedIndex.item()
-
-        if self.use_method == 1:
-            use_model = self.heaviest_is_best(fron_confidence_score, dors_confidence_score,
-                                              late_confidence_score, caud_confidence_score)
-
-            #match uses the index returned from the method to decide which prediction to return
-            match use_model:
-                case 0:
-                    return fron_predicted_species, fron_confidence_score
-                case 1:
-                    return dors_predicted_species, dors_confidence_score
-                case 2:
-                    return late_predicted_species, late_confidence_score
-                case 3:
-                    return caud_predicted_species, caud_confidence_score
-                case _:
-                    return None, -1
-
-        elif self.use_method == 2:
-            return self.weighted_eval([fron_confidence_score, dors_confidence_score,
-                                       late_confidence_score, caud_confidence_score],
-                                      [fron_predicted_species, dors_predicted_species,
-                                       late_predicted_species, caud_predicted_species])
-
-        elif self.use_method == 3:
-            return self.stacked_eval()
-
-        else:
-            return None, -1
         """
 
     def heaviest_is_best(self, fron_cert, dors_cert, late_cert, caud_cert):
