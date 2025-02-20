@@ -5,7 +5,8 @@ import torch
 
 class ModelLoader:
     """
-    Initializes and loads four models with the designated pretrained weights for the different image angles.
+    Initializes and loads four models with the designated pretrained weights for
+    the different image angles.
     """
     def __init__(self, weights_file_paths, test = False):
         """
@@ -13,7 +14,7 @@ class ModelLoader:
 
         Args:
             weights_file_paths (dict): A dictionary mapping model keys to their weight file paths.
-            test (bool, optional): If True, skips model initialization for testing purposes. Defaults to False.
+            test (bool, optional): If True, skips model initialization for testing purposes.
         """
         self.weights_file_paths = weights_file_paths
 
@@ -26,15 +27,15 @@ class ModelLoader:
 
         # use CPU to allow general usability and Metal Performance Shader if user has Apple Silicon
         self.device = torch.device("mps" if torch.backends.mps.is_built() else "cpu")
-        
+
         if not test:
             self.model_initializer()
-    
+
     def model_initializer(self):
         """
-        Initializes ResNet50 models for each key in self.models and replaces the fully connected layer
-        to output 15 classes. Lastly, loads pretrained weights into the initialized model with
-        load_model_weights(key).
+        Initializes ResNet50 models for each key in self.models and replaces the fully connected
+        layer to output 15 classes. Lastly, loads pretrained weights into the initialized
+        model with load_model_weights(key).
 
         Returns:
             None
@@ -70,11 +71,12 @@ class ModelLoader:
 
         # Load weights from file path into the model
         try:
-            self.models[key].load_state_dict(torch.load(weights_file_path, map_location=self.device, weights_only=True))
+            self.models[key].load_state_dict(
+                torch.load(weights_file_path, map_location=self.device, weights_only=True))
         except FileNotFoundError:
             print(f"Weights File for {key} Model Does Not Exist.")
             return
-    
+
     def get_models(self):
         """
         Returns:

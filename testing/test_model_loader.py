@@ -26,13 +26,16 @@ class TestModelLoader(unittest.TestCase):
 
         # Mock the return value of torch.load
         mock_torch_load.return_value = {"mock_key": torch.tensor([1.0])}
-        
+
         # Call the load_model_weights method for testing
         testing_instance.load_model_weights("caud")
 
-        # Assert torch.load was called with the correct arguments, and the load_state_dict was called on the model
-        mock_torch_load.assert_called_once_with("mock_weights.pth", map_location=testing_instance.device, weights_only=True)
-        testing_instance.models["caud"].load_state_dict.assert_called_once_with(mock_torch_load.return_value)
+        # Assert torch.load was called with the correct arguments,
+        # and the load_state_dict was called on the model
+        mock_torch_load.assert_called_once_with(
+            "mock_weights.pth", map_location=testing_instance.device, weights_only=True)
+        testing_instance.models["caud"].load_state_dict.assert_called_once_with(
+            mock_torch_load.return_value)
 
     @patch('builtins.open', side_effect=FileNotFoundError)
     @patch('sys.stdout', new_callable=StringIO)
@@ -43,7 +46,7 @@ class TestModelLoader(unittest.TestCase):
         testing_instance = ModelLoader(weights_file_paths, test=True)
         testing_instance.models["caud"] = MagicMock()
         testing_instance.device = torch.device("cpu")
-        
+
         # Call loadModelWeights with false file paths
         testing_instance.load_model_weights("caud")
         
