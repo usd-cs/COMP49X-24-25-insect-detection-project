@@ -37,9 +37,8 @@ class TestModelLoader(unittest.TestCase):
         testing_instance.models["caud"].load_state_dict.assert_called_once_with(
             mock_torch_load.return_value)
 
-    @patch('builtins.open', side_effect=FileNotFoundError)
     @patch('sys.stdout', new_callable=StringIO)
-    def test_load_model_weights_file_not_found(self, mock_stdout, mock_open):
+    def test_load_model_weights_file_not_found(self, mock_stdout):
         """ Test that load_model_weights handles FileNotFoundError correctly. """
         # testing instance setup
         weights_file_paths = {"caud": "non_existent_weights.pth"}
@@ -53,9 +52,8 @@ class TestModelLoader(unittest.TestCase):
         # Assert that the correct error message was printed
         self.assertIn("Weights File for caud Model Does Not Exist.", mock_stdout.getvalue())
 
-    @patch("torch.load")  # Mock torch.load to simulate loading model weights
     @patch.object(ModelLoader, "load_model_weights")  # Mock load_model_weights
-    def test_model_initializer(self, mock_load_model_weights, mock_torch_load):
+    def test_model_initializer(self, mock_load_model_weights):
         """ Test that model_initializer correctly initializes the model. """
         # Create mock weights paths to create the testing instance for ModelLoader
         weights_file_paths = {
