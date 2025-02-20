@@ -1,8 +1,9 @@
 """test_evaluation_method.py"""
 import unittest
 import torch
-
-
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from evaluation_method import EvaluationMethod
 
 class TestEvaluationMethod(unittest.TestCase):
