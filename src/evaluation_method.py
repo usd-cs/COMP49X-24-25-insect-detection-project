@@ -115,6 +115,8 @@ class EvaluationMethod:
 
         if self.use_method == 3:
             return self.stacked_eval()
+        
+        return None, -1
 
     def heaviest_is_best(self, conf_scores, species_predictions):
         """
