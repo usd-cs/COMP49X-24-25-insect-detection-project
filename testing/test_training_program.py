@@ -246,7 +246,7 @@ class TestTrainingProgram(unittest.TestCase):
             "height.txt")
 
         # Verify that height file is written
-        mock_open.assert_called_with(os.path.join("models", "height.txt"), "w")
+        mock_open.assert_called_with(os.path.join("src/models", "height.txt"), "w")
         mock_open().write.assert_called_with("224")
 
         # Verify torch.save is called for each model, ignoring exact state_dict() content

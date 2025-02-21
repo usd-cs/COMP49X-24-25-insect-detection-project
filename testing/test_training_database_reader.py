@@ -28,21 +28,22 @@ class TestDatabaseReader(unittest.TestCase):
                 Genus TEXT,
                 Species TEXT,
                 UniqueID TEXT PRIMARY KEY,
-                View TEXT
+                View TEXT,
+                Image BLOB
             )
         """)
 
         # insert sample data
         sample_data = [
-            ("GenusA", "SpeciesA", "ID1", "View1"),
-            ("GenusB", "SpeciesB", "ID2", "View2"),
-            ("GenusC", "SpeciesC", "ID3", "View3"),
+            ("GenusA", "SpeciesA", "ID1", "View1", sqlite3.Binary(b'\xff\xd8\xff\xe0...')),
+            ("GenusB", "SpeciesB", "ID2", "View2", sqlite3.Binary(b'\xff\xd8\xff\xe0...')),
+            ("GenusC", "SpeciesC", "ID3", "View3", sqlite3.Binary(b'\xff\xd8\xff\xe0...')),
         ]
         # ensure table is empty before inserting rows
         cursor.execute("DELETE FROM TrainingData")
         cursor.executemany("""
-            INSERT OR IGNORE INTO TrainingData (Genus, Species, UniqueID, View)
-            VALUES (?, ?, ?, ?)
+            INSERT OR IGNORE INTO TrainingData (Genus, Species, UniqueID, View, Image)
+            VALUES (?, ?, ?, ?, ?)
         """, sample_data)
 
         cls.connection.commit()
