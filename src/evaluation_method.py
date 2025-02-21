@@ -53,8 +53,7 @@ class EvaluationMethod:
             # Get the predicted class and confidence score
             _, predicted_index = torch.max(late_output, 1)
             predictions["late"]["score"] = torch.nn.functional.softmax(
-                late_output, dim=1)[0][predicted_index].item()
-            print("softmax ran")
+                late_output, dim=1)[0, predicted_index].item()
             predictions["late"]["species"] = predicted_index.item()
 
         if dors:
@@ -66,7 +65,7 @@ class EvaluationMethod:
 
             _, predicted_index = torch.max(dors_output, 1)
             predictions["dors"]["score"] = torch.nn.functional.softmax(
-                dors_output, dim=1)[0][predicted_index].item()
+                dors_output, dim=1)[0, predicted_index].item()
             predictions["dors"]["species"] = predicted_index.item()
 
         if fron:
@@ -78,7 +77,7 @@ class EvaluationMethod:
 
             _, predicted_index = torch.max(fron_output, 1)
             predictions["fron"]["score"] = torch.nn.functional.softmax(
-                fron_output, dim=1)[0][predicted_index].item()
+                fron_output, dim=1)[0, predicted_index].item()
             predictions["fron"]["species"] = predicted_index.item()
 
         if caud:
@@ -90,7 +89,7 @@ class EvaluationMethod:
 
             _, predicted_index = torch.max(caud_output, 1)
             predictions["caud"]["score"] = torch.nn.functional.softmax(
-                caud_output, dim=1)[0][predicted_index].item()
+                caud_output, dim=1)[0, predicted_index].item()
             predictions["caud"]["species"] = predicted_index.item()
 
         if self.use_method == 1:
