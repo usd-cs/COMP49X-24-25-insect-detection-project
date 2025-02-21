@@ -162,5 +162,66 @@ class TestEvaluationMethod(unittest.TestCase):
         self.assertEqual(result_species, 2)
         self.assertEqual(result_conf, 0.75)
 
+    @patch("builtins.open", new_callable=mock_open, read_data="224")
+    @patch("torch.max", return_value=(None, torch.tensor([0])))
+    @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.8, 0.1, 0.1]]))
+    def test_evaluate_image_single_input(self, mock_file, mock_softmax, mock_max):
+        """test proper output with a single image entered"""
+        mock_models = {
+            "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
+            "dors": MagicMock(return_value=torch.tensor([[0.2, 0.5, 0.3]])),
+            "fron": MagicMock(return_value=torch.tensor([[0.7, 0.2, 0.1]])),
+            "caud": MagicMock(return_value=torch.tensor([[0.4, 0.4, 0.2]])),
+        }
+
+        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
+        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
+
+        #mock transform_input for dummy output
+        mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
+        evaluation.transform_input = mock_transform
+
+        result_species, result_conf = evaluation.evaluate_image(late=torch.rand(3, 224, 224))
+
+        self.assertEqual(result_species, 0)
+        self.assertEqual(result_conf, 0.8)
+
+        mock_transform.assert_called_once()
+        mock_models["late"].assert_called_once()
+        mock_softmax.assert_called_once()
+        mock_max.assert_called_once()
+
+    @patch("builtins.open", new_callable=mock_open, read_data="224")
+    @patch("torch.max", return_value=(None, torch.tensor([1])))
+    @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1]]))
+    def test_evaluate_image_multiple_input(self, mock_file, mock_softmax, mock_max):
+        """test proper output with multiple images entered"""
+        mock_models = {
+            "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
+            "dors": MagicMock(return_value=torch.tensor([[0.2, 0.5, 0.3]])),
+            "fron": MagicMock(return_value=torch.tensor([[0.7, 0.2, 0.1]])),
+            "caud": MagicMock(return_value=torch.tensor([[0.4, 0.4, 0.2]])),
+        }
+
+        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
+        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
+
+        #mock transform_input for dummy output
+        mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
+        evaluation.transform_input = mock_transform
+
+        result_species, result_conf = evaluation.evaluate_image(
+            late=torch.rand(3, 224, 224),
+            dors=torch.rand(3, 224, 224),
+            fron=torch.rand(3, 224, 224),
+            caud=torch.rand(3, 224, 224))
+
+        self.assertEqual(result_species, 1)
+        self.assertEqual(result_conf, 0.6)
+
+        self.assertEqual(mock_transform.call_count, 4)
+        self.assertEqual(mock_max.call_count, 4)
+        self.assertEqual(mock_softmax.call_count, 4)
+
 if __name__ == "__main__":
     unittest.main()
