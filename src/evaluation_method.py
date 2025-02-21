@@ -93,13 +93,11 @@ class EvaluationMethod:
             predictions["caud"]["species"] = predicted_index.item()
 
         if self.use_method == 1:
-            use_model = self.heaviest_is_best(predictions["fron"]["score"],
+            #match uses the index returned from the method to decide which prediction to return
+            match self.heaviest_is_best(predictions["fron"]["score"],
                                               predictions["dors"]["score"],
                                               predictions["late"]["score"],
-                                              predictions["caud"]["score"])
-
-            #match uses the index returned from the method to decide which prediction to return
-            match use_model:
+                                              predictions["caud"]["score"]):
                 case 0:
                     return predictions["fron"]["species"], predictions["fron"]["score"]
                 case 1:
@@ -108,8 +106,6 @@ class EvaluationMethod:
                     return predictions["late"]["species"], predictions["late"]["score"]
                 case 3:
                     return predictions["caud"]["species"], predictions["caud"]["score"]
-                case _:
-                    return None, -1
 
         elif self.use_method == 2:
             return self.weighted_eval([predictions["fron"]["score"],
@@ -123,9 +119,6 @@ class EvaluationMethod:
 
         elif self.use_method == 3:
             return self.stacked_eval()
-
-        else:
-            return None, -1
 
     def heaviest_is_best(self, fron_cert, dors_cert, late_cert, caud_cert):
         """
