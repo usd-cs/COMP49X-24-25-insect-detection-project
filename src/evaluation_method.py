@@ -103,7 +103,7 @@ class EvaluationMethod:
                                        predictions["late"]["species"],
                                        predictions["caud"]["species"]])
 
-        elif self.use_method == 2:
+        if self.use_method == 2:
             return self.weighted_eval([predictions["fron"]["score"],
                                        predictions["dors"]["score"],
                                        predictions["late"]["score"],
@@ -113,7 +113,7 @@ class EvaluationMethod:
                                        predictions["late"]["species"],
                                        predictions["caud"]["species"]])
 
-        elif self.use_method == 3:
+        if self.use_method == 3:
             return self.stacked_eval()
 
     def heaviest_is_best(self, conf_scores, species_predictions):
