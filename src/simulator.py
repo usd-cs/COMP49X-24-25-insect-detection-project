@@ -45,23 +45,23 @@ if __name__ == '__main__':
     print(ml.get_model("caud").named_parameters())
 
     # Set models to evaluation mode
-    for key, _ in models.items():
+    for key in models.keys:
         models[key].eval()
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
     evaluator = EvaluationMethod("height.txt", models, 1)
 
     # Get the images to be evaluated through user input
-    late_img_path = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT LATE.jpg"
-    dors_img_path = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT DORS.jpg"
-    fron_img_path = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT FRON.jpg"
-    caud_img_path = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT CAUD.jpg"
+    LATE_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT LATE.jpg"
+    DORS_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT DORS.jpg"
+    FRON_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT FRON.jpg"
+    CAUD_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT CAUD.jpg"
 
     # Load the provided images
-    LATE_IMG = Image.open(late_img_path) if late_img_path else None
-    DORS_IMG = Image.open(dors_img_path) if dors_img_path else None
-    FRON_IMG = Image.open(fron_img_path) if fron_img_path else None
-    CAUD_IMG = Image.open(caud_img_path) if caud_img_path else None
+    LATE_IMG = Image.open(LATE_PATH) if LATE_PATH else None
+    DORS_IMG = Image.open(DORS_PATH) if DORS_PATH else None
+    FRON_IMG = Image.open(FRON_PATH) if FRON_PATH else None
+    CAUD_IMG = Image.open(CAUD_PATH) if CAUD_PATH else None
 
     # Run the evaluation method
     species, confidence = evaluator.evaluate_image(
