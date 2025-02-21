@@ -1,11 +1,12 @@
+""" simulator.py """
 import sys
 import os
+from PIL import Image
 from training_data_converter import TrainingDataConverter
 from training_database_reader import DatabaseReader
 from training_program import TrainingProgram
 from model_loader import ModelLoader
 from evaluation_method import EvaluationMethod
-from PIL import Image
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
@@ -44,7 +45,7 @@ if __name__ == '__main__':
     print(ml.get_model("caud").named_parameters())
 
     # Set models to evaluation mode
-    for key in models:
+    for key, _ in models.items():
         models[key].eval()
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
@@ -57,14 +58,14 @@ if __name__ == '__main__':
     caud_img_path = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT CAUD.jpg"
 
     # Load the provided images
-    late_img = Image.open(late_img_path) if late_img_path else None
-    dors_img = Image.open(dors_img_path) if dors_img_path else None
-    fron_img = Image.open(fron_img_path) if fron_img_path else None
-    caud_img = Image.open(caud_img_path) if caud_img_path else None
+    LATE_IMG = Image.open(late_img_path) if late_img_path else None
+    DORS_IMG = Image.open(dors_img_path) if dors_img_path else None
+    FRON_IMG = Image.open(fron_img_path) if fron_img_path else None
+    CAUD_IMG = Image.open(caud_img_path) if caud_img_path else None
 
     # Run the evaluation method
     species, confidence = evaluator.evaluate_image(
-        late=late_img, dors=dors_img, fron=fron_img, caud=caud_img
+        late=LATE_IMG, dors=DORS_IMG, fron=FRON_IMG, caud=CAUD_IMG
     )
 
     # Print classification results
