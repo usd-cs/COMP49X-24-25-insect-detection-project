@@ -25,7 +25,7 @@ class TestEvaluationMethod(unittest.TestCase):
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
 
-        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
         self.assertEqual(evaluation.use_method, 1)
         #Change the weights to match the program's manually
         self.assertEqual(evaluation.weights, [0.25, 0.25, 0.25, 0.25])
@@ -44,7 +44,7 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
-        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
 
         species, conf = evaluation.heaviest_is_best([0.1, 0.3, 0.5, 0.4],[1, 4, 6, 3])
         self.assertEqual(species, 6)
@@ -61,7 +61,7 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 2)
-        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
         #must be changed if weights are adjusted in code
         given_weights = [0.25, 0.25, 0.25, 0.25]
         conf_scores = [0.8, 0.6, 0.9, 0.7]
@@ -82,7 +82,7 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
-        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
         evaluation.height = 224
         fake_input = Image.new("RGB", (224, 224))
         result = evaluation.transform_input(fake_input)
@@ -101,7 +101,7 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
-        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
 
         #mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
@@ -124,7 +124,7 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 2)
-        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
 
         #mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
@@ -149,7 +149,7 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 3)
-        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
 
         #mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
@@ -175,7 +175,7 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
-        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
 
         #mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
@@ -204,7 +204,7 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
-        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
 
         #mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))

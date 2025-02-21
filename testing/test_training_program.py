@@ -246,15 +246,15 @@ class TestTrainingProgram(unittest.TestCase):
             "height.txt")
 
         # Verify that height file is written
-        mock_open.assert_called_with(os.path.join("models", "height.txt"), "w")
+        mock_open.assert_called_with(os.path.join("src/models", "height.txt"), "w")
         mock_open().write.assert_called_with("224")
 
         # Verify torch.save is called for each model, ignoring exact state_dict() content
         expected_calls = [
-            ((unittest.mock.ANY, os.path.join("models", "caud.pth")),),
-            ((unittest.mock.ANY, os.path.join("models", "dors.pth")),),
-            ((unittest.mock.ANY, os.path.join("models", "fron.pth")),),
-            ((unittest.mock.ANY, os.path.join("models", "late.pth")),)
+            ((unittest.mock.ANY, os.path.join("src/models", "caud.pth")),),
+            ((unittest.mock.ANY, os.path.join("src/models", "dors.pth")),),
+            ((unittest.mock.ANY, os.path.join("src/models", "fron.pth")),),
+            ((unittest.mock.ANY, os.path.join("src/models", "late.pth")),)
         ]
         mock_torch_save.assert_has_calls(expected_calls, any_order=True)
 
