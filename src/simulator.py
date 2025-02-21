@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     print(models.keys)
     print(ml.get_model("caud").named_parameters())
-
+    # pylint: disable=C0206
     # Set models to evaluation mode
     for key in models:
         models[key].eval()
