@@ -54,6 +54,7 @@ class EvaluationMethod:
             _, predicted_index = torch.max(late_output, 1)
             predictions["late"]["score"] = torch.nn.functional.softmax(
                 late_output, dim=1)[0][predicted_index].item()
+            print("softmax ran")
             predictions["late"]["species"] = predicted_index.item()
 
         if dors:
