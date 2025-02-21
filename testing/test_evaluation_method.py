@@ -25,7 +25,7 @@ class TestEvaluationMethod(unittest.TestCase):
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
 
-        mock_file.assert_called_once_with("models/height_mock.txt")
+        mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
         self.assertEqual(evaluation.use_method, 1)
         #Change the weights to match the program's manually
         self.assertEqual(evaluation.weights, [0.25, 0.25, 0.25, 0.25])
@@ -108,7 +108,7 @@ class TestEvaluationMethod(unittest.TestCase):
         evaluation.transform_input = mock_transform
 
         evaluation.use_method = 1
-        evaluation.evaluate_image(late=torch.rand(3, 224, 224))
+        evaluation.evaluate_image(late=Image.new("RGB", (224, 224)))
 
         mock_heaviest.assert_called_once()
 
@@ -131,7 +131,7 @@ class TestEvaluationMethod(unittest.TestCase):
         evaluation.transform_input = mock_transform
 
         evaluation.use_method = 2
-        result_species, result_conf = evaluation.evaluate_image(late=torch.rand(3, 224, 224))
+        result_species, result_conf = evaluation.evaluate_image(late=Image.new("RGB", (224, 224)))
 
         mock_weighted.assert_called_once()
         self.assertEqual(result_species, 2)
@@ -156,7 +156,7 @@ class TestEvaluationMethod(unittest.TestCase):
         evaluation.transform_input = mock_transform
 
         evaluation.use_method = 3
-        result_species, result_conf = evaluation.evaluate_image(late=torch.rand(3, 224, 224))
+        result_species, result_conf = evaluation.evaluate_image(late=Image.new("RGB", (224, 224)))
 
         mock_stacked.assert_called_once()
         self.assertEqual(result_species, 2)
@@ -181,7 +181,7 @@ class TestEvaluationMethod(unittest.TestCase):
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
         evaluation.transform_input = mock_transform
 
-        result_species, result_conf = evaluation.evaluate_image(late=torch.rand(3, 224, 224))
+        result_species, result_conf = evaluation.evaluate_image(late=Image.new("RGB", (224, 224)))
 
         self.assertEqual(result_species, 0)
         self.assertEqual(result_conf, 0.8)
@@ -211,10 +211,10 @@ class TestEvaluationMethod(unittest.TestCase):
         evaluation.transform_input = mock_transform
 
         result_species, result_conf = evaluation.evaluate_image(
-            late=torch.rand(3, 224, 224),
-            dors=torch.rand(3, 224, 224),
-            fron=torch.rand(3, 224, 224),
-            caud=torch.rand(3, 224, 224))
+            late=Image.new("RGB", (224, 224)),
+            dors=Image.new("RGB", (224, 224)),
+            fron=Image.new("RGB", (224, 224)),
+            caud=Image.new("RGB", (224, 224)))
 
         self.assertEqual(result_species, 1)
         self.assertEqual(result_conf, 0.6)
