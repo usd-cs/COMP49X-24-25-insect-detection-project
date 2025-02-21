@@ -4,6 +4,9 @@ from training_data_converter import TrainingDataConverter
 from training_database_reader import DatabaseReader
 from training_program import TrainingProgram
 from model_loader import ModelLoader
+from evaluation_method import EvaluationMethod
+from PIL import Image
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 # simple simulation of end-to-end functionality of files
@@ -35,5 +38,34 @@ if __name__ == '__main__':
             "late" : "src/models/late.pth"
         }
     ml = ModelLoader(model_paths)
-    print(ml.get_models().keys)
+    models = ml.get_models()
+
+    print(models.keys)
     print(ml.get_model("caud").named_parameters())
+
+    # Set models to evaluation mode
+    for key in models:
+        models[key].eval()
+
+    # Inititialize the EvaluationMethod object with the heaviest eval method set
+    evaluator = EvaluationMethod("height.txt", models, 1)
+
+    # Get the images to be evaluated through user input
+    late_img_path = input("Enter lateral image path (or press Enter to skip): ")
+    dors_img_path = input("Enter dorsal image path (or press Enter to skip): ")
+    fron_img_path = input("Enter frontal image path (or press Enter to skip): ")
+    caud_img_path = input("Enter caudal image path (or press Enter to skip): ")
+
+    # Load the provided images
+    late_img = Image.open(late_img_path) if late_img_path else None
+    dors_img = Image.open(dors_img_path) if dors_img_path else None
+    fron_img = Image.open(fron_img_path) if fron_img_path else None
+    caud_img = Image.open(caud_img_path) if caud_img_path else None
+
+    # Run the evaluation method
+    species, confidence = evaluator.evaluate_image(
+        late=late_img, dors=dors_img, fron=fron_img, caud=caud_img
+    )
+
+    # Print classification results
+    print(f"Predicted Species: {species}, Confidence: {confidence:.2f}")
