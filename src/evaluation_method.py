@@ -11,13 +11,13 @@ class EvaluationMethod:
     loaded CNN models
     """
 
-    def __init__(self, height_filename, models_dict):
+    def __init__(self, height_filename, models_dict, eval_method):
         """
         Load the trained models for usage and have the class prepared for user input.
         During testing phases, determining which evaluation method defined below will 
         be chosen here as well
         """
-        self.use_method = 1     #1 = heaviest, 2 = weighted, 3 = stacked
+        self.use_method = eval_method     #1 = heaviest, 2 = weighted, 3 = stacked
 
         #weights for use in weighted eval. Can be tweaked later to optimize evaluation accuracy
         self.weights = [0.25, 0.25, 0.25, 0.25]
@@ -93,8 +93,10 @@ class EvaluationMethod:
             predictions["caud"]["species"] = predicted_index.item()
 
         if self.use_method == 1:
-            use_model = self.heaviest_is_best(predictions["fron"]["score"], predictions["dors"]["score"],
-                                              predictions["late"]["score"], predictions["caud"]["score"])
+            use_model = self.heaviest_is_best(predictions["fron"]["score"],
+                                              predictions["dors"]["score"],
+                                              predictions["late"]["score"],
+                                              predictions["caud"]["score"])
 
             #match uses the index returned from the method to decide which prediction to return
             match use_model:
@@ -110,10 +112,14 @@ class EvaluationMethod:
                     return None, -1
 
         elif self.use_method == 2:
-            return self.weighted_eval([predictions["fron"]["score"], predictions["dors"]["score"],
-                                       predictions["late"]["score"], predictions["caud"]["score"]],
-                                      [predictions["fron"]["species"], predictions["dors"]["species"],
-                                       predictions["late"]["species"], predictions["caud"]["species"]])
+            return self.weighted_eval([predictions["fron"]["score"],
+                                       predictions["dors"]["score"],
+                                       predictions["late"]["score"],
+                                       predictions["caud"]["score"]],
+                                      [predictions["fron"]["species"],
+                                       predictions["dors"]["species"],
+                                       predictions["late"]["species"],
+                                       predictions["caud"]["species"]])
 
         elif self.use_method == 3:
             return self.stacked_eval()
