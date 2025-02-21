@@ -165,7 +165,7 @@ class TestEvaluationMethod(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("torch.max", return_value=(None, torch.tensor([0])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.8, 0.1, 0.1]]))
-    def test_evaluate_image_single_input(self, mock_file, mock_softmax, mock_max):
+    def test_evaluate_image_single_input(self, mock_softmax, mock_max, mock_file):
         """test proper output with a single image entered"""
         mock_models = {
             "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
@@ -194,7 +194,7 @@ class TestEvaluationMethod(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("torch.max", return_value=(None, torch.tensor([1])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1]]))
-    def test_evaluate_image_multiple_input(self, mock_file, mock_softmax, mock_max):
+    def test_evaluate_image_multiple_input(self, mock_softmax, mock_max, mock_file):
         """test proper output with multiple images entered"""
         mock_models = {
             "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
