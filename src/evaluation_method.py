@@ -2,7 +2,7 @@
 Method that takes in a user input image or set of user images and runs them through 
 the loaded trained models and creates a combined classification output
 """
-from torchvision import transforms, models
+from torchvision import transforms
 import torch
 
 class EvaluationMethod:
@@ -37,14 +37,12 @@ class EvaluationMethod:
                 A return of None, -1 indicates an error
         """
         #define variables outside the if statements so they can be used in other method calls
-        late_confidence_score = 0
-        late_predicted_species = None
-        dors_confidence_score = 0
-        dors_predicted_species = None
-        fron_confidence_score = 0
-        fron_predicted_species = None
-        caud_confidence_score = 0
-        caud_predicted_species = None
+        predictions = {
+            "late" : {"score" : 0, "species" : None},
+            "dors" : {"score" : 0, "species" : None},
+            "fron" : {"score" : 0, "species" : None},
+            "caud" : {"score" : 0, "species" : None},
+        }
 
         if late:
             late_image = self.transform_input(late)
@@ -53,10 +51,10 @@ class EvaluationMethod:
                 late_output = self.trained_models["late"](late_image)
 
             # Get the predicted class and confidence score
-            _, predictedIndex = torch.max(late_output, 1)
-            late_confidence_score = torch.nn.functional.softmax(
-                late_output, dim=1)[0][predictedIndex].item()
-            late_predicted_species = predictedIndex.item()
+            _, predicted_index = torch.max(late_output, 1)
+            predictions["late"]["score"] = torch.nn.functional.softmax(
+                late_output, dim=1)[0][predicted_index].item()
+            predictions["late"]["species"] = predicted_index.item()
 
         if dors:
             #mirrors above usage but for the dors angle
@@ -65,10 +63,10 @@ class EvaluationMethod:
             with torch.no_grad():
                 dors_output = self.trained_models["dors"](dors_image)
 
-            _, predictedIndex = torch.max(dors_output, 1)
-            dors_confidence_score = torch.nn.functional.softmax(
-                dors_output, dim=1)[0][predictedIndex].item()
-            dors_predicted_species = predictedIndex.item()
+            _, predicted_index = torch.max(dors_output, 1)
+            predictions["dors"]["score"] = torch.nn.functional.softmax(
+                dors_output, dim=1)[0][predicted_index].item()
+            predictions["dors"]["species"] = predicted_index.item()
 
         if fron:
             #mirrors above usage but for the fron angle
@@ -77,10 +75,10 @@ class EvaluationMethod:
             with torch.no_grad():
                 fron_output = self.trained_models["fron"](fron_image)
 
-            _, predictedIndex = torch.max(fron_output, 1)
-            fron_confidence_score = torch.nn.functional.softmax(
-                fron_output, dim=1)[0][predictedIndex].item()
-            fron_predicted_species = predictedIndex.item()
+            _, predicted_index = torch.max(fron_output, 1)
+            predictions["fron"]["score"] = torch.nn.functional.softmax(
+                fron_output, dim=1)[0][predicted_index].item()
+            predictions["fron"]["species"] = predicted_index.item()
 
         if caud:
             #mirrors above usage but for the caud angle
@@ -89,33 +87,33 @@ class EvaluationMethod:
             with torch.no_grad():
                 caud_output = self.trained_models["caud"](caud_image)
 
-            _, predictedIndex = torch.max(caud_output, 1)
-            caud_confidence_score = torch.nn.functional.softmax(
-                caud_output, dim=1)[0][predictedIndex].item()
-            caud_predicted_species = predictedIndex.item()
+            _, predicted_index = torch.max(caud_output, 1)
+            predictions["caud"]["score"] = torch.nn.functional.softmax(
+                caud_output, dim=1)[0][predicted_index].item()
+            predictions["caud"]["species"] = predicted_index.item()
 
         if self.use_method == 1:
-            use_model = self.heaviest_is_best(fron_confidence_score, dors_confidence_score,
-                                              late_confidence_score, caud_confidence_score)
+            use_model = self.heaviest_is_best(predictions["fron"]["score"], predictions["dors"]["score"],
+                                              predictions["late"]["score"], predictions["caud"]["score"])
 
             #match uses the index returned from the method to decide which prediction to return
             match use_model:
                 case 0:
-                    return fron_predicted_species, fron_confidence_score
+                    return predictions["fron"]["species"], predictions["fron"]["score"]
                 case 1:
-                    return dors_predicted_species, dors_confidence_score
+                    return predictions["dors"]["species"], predictions["dors"]["score"]
                 case 2:
-                    return late_predicted_species, late_confidence_score
+                    return predictions["late"]["species"], predictions["late"]["score"]
                 case 3:
-                    return caud_predicted_species, caud_confidence_score
+                    return predictions["caud"]["species"], predictions["caud"]["score"]
                 case _:
                     return None, -1
 
         elif self.use_method == 2:
-            return self.weighted_eval([fron_confidence_score, dors_confidence_score,
-                                       late_confidence_score, caud_confidence_score],
-                                      [fron_predicted_species, dors_predicted_species,
-                                       late_predicted_species, caud_predicted_species])
+            return self.weighted_eval([predictions["fron"]["score"], predictions["dors"]["score"],
+                                       predictions["late"]["score"], predictions["caud"]["score"]],
+                                      [predictions["fron"]["species"], predictions["dors"]["species"],
+                                       predictions["late"]["species"], predictions["caud"]["species"]])
 
         elif self.use_method == 3:
             return self.stacked_eval()

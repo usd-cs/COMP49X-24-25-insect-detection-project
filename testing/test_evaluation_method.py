@@ -99,7 +99,7 @@ class TestEvaluationMethod(unittest.TestCase):
         mock_heaviest.assert_called_once()
 
     @patch("evaluation_method.EvaluationMethod.weighted_eval", return_value = (2, 0.75))
-    def test_evaluate_image_uses_heaviest(self, mock_weighted):
+    def test_evaluate_image_uses_weighted(self, mock_weighted):
         """test proper usage when self.use_method = 2"""
         evaluation = self.create_evaluation_object_for_evaluate_image_tests()
 
@@ -111,7 +111,7 @@ class TestEvaluationMethod(unittest.TestCase):
         self.assertEqual(result_conf, 0.75)
 
     @patch("evaluation_method.EvaluationMethod.stacked_eval", return_value = (2, 0.75))
-    def test_evaluate_image_uses_heaviest(self, mock_stacked):
+    def test_evaluate_image_uses_stacked(self, mock_stacked):
         """test proper usage when self.use_method = 3"""
         evaluation = self.create_evaluation_object_for_evaluate_image_tests()
 
