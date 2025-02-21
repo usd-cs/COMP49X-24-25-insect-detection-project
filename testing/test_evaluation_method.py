@@ -13,7 +13,7 @@ class TestEvaluationMethod(unittest.TestCase):
     """
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    def test_heaviest_is_best(self):
+    def test_heaviest_is_best(self, mock_file):
         """test heaviest is best for proper tracking of highest certainty"""
         evaluation = EvaluationMethod("height_mock.txt")
 
@@ -21,7 +21,7 @@ class TestEvaluationMethod(unittest.TestCase):
         assert evaluation.heaviest_is_best(0.1, 0.9, 0.6, 0.32) == 1
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    def test_weighted_eval(self):
+    def test_weighted_eval(self, mock_file):
         """test weighted eval for proper calculation"""
         evaluation = EvaluationMethod("height_mock.txt")
         #must be changed if weights are adjusted in code
@@ -34,7 +34,7 @@ class TestEvaluationMethod(unittest.TestCase):
         assert score == given_weights[1] * conf_scores[1] + given_weights[2] * conf_scores[2]
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    def test_transform_input(self):
+    def test_transform_input(self, mock_file):
         """test transform input for proper image transformation"""
         evaluation = EvaluationMethod("height_mock.txt")
         evaluation.height = 224
