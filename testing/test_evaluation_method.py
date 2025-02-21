@@ -2,9 +2,8 @@
 import unittest
 import sys
 import os
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, mock_open
 from PIL import Image
-import torch
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from evaluation_method import EvaluationMethod
 
@@ -14,7 +13,7 @@ class TestEvaluationMethod(unittest.TestCase):
     """
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    def test_heaviest_is_best(self, mock_file):
+    def test_heaviest_is_best(self):
         """test heaviest is best for proper tracking of highest certainty"""
         evaluation = EvaluationMethod("height_mock.txt")
 
@@ -22,7 +21,7 @@ class TestEvaluationMethod(unittest.TestCase):
         assert evaluation.heaviest_is_best(0.1, 0.9, 0.6, 0.32) == 1
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    def test_weighted_eval(self, mock_file):
+    def test_weighted_eval(self):
         """test weighted eval for proper calculation"""
         evaluation = EvaluationMethod("height_mock.txt")
         #must be changed if weights are adjusted in code
@@ -35,7 +34,7 @@ class TestEvaluationMethod(unittest.TestCase):
         assert score == given_weights[1] * conf_scores[1] + given_weights[2] * conf_scores[2]
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    def test_transform_input(self, mock_file):
+    def test_transform_input(self):
         """test transform input for proper image transformation"""
         evaluation = EvaluationMethod("height_mock.txt")
         evaluation.height = 224
