@@ -45,7 +45,7 @@ if __name__ == '__main__':
     print(ml.get_model("caud").named_parameters())
 
     # Set models to evaluation mode
-    for key in models.keys():
+    for key in models:
         models[key].eval()
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
