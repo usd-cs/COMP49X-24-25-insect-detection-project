@@ -275,7 +275,7 @@ class TrainingProgram:
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_caudal_view())
         # Define image transformations, placeholder for preprocessing
         transformation = transforms.Compose([
-        transforms.Resize(self.height),  # ResNet expects 224x224 images
+        transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         # Create DataLoaders
@@ -296,7 +296,7 @@ class TrainingProgram:
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_dorsal_view())
         # Define image transformations, placeholder for preprocessing
         transformation = transforms.Compose([
-        transforms.Resize(self.height),  # ResNet expects 224x224 images
+        transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         # Create DataLoaders
@@ -317,7 +317,7 @@ class TrainingProgram:
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_frontal_view())
         # Define image transformations, placeholder for preprocessing
         transformation = transforms.Compose([
-        transforms.Resize(self.height),  # ResNet expects 224x224 images
+        transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         # Create DataLoaders
@@ -338,7 +338,7 @@ class TrainingProgram:
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_lateral_view())
         # Define image transformations, placeholder for preprocessing
         transformation = transforms.Compose([
-        transforms.Resize(self.height),  # ResNet expects 224x224 images
+        transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         # Create DataLoaders
@@ -409,11 +409,11 @@ class TrainingProgram:
         Returns: None
         """
 
-        caud_filename = os.path.join("models", caud_filename)
-        dors_filename = os.path.join("models", dors_filename)
-        fron_filename = os.path.join("models", fron_filename)
-        late_filename = os.path.join("models", late_filename)
-        height_filename = os.path.join("models", height_filename)
+        caud_filename = os.path.join("src/models", caud_filename)
+        dors_filename = os.path.join("src/models", dors_filename)
+        fron_filename = os.path.join("src/models", fron_filename)
+        late_filename = os.path.join("src/models", late_filename)
+        height_filename = os.path.join("src/models", height_filename)
 
         with open(height_filename, "w") as file:
             file.write(str(self.height))

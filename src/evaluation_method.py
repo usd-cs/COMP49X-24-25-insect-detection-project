@@ -2,8 +2,11 @@
 Method that takes in a user input image or set of user images and runs them through 
 the loaded trained models and creates a combined classification output
 """
+import sys
+import os
 from torchvision import transforms
 import torch
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 class EvaluationMethod:
     """
@@ -24,7 +27,7 @@ class EvaluationMethod:
         self.trained_models = models_dict
 
         self.height = None
-        with open("models/" + height_filename, 'r', encoding='utf-8') as file:
+        with open("src/models/" + height_filename, 'r', encoding='utf-8') as file:
             self.height = int(file.readline().strip())
 
     def evaluate_image(self, late=None, dors=None, fron=None, caud=None):
