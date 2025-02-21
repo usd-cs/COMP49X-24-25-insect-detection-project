@@ -39,6 +39,8 @@ class EvaluationMethod:
         Returns: Classification of input images and confidence score. 
                 A return of None, -1 indicates an error
         """
+        device = torch.device('mps' if torch.backends.mps.is_built() else 'cpu')
+
         #define variables outside the if statements so they can be used in other method calls
         predictions = {
             "late" : {"score" : 0, "species" : None},
@@ -48,10 +50,10 @@ class EvaluationMethod:
         }
 
         if late:
-            late_image = self.transform_input(late)
+            late_image = self.transform_input(late).to(device)
 
             with torch.no_grad():
-                late_output = self.trained_models["late"](late_image)
+                late_output = self.trained_models["late"].to(device)(late_image)
 
             # Get the predicted class and confidence score
             _, predicted_index = torch.max(late_output, 1)
@@ -61,10 +63,10 @@ class EvaluationMethod:
 
         if dors:
             #mirrors above usage but for the dors angle
-            dors_image = self.transform_input(dors)
+            dors_image = self.transform_input(dors).to(device)
 
             with torch.no_grad():
-                dors_output = self.trained_models["dors"](dors_image)
+                dors_output = self.trained_models["dors"].to(device)(dors_image)
 
             _, predicted_index = torch.max(dors_output, 1)
             predictions["dors"]["score"] = torch.nn.functional.softmax(
@@ -73,10 +75,10 @@ class EvaluationMethod:
 
         if fron:
             #mirrors above usage but for the fron angle
-            fron_image = self.transform_input(fron)
+            fron_image = self.transform_input(fron).to(device)
 
             with torch.no_grad():
-                fron_output = self.trained_models["fron"](fron_image)
+                fron_output = self.trained_models["fron"].to(device)(fron_image)
 
             _, predicted_index = torch.max(fron_output, 1)
             predictions["fron"]["score"] = torch.nn.functional.softmax(
@@ -85,10 +87,10 @@ class EvaluationMethod:
 
         if caud:
             #mirrors above usage but for the caud angle
-            caud_image = self.transform_input(caud)
+            caud_image = self.transform_input(caud).to(device)
 
             with torch.no_grad():
-                caud_output = self.trained_models["caud"](caud_image)
+                caud_output = self.trained_models["caud"].to(device)(caud_image)
 
             _, predicted_index = torch.max(caud_output, 1)
             predictions["caud"]["score"] = torch.nn.functional.softmax(
