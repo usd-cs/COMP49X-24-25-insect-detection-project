@@ -94,18 +94,14 @@ class EvaluationMethod:
 
         if self.use_method == 1:
             #match uses the index returned from the method to decide which prediction to return
-            match self.heaviest_is_best(predictions["fron"]["score"],
-                                              predictions["dors"]["score"],
-                                              predictions["late"]["score"],
-                                              predictions["caud"]["score"]):
-                case 0:
-                    return predictions["fron"]["species"], predictions["fron"]["score"]
-                case 1:
-                    return predictions["dors"]["species"], predictions["dors"]["score"]
-                case 2:
-                    return predictions["late"]["species"], predictions["late"]["score"]
-                case 3:
-                    return predictions["caud"]["species"], predictions["caud"]["score"]
+            return self.heaviest_is_best([predictions["fron"]["score"],
+                                       predictions["dors"]["score"],
+                                       predictions["late"]["score"],
+                                       predictions["caud"]["score"]],
+                                      [predictions["fron"]["species"],
+                                       predictions["dors"]["species"],
+                                       predictions["late"]["species"],
+                                       predictions["caud"]["species"]])
 
         elif self.use_method == 2:
             return self.weighted_eval([predictions["fron"]["score"],
@@ -120,25 +116,33 @@ class EvaluationMethod:
         elif self.use_method == 3:
             return self.stacked_eval()
 
-    def heaviest_is_best(self, fron_cert, dors_cert, late_cert, caud_cert):
+    def heaviest_is_best(self, conf_scores, species_predictions):
         """
         Takes the certainties of the models and returns the most 
         certain model's specification
 
         Returns: specifies most certain model
         """
-        certainties = [fron_cert, dors_cert, late_cert, caud_cert]
         highest = 0
         index = 0
         ind_tracker = 0
-        for i in certainties:
+        for i in conf_scores:
             if i > highest:
                 highest = i
                 index = ind_tracker
 
             ind_tracker += 1
 
-        return index
+        match index:
+            case 0:
+                return species_predictions[0], conf_scores[0]
+            case 1:
+                return species_predictions[1], conf_scores[1]
+            case 2:
+                return species_predictions[2], conf_scores[2]
+            case 3:
+                return species_predictions[3], conf_scores[3]
+
 
     def weighted_eval(self, conf_scores, species_predictions):
         """

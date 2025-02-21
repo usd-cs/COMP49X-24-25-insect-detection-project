@@ -46,8 +46,9 @@ class TestEvaluationMethod(unittest.TestCase):
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
         mock_file.assert_called_once_with("models/height_mock.txt", 'r', encoding='utf-8')
 
-        assert evaluation.heaviest_is_best(0.1, 0.3, 0.5, 0.4) == 2
-        assert evaluation.heaviest_is_best(0.1, 0.9, 0.6, 0.32) == 1
+        species, conf = evaluation.heaviest_is_best([0.1, 0.3, 0.5, 0.4],[1, 4, 6, 3])
+        self.assertEqual(species, 6)
+        self.assertEqual(conf, 0.5)
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     def test_weighted_eval(self, mock_file):
