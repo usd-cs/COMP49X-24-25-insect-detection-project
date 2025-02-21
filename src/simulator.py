@@ -51,10 +51,10 @@ if __name__ == '__main__':
     evaluator = EvaluationMethod("height.txt", models, 1)
 
     # Get the images to be evaluated through user input
-    late_img_path = input("Enter lateral image path (or press Enter to skip): ")
-    dors_img_path = input("Enter dorsal image path (or press Enter to skip): ")
-    fron_img_path = input("Enter frontal image path (or press Enter to skip): ")
-    caud_img_path = input("Enter caudal image path (or press Enter to skip): ")
+    late_img_path = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT LATE.jpg"
+    dors_img_path = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT DORS.jpg"
+    fron_img_path = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT FRON.jpg"
+    caud_img_path = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT CAUD.jpg"
 
     # Load the provided images
     late_img = Image.open(late_img_path) if late_img_path else None
