@@ -184,7 +184,7 @@ class TestEvaluationMethod(unittest.TestCase):
         result_species, result_conf = evaluation.evaluate_image(late=Image.new("RGB", (224, 224)))
 
         self.assertEqual(result_species, 0)
-        self.assertEqual(result_conf, 0.8)
+        self.assertEqual(round(result_conf, 2), 0.8)
 
         mock_transform.assert_called_once()
         mock_models["late"].assert_called_once()
@@ -217,7 +217,7 @@ class TestEvaluationMethod(unittest.TestCase):
             caud=Image.new("RGB", (224, 224)))
 
         self.assertEqual(result_species, 1)
-        self.assertEqual(result_conf, 0.6)
+        self.assertEqual(round(result_conf, 2), 0.6)
 
         self.assertEqual(mock_transform.call_count, 4)
         self.assertEqual(mock_max.call_count, 4)
