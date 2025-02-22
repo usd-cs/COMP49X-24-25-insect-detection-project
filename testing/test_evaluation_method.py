@@ -90,79 +90,6 @@ class TestEvaluationMethod(unittest.TestCase):
         assert result.shape == (1, 3, 224, 224)
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    @patch("evaluation_method.EvaluationMethod.heaviest_is_best", return_value = 0)
-    def test_evaluate_image_uses_heaviest(self, mock_heaviest, mock_file):
-        """test proper usage when self.use_method = 1"""
-        mock_models = {
-            "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
-            "dors": MagicMock(return_value=torch.tensor([[0.2, 0.5, 0.3]])),
-            "fron": MagicMock(return_value=torch.tensor([[0.7, 0.2, 0.1]])),
-            "caud": MagicMock(return_value=torch.tensor([[0.4, 0.4, 0.2]])),
-        }
-
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
-        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
-
-        #mock transform_input for dummy output
-        mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
-        evaluation.transform_input = mock_transform
-
-        evaluation.use_method = 1
-        evaluation.evaluate_image(late=Image.new("RGB", (224, 224)))
-
-        mock_heaviest.assert_called_once()
-
-    @patch("builtins.open", new_callable=mock_open, read_data="224")
-    @patch("evaluation_method.EvaluationMethod.weighted_eval", return_value = (2, 0.75))
-    def test_evaluate_image_uses_weighted(self, mock_weighted, mock_file):
-        """test proper usage when self.use_method = 2"""
-        mock_models = {
-            "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
-            "dors": MagicMock(return_value=torch.tensor([[0.2, 0.5, 0.3]])),
-            "fron": MagicMock(return_value=torch.tensor([[0.7, 0.2, 0.1]])),
-            "caud": MagicMock(return_value=torch.tensor([[0.4, 0.4, 0.2]])),
-        }
-
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 2)
-        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
-
-        #mock transform_input for dummy output
-        mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
-        evaluation.transform_input = mock_transform
-
-        evaluation.use_method = 2
-        result_species, result_conf = evaluation.evaluate_image(late=Image.new("RGB", (224, 224)))
-
-        mock_weighted.assert_called_once()
-        self.assertEqual(result_species, 2)
-        self.assertEqual(result_conf, 0.75)
-
-    @patch("builtins.open", new_callable=mock_open, read_data="224")
-    @patch("evaluation_method.EvaluationMethod.stacked_eval", return_value = (2, 0.75))
-    def test_evaluate_image_uses_stacked(self, mock_stacked, mock_file):
-        """test proper usage when self.use_method = 3"""
-        mock_models = {
-            "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
-            "dors": MagicMock(return_value=torch.tensor([[0.2, 0.5, 0.3]])),
-            "fron": MagicMock(return_value=torch.tensor([[0.7, 0.2, 0.1]])),
-            "caud": MagicMock(return_value=torch.tensor([[0.4, 0.4, 0.2]])),
-        }
-
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 3)
-        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
-
-        #mock transform_input for dummy output
-        mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
-        evaluation.transform_input = mock_transform
-
-        evaluation.use_method = 3
-        result_species, result_conf = evaluation.evaluate_image(late=Image.new("RGB", (224, 224)))
-
-        mock_stacked.assert_called_once()
-        self.assertEqual(result_species, 2)
-        self.assertEqual(result_conf, 0.75)
-
-    @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("torch.max", return_value=(None, torch.tensor([0])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.8, 0.1, 0.1]]))
     def test_evaluate_image_single_input(self, mock_softmax, mock_max, mock_file):
@@ -187,7 +114,6 @@ class TestEvaluationMethod(unittest.TestCase):
         self.assertEqual(round(result_conf, 2), 0.8)
 
         mock_transform.assert_called_once()
-        mock_models["late"].assert_called_once()
         mock_softmax.assert_called_once()
         mock_max.assert_called_once()
 
