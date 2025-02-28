@@ -10,6 +10,10 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
+class_index_dictionary = {}
+class_string_dictionary = {}
+class_set = set()
+
 # pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, unspecified-encoding
 class TrainingProgram:
     """
@@ -33,6 +37,15 @@ class TrainingProgram:
         self.dors_model = self.load_dors_model()
         self.fron_model = self.load_fron_model()
         self.late_model = self.load_late_model()
+        print(dataframe)
+        classes = dataframe.iloc[:, 1].values
+        class_to_idx = {label: idx for idx, label in enumerate(sorted(set(classes)))}
+        for class_values in classes:
+            if class_to_idx[class_values] not in class_set:
+                class_index_dictionary[class_to_idx[class_values]] = class_values
+                class_string_dictionary[class_values] = class_to_idx[class_values]
+                class_set.add(class_to_idx[class_values])
+        print(class_string_dictionary)
 
     def get_subset(self, view_type, dataframe):
         """
@@ -79,8 +92,7 @@ class TrainingProgram:
         """
         image_binaries = df.iloc[:, -1].values
         classes = df.iloc[:, 1].values
-        class_to_idx = {label: idx for idx, label in enumerate(sorted(set(classes)))}
-        labels = [class_to_idx[label] for label in classes]
+        labels = [class_string_dictionary[label] for label in classes]
         # Split subset into training and testing sets
         # x: images, y: species
         train_x, test_x, train_y, test_y = train_test_split(
