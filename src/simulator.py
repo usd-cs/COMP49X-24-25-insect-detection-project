@@ -29,7 +29,7 @@ if __name__ == '__main__':
     tp.train_lateral(1)
 
     # Save models
-    tp.save_models("caud.pth", "dors.pth", "fron.pth", "late.pth", "height.txt")
+    tp.save_models("caud.pth", "dors.pth", "fron.pth", "late.pth", "height.txt", "dict.json")
 
     # Load models
     model_paths = {

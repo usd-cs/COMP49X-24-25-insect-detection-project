@@ -1,6 +1,7 @@
 """ training_program.py """
 import os
 import sys
+import json
 from io import BytesIO
 import pandas as pd
 from torchvision import transforms, models
@@ -9,6 +10,10 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
+
+class_index_dictionary = {}
+class_string_dictionary = {}
+class_set = set()
 
 # pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, unspecified-encoding
 class TrainingProgram:
@@ -33,6 +38,13 @@ class TrainingProgram:
         self.dors_model = self.load_dors_model()
         self.fron_model = self.load_fron_model()
         self.late_model = self.load_late_model()
+        classes = dataframe.iloc[:, 1].values
+        class_to_idx = {label: idx for idx, label in enumerate(sorted(set(classes)))}
+        for class_values in classes:
+            if class_to_idx[class_values] not in class_set:
+                class_index_dictionary[class_to_idx[class_values]] = class_values
+                class_string_dictionary[class_values] = class_to_idx[class_values]
+                class_set.add(class_to_idx[class_values])
 
     def get_subset(self, view_type, dataframe):
         """
@@ -79,8 +91,7 @@ class TrainingProgram:
         """
         image_binaries = df.iloc[:, -1].values
         classes = df.iloc[:, 1].values
-        class_to_idx = {label: idx for idx, label in enumerate(sorted(set(classes)))}
-        labels = [class_to_idx[label] for label in classes]
+        labels = [class_string_dictionary[label] for label in classes]
         # Split subset into training and testing sets
         # x: images, y: species
         train_x, test_x, train_y, test_y = train_test_split(
@@ -402,7 +413,7 @@ class TrainingProgram:
         return model
 
     def save_models(self, caud_filename, dors_filename,
-                   fron_filename, late_filename, height_filename):
+                   fron_filename, late_filename, height_filename, dict_filename):
         """
         Saves trained models to their respective files and image height file
         
@@ -414,6 +425,7 @@ class TrainingProgram:
         fron_filename = os.path.join("src/models", fron_filename)
         late_filename = os.path.join("src/models", late_filename)
         height_filename = os.path.join("src/models", height_filename)
+        dict_filename = os.path.join("src/models", dict_filename)
 
         with open(height_filename, "w") as file:
             file.write(str(self.height))
@@ -430,6 +442,10 @@ class TrainingProgram:
 
         torch.save(self.late_model.state_dict(), late_filename)
         print(f"Lateral Model weights saved to {late_filename}")
+
+        # save class index dictionary for evaluation
+        with open(dict_filename, "w") as file:
+            json.dump(class_index_dictionary, file, indent=4)
 
 # Custom Dataset class for loading images from binary data
 class ImageDataset(Dataset):

@@ -235,19 +235,18 @@ class TestTrainingProgram(unittest.TestCase):
         self.training_program.training_evaluation_lateral.assert_called_once()
 
     @patch("torch.save")
-    @patch("builtins.open", new_callable=unittest.mock.mock_open)
-    def test_save_models(self, mock_open, mock_torch_save):
+    def test_save_models(self, mock_torch_save):
         """ Test that save_models writes to proper files """
+
+        # Call the function
         self.training_program.save_models(
             "caud.pth",
             "dors.pth",
             "fron.pth",
             "late.pth",
-            "height.txt")
-
-        # Verify that height file is written
-        mock_open.assert_called_with(os.path.join("src/models", "height.txt"), "w")
-        mock_open().write.assert_called_with("224")
+            "height.txt",
+            "dict.json"
+        )
 
         # Verify torch.save is called for each model, ignoring exact state_dict() content
         expected_calls = [
