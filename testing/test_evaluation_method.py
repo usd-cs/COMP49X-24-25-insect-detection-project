@@ -13,7 +13,8 @@ class TestEvaluationMethod(unittest.TestCase):
     Test the evaluation method class methods
     """
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    def test_initializer(self, mock_file):
+    @patch("json.load", return_value = {0:"objectus"})
+    def test_initializer(self, mock_json, mock_file):
         """test the initializer for proper setup"""
         #mock the models
         mock_models = {
@@ -23,14 +24,17 @@ class TestEvaluationMethod(unittest.TestCase):
             "caud" : MagicMock()
         }
 
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
+        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
 
         mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_called_once_with("src/models/json_mock.txt", 'r', encoding='utf-8')
+        mock_json.assert_called_once()
         self.assertEqual(evaluation.use_method, 1)
         #Change the weights to match the program's manually
         self.assertEqual(evaluation.weights, [0.25, 0.25, 0.25, 0.25])
         self.assertEqual(evaluation.trained_models, mock_models)
         self.assertEqual(evaluation.height, 224)
+        self.assertEqual(evaluation.species_idx_dict, {0:"objectus"})
 
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
@@ -43,7 +47,7 @@ class TestEvaluationMethod(unittest.TestCase):
             "caud" : MagicMock()
         }
 
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
+        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
         mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
 
         species, conf = evaluation.heaviest_is_best([0.1, 0.3, 0.5, 0.4],[1, 4, 6, 3])
@@ -60,7 +64,7 @@ class TestEvaluationMethod(unittest.TestCase):
             "caud" : MagicMock()
         }
 
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 2)
+        evaluation = EvaluationMethod("height_mock.txt", mock_models, 2, "json_mock.txt")
         mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
         #must be changed if weights are adjusted in code
         given_weights = [0.25, 0.25, 0.25, 0.25]
@@ -81,7 +85,7 @@ class TestEvaluationMethod(unittest.TestCase):
             "caud" : MagicMock()
         }
 
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
+        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
         mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
         evaluation.height = 224
         fake_input = Image.new("RGB", (224, 224))
@@ -92,7 +96,8 @@ class TestEvaluationMethod(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("torch.max", return_value=(None, torch.tensor([0])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.8, 0.1, 0.1]]))
-    def test_evaluate_image_single_input(self, mock_softmax, mock_max, mock_file):
+    @patch("json.load", return_value = {0:"objectus"})
+    def test_evaluate_image_single_input(self, mock_json, mock_softmax, mock_max, mock_file):
         """test proper output with a single image entered"""
         mock_models = {
             "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
@@ -101,8 +106,9 @@ class TestEvaluationMethod(unittest.TestCase):
             "caud": MagicMock(return_value=torch.tensor([[0.4, 0.4, 0.2]])),
         }
 
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
+        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
         mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
+        mock_json.assert_called_once()
 
         #mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
@@ -120,7 +126,8 @@ class TestEvaluationMethod(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("torch.max", return_value=(None, torch.tensor([1])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1]]))
-    def test_evaluate_image_multiple_input(self, mock_softmax, mock_max, mock_file):
+    @patch("json.load", return_value = {0:"objectus"})
+    def test_evaluate_image_multiple_input(self, mock_json, mock_softmax, mock_max, mock_file):
         """test proper output with multiple images entered"""
         mock_models = {
             "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
@@ -129,8 +136,9 @@ class TestEvaluationMethod(unittest.TestCase):
             "caud": MagicMock(return_value=torch.tensor([[0.4, 0.4, 0.2]])),
         }
 
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1)
+        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
         mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
+        mock_json.assert_called_once()
 
         #mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))

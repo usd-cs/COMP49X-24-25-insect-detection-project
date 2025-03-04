@@ -6,6 +6,7 @@ import sys
 import os
 from torchvision import transforms
 import torch
+import json
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 class EvaluationMethod:
@@ -14,7 +15,7 @@ class EvaluationMethod:
     loaded CNN models
     """
 
-    def __init__(self, height_filename, models_dict, eval_method):
+    def __init__(self, height_filename, models_dict, eval_method, species_filename):
         """
         Load the trained models for usage and have the class prepared for user input.
         During testing phases, determining which evaluation method defined below will 
@@ -26,9 +27,23 @@ class EvaluationMethod:
         self.weights = [0.25, 0.25, 0.25, 0.25]
         self.trained_models = models_dict
 
+        self.species_idx_dict = self.open_class_dictionary(species_filename)
+
         self.height = None
         with open("src/models/" + height_filename, 'r', encoding='utf-8') as file:
             self.height = int(file.readline().strip())
+
+    def open_class_dictionary(self, filename):
+        """
+        Open and save the class dictionary for use in the evaluation method 
+        to convert the model's index to a string species classification
+
+        Returns: dictionary defined by file
+        """
+        with open("src/models/" + filename, 'r', encoding='utf-8') as json_file:
+            class_dict = json.load(json_file)
+
+        return class_dict
 
     def evaluate_image(self, late=None, dors=None, fron=None, caud=None):
         """
