@@ -20,16 +20,28 @@ if __name__ == '__main__':
     dbr = DatabaseReader("training.db")
     df = dbr.get_dataframe()
     # Run training with dataframe
-    tp = TrainingProgram(df)
+    species_tp = TrainingProgram(df, 1, 15)
 
     # Training
-    tp.train_caudal(1)
-    tp.train_dorsal(1)
-    tp.train_frontal(1)
-    tp.train_lateral(1)
+    species_tp.train_caudal(1)
+    species_tp.train_dorsal(1)
+    species_tp.train_frontal(1)
+    species_tp.train_lateral(1)
 
     # Save models
-    tp.save_models("caud.pth", "dors.pth", "fron.pth", "late.pth", "height.txt", "dict.json")
+    species_tp.save_models("spec_caud.pth", "spec_dors.pth", "spec_fron.pth", "spec_late.pth", "height.txt", "spec_dict.json")
+
+    # Run training with dataframe
+    genus_tp = TrainingProgram(df, 0, 3)
+
+    # Training
+    genus_tp.train_caudal(1)
+    genus_tp.train_dorsal(1)
+    genus_tp.train_frontal(1)
+    genus_tp.train_lateral(1)
+
+    # Save models
+    genus_tp.save_models("gen_caud.pth", "gen_dors.pth", "gen_fron.pth", "gen_late.pth", "height.txt", "gen_dict.json")
 
     # Load models
     model_paths = {
