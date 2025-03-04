@@ -29,7 +29,13 @@ if __name__ == '__main__':
     species_tp.train_lateral(1)
 
     # Save models
-    species_tp.save_models("spec_caud.pth", "spec_dors.pth", "spec_fron.pth", "spec_late.pth", "height.txt", "spec_dict.json")
+    species_tp.save_models(
+        "spec_caud.pth",
+        "spec_dors.pth",
+        "spec_fron.pth",
+        "spec_late.pth",
+        "height.txt",
+        "spec_dict.json")
 
     # Run training with dataframe
     genus_tp = TrainingProgram(df, 0, 3)
@@ -41,7 +47,12 @@ if __name__ == '__main__':
     genus_tp.train_lateral(1)
 
     # Save models
-    genus_tp.save_models("gen_caud.pth", "gen_dors.pth", "gen_fron.pth", "gen_late.pth", "height.txt", "gen_dict.json")
+    genus_tp.save_models("gen_caud.pth",
+        "gen_dors.pth",
+        "gen_fron.pth",
+        "gen_late.pth",
+        "height.txt",
+        "gen_dict.json")
 
     # Load models
     model_paths = {
