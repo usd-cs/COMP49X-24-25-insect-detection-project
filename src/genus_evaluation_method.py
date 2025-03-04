@@ -41,11 +41,14 @@ class GenusEvaluationMethod:
         Returns: dictionary defined by file
         """
         with open("src/models/" + filename, 'r', encoding='utf-8') as json_file:
-            class_dict = json.load(json_file)
+            class_dict_read = json.load(json_file)
 
         #Convert string keys to integers(keys automatically switched by json save)
         #Undoes issues created by json saving
-        class_dict = {int(key): value for key, value in class_dict.items()}
+        class_dict = {}
+
+        for key, value in class_dict_read.items():
+            class_dict[int(key)] = value 
 
         return class_dict
 
