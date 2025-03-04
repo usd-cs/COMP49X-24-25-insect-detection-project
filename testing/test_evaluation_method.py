@@ -74,7 +74,7 @@ class TestEvaluationMethod(unittest.TestCase):
         species_predictions = [1, 2, 2, 3]
 
         prediction, score = evaluation.weighted_eval(conf_scores, species_predictions)
-        assertEqual(prediction, "mimosae")
+        self.assertEqual(prediction, "mimosae")
         assert score == given_weights[1] * conf_scores[1] + given_weights[2] * conf_scores[2]
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
