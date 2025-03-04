@@ -48,7 +48,7 @@ class GenusEvaluationMethod:
         class_dict = {}
 
         for key, value in class_dict_read.items():
-            class_dict[int(key)] = value 
+            class_dict[int(key)] = value
 
         return class_dict
 
