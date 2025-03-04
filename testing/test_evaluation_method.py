@@ -2,7 +2,7 @@
 import unittest
 import sys
 import os
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import patch, mock_open, call, MagicMock
 from PIL import Image
 import torch
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
