@@ -43,6 +43,10 @@ class GenusEvaluationMethod:
         with open("src/models/" + filename, 'r', encoding='utf-8') as json_file:
             class_dict = json.load(json_file)
 
+        #Convert string keys to integers(keys automatically switched by json save)
+        #Undoes issues created by json saving
+        class_dict = {int(key): value for key, value in class_dict.items()}
+
         return class_dict
 
     def evaluate_image(self, late=None, dors=None, fron=None, caud=None):

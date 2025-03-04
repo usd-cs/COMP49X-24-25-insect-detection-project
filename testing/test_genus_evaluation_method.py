@@ -137,7 +137,8 @@ class TestGenusEvaluationMethod(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("torch.max", return_value=(None, torch.tensor([1])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1]]))
-    @patch("json.load", return_value = {0:"acanthoscelides", 1:"callosobruchus", 2:"mimosestes", 3:"phaseoli"})
+    @patch("json.load", return_value = {0:"acanthoscelides", 1:"callosobruchus", 
+                                        2:"mimosestes", 3:"phaseoli"})
     def test_evaluate_image_multiple_input(self, mock_json, mock_softmax, mock_max, mock_file):
         """test proper output with multiple images entered"""
         mock_models = {
