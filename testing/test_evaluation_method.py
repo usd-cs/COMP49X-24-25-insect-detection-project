@@ -26,8 +26,9 @@ class TestEvaluationMethod(unittest.TestCase):
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
 
-        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
-        mock_file.assert_called_once_with("src/models/json_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
+                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
+                                    any_order = True)
         mock_json.assert_called_once()
         self.assertEqual(evaluation.use_method, 1)
         #Change the weights to match the program's manually
@@ -48,7 +49,9 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
-        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
+                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
+                                    any_order = True)
         evaluation.species_idx_dict = {6:"chinensis"}
 
         species, conf = evaluation.heaviest_is_best([0.1, 0.3, 0.5, 0.4],[1, 4, 6, 3])
@@ -66,7 +69,9 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 2, "json_mock.txt")
-        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
+                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
+                                    any_order = True)
         evaluation.species_idx_dict = {2:"mimosae"}
         #must be changed if weights are adjusted in code
         given_weights = [0.25, 0.25, 0.25, 0.25]
@@ -88,7 +93,9 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
-        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
+                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
+                                    any_order = True)
         evaluation.height = 224
         fake_input = Image.new("RGB", (224, 224))
         result = evaluation.transform_input(fake_input)
@@ -109,7 +116,9 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
-        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
+                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
+                                    any_order = True)
         mock_json.assert_called_once()
 
         #mock transform_input for dummy output
@@ -139,7 +148,9 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
-        mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
+        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
+                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
+                                    any_order = True)
         mock_json.assert_called_once()
 
         #mock transform_input for dummy output
