@@ -49,7 +49,7 @@ if __name__ == '__main__':
         models[key].eval()
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
-    evaluator = EvaluationMethod("height.txt", models, 1)
+    evaluator = EvaluationMethod("height.txt", models, 1, "dict.json")
 
     # Get the images to be evaluated through user input
     LATE_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT LATE.jpg"
