@@ -49,9 +49,10 @@ class TestEvaluationMethod(unittest.TestCase):
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
         mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
+        evaluation.species_idx_dict = {6:"chinensis"}
 
         species, conf = evaluation.heaviest_is_best([0.1, 0.3, 0.5, 0.4],[1, 4, 6, 3])
-        self.assertEqual(species, 6)
+        self.assertEqual(species, "chinensis")
         self.assertEqual(conf, 0.5)
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
@@ -66,13 +67,14 @@ class TestEvaluationMethod(unittest.TestCase):
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 2, "json_mock.txt")
         mock_file.assert_called_once_with("src/models/height_mock.txt", 'r', encoding='utf-8')
+        evaluation.species_idx_dict = {2:"mimosae"}
         #must be changed if weights are adjusted in code
         given_weights = [0.25, 0.25, 0.25, 0.25]
         conf_scores = [0.8, 0.6, 0.9, 0.7]
         species_predictions = [1, 2, 2, 3]
 
         prediction, score = evaluation.weighted_eval(conf_scores, species_predictions)
-        assert prediction == 2
+        assertEqual(prediction, "mimosae")
         assert score == given_weights[1] * conf_scores[1] + given_weights[2] * conf_scores[2]
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
@@ -116,7 +118,7 @@ class TestEvaluationMethod(unittest.TestCase):
 
         result_species, result_conf = evaluation.evaluate_image(late=Image.new("RGB", (224, 224)))
 
-        self.assertEqual(result_species, 0)
+        self.assertEqual(result_species, "objectus")
         self.assertEqual(round(result_conf, 2), 0.8)
 
         mock_transform.assert_called_once()
@@ -126,7 +128,7 @@ class TestEvaluationMethod(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("torch.max", return_value=(None, torch.tensor([1])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1]]))
-    @patch("json.load", return_value = {0:"objectus"})
+    @patch("json.load", return_value = {0:"objectus", 1:"analis", 2:"maculatus", 3:"phaseoli"})
     def test_evaluate_image_multiple_input(self, mock_json, mock_softmax, mock_max, mock_file):
         """test proper output with multiple images entered"""
         mock_models = {
@@ -150,7 +152,7 @@ class TestEvaluationMethod(unittest.TestCase):
             fron=Image.new("RGB", (224, 224)),
             caud=Image.new("RGB", (224, 224)))
 
-        self.assertEqual(result_species, 1)
+        self.assertEqual(result_species, "analis")
         self.assertEqual(round(result_conf, 2), 0.6)
 
         self.assertEqual(mock_transform.call_count, 4)

@@ -157,13 +157,13 @@ class EvaluationMethod:
 
         match index:
             case 0:
-                return species_predictions[0], conf_scores[0]
+                return self.species_idx_dict[species_predictions[0]], conf_scores[0]
             case 1:
-                return species_predictions[1], conf_scores[1]
+                return self.species_idx_dict[species_predictions[1]], conf_scores[1]
             case 2:
-                return species_predictions[2], conf_scores[2]
+                return self.species_idx_dict[species_predictions[2]], conf_scores[2]
             case 3:
-                return species_predictions[3], conf_scores[3]
+                return self.species_idx_dict[species_predictions[3]], conf_scores[3]
 
 
     def weighted_eval(self, conf_scores, species_predictions):
@@ -192,7 +192,7 @@ class EvaluationMethod:
                 highest_score = j
                 highest_species = i
 
-        return highest_species, highest_score
+        return self.species_idx_dict[highest_species], highest_score
 
     def stacked_eval(self):
         """
