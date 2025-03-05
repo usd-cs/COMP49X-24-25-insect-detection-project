@@ -11,22 +11,19 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-class_index_dictionary = {}
-class_string_dictionary = {}
-class_set = set()
-
 # pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, unspecified-encoding
 class TrainingProgram:
     """
     Reads 4 subsets of pandas database from DatabaseReader, and trains and saves 4 models
     according to their respective image angles.
     """
-    def __init__(self, dataframe):
+    def __init__(self, dataframe, class_column , num_classes):
         """
         Initialize dataset, image height, and individual model training
         """
         self.dataframe = dataframe
         self.height = 224
+        self.num_classes = num_classes
         # subsets to save database reading to
         self.caud_subset = self.get_subset("CAUD", self.dataframe)
         self.dors_subset = self.get_subset("DORS", self.dataframe)
@@ -38,13 +35,19 @@ class TrainingProgram:
         self.dors_model = self.load_dors_model()
         self.fron_model = self.load_fron_model()
         self.late_model = self.load_late_model()
-        classes = dataframe.iloc[:, 1].values
+        # Dictionary variables
+        self.class_column = class_column
+        self.class_index_dictionary = {}
+        self.class_string_dictionary = {}
+        self.class_set = set()
+
+        classes = dataframe.iloc[:, self.class_column].values
         class_to_idx = {label: idx for idx, label in enumerate(sorted(set(classes)))}
         for class_values in classes:
-            if class_to_idx[class_values] not in class_set:
-                class_index_dictionary[class_to_idx[class_values]] = class_values
-                class_string_dictionary[class_values] = class_to_idx[class_values]
-                class_set.add(class_to_idx[class_values])
+            if class_to_idx[class_values] not in self.class_set:
+                self.class_index_dictionary[class_to_idx[class_values]] = class_values
+                self.class_string_dictionary[class_values] = class_to_idx[class_values]
+                self.class_set.add(class_to_idx[class_values])
 
     def get_subset(self, view_type, dataframe):
         """
@@ -90,8 +93,8 @@ class TrainingProgram:
         Returns: List of train and test data
         """
         image_binaries = df.iloc[:, -1].values
-        classes = df.iloc[:, 1].values
-        labels = [class_string_dictionary[label] for label in classes]
+        classes = df.iloc[:, self.class_column].values
+        labels = [self.class_string_dictionary[label] for label in classes]
         # Split subset into training and testing sets
         # x: images, y: species
         train_x, test_x, train_y, test_y = train_test_split(
@@ -368,7 +371,7 @@ class TrainingProgram:
         model = models.resnet50()
         num_features = model.fc.in_features
         # number of classifications tentative
-        model.fc = torch.nn.Linear(num_features, 15)
+        model.fc = torch.nn.Linear(num_features, self.num_classes)
         model = model.to(self.device)
 
         return model
@@ -381,7 +384,7 @@ class TrainingProgram:
         model = models.resnet50()
         num_features = model.fc.in_features
         # number of classifications tentative
-        model.fc = torch.nn.Linear(num_features, 15)
+        model.fc = torch.nn.Linear(num_features, self.num_classes)
         model = model.to(self.device)
 
         return model
@@ -394,7 +397,7 @@ class TrainingProgram:
         model = models.resnet50()
         num_features = model.fc.in_features
         # number of classifications tentative
-        model.fc = torch.nn.Linear(num_features, 15)
+        model.fc = torch.nn.Linear(num_features, self.num_classes)
         model = model.to(self.device)
 
         return model
@@ -407,7 +410,7 @@ class TrainingProgram:
         model = models.resnet50()
         num_features = model.fc.in_features
         # number of classifications tentative
-        model.fc = torch.nn.Linear(num_features, 15)
+        model.fc = torch.nn.Linear(num_features, self.num_classes)
         model = model.to(self.device)
 
         return model
@@ -445,7 +448,7 @@ class TrainingProgram:
 
         # save class index dictionary for evaluation
         with open(dict_filename, "w") as file:
-            json.dump(class_index_dictionary, file, indent=4)
+            json.dump(self.class_index_dictionary, file, indent=4)
 
 # Custom Dataset class for loading images from binary data
 class ImageDataset(Dataset):
