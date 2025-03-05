@@ -104,7 +104,7 @@ class EvaluationMethod:
 
             with torch.no_grad():
                 fron_output = self.trained_models["fron"].to(device)(fron_image)
-            
+
             softmax_scores = torch.nn.functional.softmax(fron_output, dim=1)[0]
             top5_scores, top5_species = torch.topk(softmax_scores, self.k)
 
@@ -124,9 +124,11 @@ class EvaluationMethod:
             predictions["caud"]["scores"] = top5_scores.tolist()
             predictions["caud"]["species"] = top5_species.tolist()
 
-        # Create a nested list containing each angles top scores(scores_list) and species(species_list)
-        scores_list = [list(predictions[key]["scores"]) for key in ["fron", "dors", "late", "caud"]]
-        species_list = [list(predictions[key]["species"]) for key in ["fron", "dors", "late", "caud"]]
+        # Create a nested list with each angles top scores(scores_list) and species(species_list)
+        scores_list = [list(predictions[key]["scores"])
+                       for key in ["fron", "dors", "late", "caud"]]
+        species_list = [list(predictions[key]["species"])
+                        for key in ["fron", "dors", "late", "caud"]]
 
 
         if self.use_method == 1:
@@ -159,11 +161,12 @@ class EvaluationMethod:
                     score = conf_scores[i][rank]
 
                     if species_idx in top_species_scores:
-                        top_species_scores[species_idx] = max(top_species_scores[species_idx], score)
+                        top_species_scores[species_idx] = max(
+                            top_species_scores[species_idx], score)
                     else:
                         top_species_scores[species_idx] = score
 
-        # Create sorted list using sorted method (creates a list with tuples nested inside(key, value))
+        # Create sorted list using sorted method (list with tuples nested inside(key, value))
         sorted_scores = sorted(top_species_scores.items(), key=lambda item: item[1], reverse=True)
         # Change key from index to correct species name
         top_5 = [(self.species_idx_dict[key], value) for key, value in sorted_scores]
@@ -194,7 +197,7 @@ class EvaluationMethod:
                     else:
                         top_species_scores[species_idx] = weighted_score
 
-        # Create sorted list using sorted method (creates a list with tuples nested inside(key, value))
+        # Create sorted list using sorted method (list with tuples nested inside(key, value))
         sorted_scores = sorted(top_species_scores.items(), key=lambda item: item[1], reverse=True)
         # Change key from index to correct species name
         top_5 = [(self.species_idx_dict[key], value) for key, value in sorted_scores]

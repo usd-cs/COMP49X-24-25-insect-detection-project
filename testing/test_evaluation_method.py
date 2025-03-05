@@ -39,7 +39,8 @@ class TestEvaluationMethod(unittest.TestCase):
 
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    @patch("json.load", return_value = {"0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
+    @patch("json.load", return_value = {
+        "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
     def test_heaviest_is_best(self, mock_json, mock_file):
         """test heaviest is best for proper tracking of highest certainty"""
         mock_models = {
@@ -65,7 +66,8 @@ class TestEvaluationMethod(unittest.TestCase):
         self.assertEqual(round(test_results[0][1], 2), 0.6)
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    @patch("json.load", return_value = {"0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
+    @patch("json.load", return_value = {
+        "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
     def test_weighted_eval(self, mock_json, mock_file):
         """test weighted eval for proper calculation"""
         mock_models = {
@@ -88,10 +90,10 @@ class TestEvaluationMethod(unittest.TestCase):
             [test_species, test_species, test_species, test_species])
         # Assert top species is as expected
         self.assertEqual(test_results[0][0], "nubigens")
-        self.assertEqual(round(test_results[0][1], 2), 
-                         (evaluation.weights[0] * test_conf_scores[1] + 
-                          evaluation.weights[1] * test_conf_scores[1] + 
-                          evaluation.weights[2] * test_conf_scores[1] + 
+        self.assertEqual(round(test_results[0][1], 2),
+                         (evaluation.weights[0] * test_conf_scores[1] +
+                          evaluation.weights[1] * test_conf_scores[1] +
+                          evaluation.weights[2] * test_conf_scores[1] +
                           evaluation.weights[3] * test_conf_scores[1]))
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
@@ -116,9 +118,11 @@ class TestEvaluationMethod(unittest.TestCase):
         assert result.shape == (1, 3, 224, 224)
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    @patch("torch.topk", return_value=(torch.tensor([0.6, 0.5, 0.4, 0.3, 0.1]), torch.tensor([1, 4, 3, 0, 2])))
+    @patch("torch.topk", return_value=(
+        torch.tensor([0.6, 0.5, 0.4, 0.3, 0.1]), torch.tensor([1, 4, 3, 0, 2])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1, 0.4, 0.5]]))
-    @patch("json.load", return_value = {"0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
+    @patch("json.load", return_value = {
+        "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
     def test_evaluate_image(self, mock_json, mock_softmax, mock_topk, mock_file):
         """test proper output with multiple images entered"""
         mock_models = {
