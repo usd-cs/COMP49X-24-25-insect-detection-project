@@ -170,8 +170,12 @@ class EvaluationMethod:
         # Create sorted list using sorted method (list with tuples nested inside(key, value))
         sorted_scores = sorted(top_species_scores.items(), key=lambda item: item[1], reverse=True)
         # Change key from index to correct species name
-        top_5 = [(self.species_idx_dict[key], value) for key, value in sorted_scores]
-
+        top_5 = []
+        for key, value in sorted_scores:
+            if key in self.species_idx_dict:
+                top_5.append((self.species_idx_dict[key], value))
+            else:
+                top_5.append(("Unknown Species", value))
 
         return top_5
 
@@ -201,7 +205,12 @@ class EvaluationMethod:
         # Create sorted list using sorted method (list with tuples nested inside(key, value))
         sorted_scores = sorted(top_species_scores.items(), key=lambda item: item[1], reverse=True)
         # Change key from index to correct species name
-        top_5 = [(self.species_idx_dict[key], value) for key, value in sorted_scores]
+        top_5 = []
+        for key, value in sorted_scores:
+            if key in self.species_idx_dict:
+                top_5.append((self.species_idx_dict[key], value))
+            else:
+                top_5.append(("Unknown Species", value))
 
         return top_5
 
