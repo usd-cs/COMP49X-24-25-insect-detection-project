@@ -55,10 +55,11 @@ class EvaluationMethod:
         """
         Create an evaluation of the input image(s) by running each given image through
         its respective model and then run the output of the models through the evaluation method
-        and return the classification
+        and returns the top classifications
 
-        Returns: Classification of input images and confidence score. 
-                A return of None, -1 indicates an error
+        Returns: List of tuples [(species_name, confidence_score), ...]
+            sorted by confidence(index 0 being the highest).
+            A return of None, -1 indicates an error
         """
         device = torch.device('mps' if torch.backends.mps.is_built() else 'cpu')
 
