@@ -30,7 +30,7 @@ class TestEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
-        
+
         self.assertEqual(evaluation.use_method, 1)
         # Change the weights to match the program's manually
         self.assertEqual(evaluation.weights, [0.25, 0.25, 0.25, 0.25])
