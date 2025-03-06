@@ -8,7 +8,7 @@ class ModelLoader:
     Initializes and loads four models with the designated pretrained weights for
     the different image angles.
     """
-    def __init__(self, weights_file_paths, test = False):
+    def __init__(self, weights_file_paths, num_classes = 15, test = False):
         """
         Initializes the TrainedModels class.
 
@@ -17,6 +17,7 @@ class ModelLoader:
             test (bool, optional): If True, skips model initialization for testing purposes.
         """
         self.weights_file_paths = weights_file_paths
+        self.num_classes = num_classes
 
         self.models = {
             "caud" : None, 
@@ -46,7 +47,7 @@ class ModelLoader:
 
             # Initialize the models to have 15 outputs(~number of species to be identified)
             num_features = self.models[key].fc.in_features
-            self.models[key].fc = torch.nn.Linear(num_features, 15)
+            self.models[key].fc = torch.nn.Linear(num_features, self.num_classes)
 
             self.models[key] = self.models[key].to(self.device)
 
