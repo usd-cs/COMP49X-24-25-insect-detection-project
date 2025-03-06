@@ -87,9 +87,13 @@ if __name__ == '__main__':
     CAUD_IMG = Image.open(CAUD_PATH) if CAUD_PATH else None
 
     # Run the evaluation method
-    species, confidence = evaluator.evaluate_image(
+    top_5_species = evaluator.evaluate_image(
         late=LATE_IMG, dors=DORS_IMG, fron=FRON_IMG, caud=CAUD_IMG
     )
 
     # Print classification results
-    print(f"Predicted Species: {species}, Confidence: {confidence:.2f}")
+    print(f"Predicted Species: {top_5_species[0][0]}, Confidence: {top_5_species[0][1]:.2f}\n")
+    print(f"Predicted Species: {top_5_species[1][0]}, Confidence: {top_5_species[1][1]:.2f}\n")
+    print(f"Predicted Species: {top_5_species[2][0]}, Confidence: {top_5_species[2][1]:.2f}\n")
+    print(f"Predicted Species: {top_5_species[3][0]}, Confidence: {top_5_species[3][1]:.2f}\n")
+    print(f"Predicted Species: {top_5_species[4][0]}, Confidence: {top_5_species[4][1]:.2f}\n")

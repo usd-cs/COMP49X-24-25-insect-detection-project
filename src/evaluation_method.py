@@ -33,6 +33,9 @@ class EvaluationMethod:
         with open("src/models/" + height_filename, 'r', encoding='utf-8') as file:
             self.height = int(file.readline().strip())
 
+        # initialize the size of how many classifications you want outputted by the evaluation
+        self.k = 5
+
     def open_class_dictionary(self, filename):
         """
         Open and save the class dictionary for use in the evaluation method 
@@ -43,25 +46,29 @@ class EvaluationMethod:
         with open("src/models/" + filename, 'r', encoding='utf-8') as json_file:
             class_dict = json.load(json_file)
 
+        # Convert string keys to integers(because of how the dictionary was saved with json)
+        class_dict = {int(key): value for key, value in class_dict.items()}
+
         return class_dict
 
     def evaluate_image(self, late=None, dors=None, fron=None, caud=None):
         """
         Create an evaluation of the input image(s) by running each given image through
         its respective model and then run the output of the models through the evaluation method
-        and return the classification
+        and returns the top classifications
 
-        Returns: Classification of input images and confidence score. 
-                A return of None, -1 indicates an error
+        Returns: List of tuples [(species_name, confidence_score), ...]
+            sorted by confidence(index 0 being the highest).
+            A return of None, -1 indicates an error
         """
         device = torch.device('mps' if torch.backends.mps.is_built() else 'cpu')
 
         #define variables outside the if statements so they can be used in other method calls
         predictions = {
-            "late" : {"score" : 0, "species" : None},
-            "dors" : {"score" : 0, "species" : None},
-            "fron" : {"score" : 0, "species" : None},
-            "caud" : {"score" : 0, "species" : None},
+            "late" : {"scores" : 0, "species" : None},
+            "dors" : {"scores" : 0, "species" : None},
+            "fron" : {"scores" : 0, "species" : None},
+            "caud" : {"scores" : 0, "species" : None},
         }
 
         if late:
@@ -70,68 +77,67 @@ class EvaluationMethod:
             with torch.no_grad():
                 late_output = self.trained_models["late"].to(device)(late_image)
 
-            # Get the predicted class and confidence score
-            _, predicted_index = torch.max(late_output, 1)
-            predictions["late"]["score"] = torch.nn.functional.softmax(
-                late_output, dim=1)[0, predicted_index].item()
-            predictions["late"]["species"] = predicted_index.item()
+            # Get the predicted top 5 species(or less if not enough outputs) and their indices
+            softmax_scores = torch.nn.functional.softmax(late_output, dim=1)[0]
+            top5_scores, top5_species = torch.topk(softmax_scores, self.k)
+
+            # Store top 5 confidence and species as a list to the correct dictionary entry
+            # Index 0 is the highest and 4 is the lowest
+            predictions["late"]["scores"] = top5_scores.tolist()
+            predictions["late"]["species"] = top5_species.tolist()
 
         if dors:
-            #mirrors above usage but for the dors angle
+            # Mirrors above usage but for the dors angle
             dors_image = self.transform_input(dors).to(device)
 
             with torch.no_grad():
                 dors_output = self.trained_models["dors"].to(device)(dors_image)
 
-            _, predicted_index = torch.max(dors_output, 1)
-            predictions["dors"]["score"] = torch.nn.functional.softmax(
-                dors_output, dim=1)[0, predicted_index].item()
-            predictions["dors"]["species"] = predicted_index.item()
+            softmax_scores = torch.nn.functional.softmax(dors_output, dim=1)[0]
+            top5_scores, top5_species = torch.topk(softmax_scores, self.k)
+
+            predictions["dors"]["scores"] = top5_scores.tolist()
+            predictions["dors"]["species"] = top5_species.tolist()
 
         if fron:
-            #mirrors above usage but for the fron angle
+            # Mirrors above usage but for the fron angle
             fron_image = self.transform_input(fron).to(device)
 
             with torch.no_grad():
                 fron_output = self.trained_models["fron"].to(device)(fron_image)
 
-            _, predicted_index = torch.max(fron_output, 1)
-            predictions["fron"]["score"] = torch.nn.functional.softmax(
-                fron_output, dim=1)[0, predicted_index].item()
-            predictions["fron"]["species"] = predicted_index.item()
+            softmax_scores = torch.nn.functional.softmax(fron_output, dim=1)[0]
+            top5_scores, top5_species = torch.topk(softmax_scores, self.k)
+
+            predictions["fron"]["scores"] = top5_scores.tolist()
+            predictions["fron"]["species"] = top5_species.tolist()
 
         if caud:
-            #mirrors above usage but for the caud angle
+            # Mirrors above usage but for the caud angle
             caud_image = self.transform_input(caud).to(device)
 
             with torch.no_grad():
                 caud_output = self.trained_models["caud"].to(device)(caud_image)
 
-            _, predicted_index = torch.max(caud_output, 1)
-            predictions["caud"]["score"] = torch.nn.functional.softmax(
-                caud_output, dim=1)[0, predicted_index].item()
-            predictions["caud"]["species"] = predicted_index.item()
+            softmax_scores = torch.nn.functional.softmax(caud_output, dim=1)[0]
+            top5_scores, top5_species = torch.topk(softmax_scores, self.k)
+
+            predictions["caud"]["scores"] = top5_scores.tolist()
+            predictions["caud"]["species"] = top5_species.tolist()
+
+        # Create a nested list with each angles top scores(scores_list) and species(species_list)
+        scores_list = [list(predictions[key]["scores"])
+                       for key in ["fron", "dors", "late", "caud"]]
+        species_list = [list(predictions[key]["species"])
+                        for key in ["fron", "dors", "late", "caud"]]
+
 
         if self.use_method == 1:
-            #match uses the index returned from the method to decide which prediction to return
-            return self.heaviest_is_best([predictions["fron"]["score"],
-                                       predictions["dors"]["score"],
-                                       predictions["late"]["score"],
-                                       predictions["caud"]["score"]],
-                                      [predictions["fron"]["species"],
-                                       predictions["dors"]["species"],
-                                       predictions["late"]["species"],
-                                       predictions["caud"]["species"]])
+            # Match uses the index returned from the method to decide which prediction to return
+            return self.heaviest_is_best(scores_list, species_list)
 
         if self.use_method == 2:
-            return self.weighted_eval([predictions["fron"]["score"],
-                                       predictions["dors"]["score"],
-                                       predictions["late"]["score"],
-                                       predictions["caud"]["score"]],
-                                      [predictions["fron"]["species"],
-                                       predictions["dors"]["species"],
-                                       predictions["late"]["species"],
-                                       predictions["caud"]["species"]])
+            return self.weighted_eval(scores_list, species_list)
 
         if self.use_method == 3:
             return self.stacked_eval()
@@ -140,59 +146,73 @@ class EvaluationMethod:
 
     def heaviest_is_best(self, conf_scores, species_predictions):
         """
-        Takes the certainties of the models and returns the most 
-        certain model's specification
+        Takes the certainties of the models and returns the top 5 most certain predictions
+        from the models based on which scores were the highest throughout the 4 models.
 
-        Returns: specifies most certain model
+        Returns: List of tuples [(species_name, confidence_score), ...]
+            sorted by confidence(index 0 being the highest).
         """
-        highest = 0
-        index = 0
-        ind_tracker = 0
-        for i in conf_scores:
-            if i > highest:
-                highest = i
-                index = ind_tracker
 
-            ind_tracker += 1
+        top_species_scores = {}
 
-        match index:
-            case 0:
-                return self.species_idx_dict[species_predictions[0]], conf_scores[0]
-            case 1:
-                return self.species_idx_dict[species_predictions[1]], conf_scores[1]
-            case 2:
-                return self.species_idx_dict[species_predictions[2]], conf_scores[2]
-            case 3:
-                return self.species_idx_dict[species_predictions[3]], conf_scores[3]
+        for i in range(4):
+            if species_predictions[i] is not None:  # Ensure predictions exist
+                for rank in range(self.k):  # Loop over the top 5 species per angle
+                    species_idx = species_predictions[i][rank]
+                    score = conf_scores[i][rank]
+
+                    if species_idx in top_species_scores:
+                        top_species_scores[species_idx] = max(
+                            top_species_scores[species_idx], score)
+                    else:
+                        top_species_scores[species_idx] = score
+
+        # Create sorted list using sorted method (list with tuples nested inside(key, value))
+        sorted_scores = sorted(top_species_scores.items(), key=lambda item: item[1], reverse=True)
+        # Change key from index to correct species name
+        top_5 = []
+        for key, value in sorted_scores:
+            if key in self.species_idx_dict:
+                top_5.append((self.species_idx_dict[key], value))
+            else:
+                top_5.append(("Unknown Species", value))
+
+        return top_5
 
 
     def weighted_eval(self, conf_scores, species_predictions):
         """
         Takes the classifications of the models and combines them based on programmer determined
-        weights to create a single output
+        weights to create a list of tuples containing the top 5 species(from the weighted algorithm)
 
-        Returns: classification of combined models
+        Returns: List of tuples [(species_name, confidence_score), ...]
+            sorted by confidence(index 0 being the highest).
         """
-        species_scores = {}
-
+        top_species_scores = {}
+        # Iterate through each model and perform the weighted algorithm on their top scores
         for i in range(4):
-            weighted_score = self.weights[i] * conf_scores[i]
+            if species_predictions[i] is not None:
+                for rank in range(self.k):
+                    species_idx = species_predictions[i][rank]
+                    weighted_score = self.weights[i] * conf_scores[i][rank]
 
-            if species_predictions[i] in species_scores:
-                species_scores[species_predictions[i]] += weighted_score
+                    if species_idx in top_species_scores:
+                        top_species_scores[species_idx] += weighted_score
 
+                    else:
+                        top_species_scores[species_idx] = weighted_score
+
+        # Create sorted list using sorted method (list with tuples nested inside(key, value))
+        sorted_scores = sorted(top_species_scores.items(), key=lambda item: item[1], reverse=True)
+        # Change key from index to correct species name
+        top_5 = []
+        for key, value in sorted_scores:
+            if key in self.species_idx_dict:
+                top_5.append((self.species_idx_dict[key], value))
             else:
-                species_scores[species_predictions[i]] = weighted_score
+                top_5.append(("Unknown Species", value))
 
-        highest_score = -1
-        highest_species = None
-
-        for i, j in species_scores.items():
-            if j > highest_score:
-                highest_score = j
-                highest_species = i
-
-        return self.species_idx_dict[highest_species], highest_score
+        return top_5
 
     def stacked_eval(self):
         """

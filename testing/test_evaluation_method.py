@@ -13,10 +13,10 @@ class TestEvaluationMethod(unittest.TestCase):
     Test the evaluation method class methods
     """
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    @patch("json.load", return_value = {0:"objectus"})
+    @patch("json.load", return_value = {"0":"objectus"})
     def test_initializer(self, mock_json, mock_file):
         """test the initializer for proper setup"""
-        #mock the models
+        # Mock the models
         mock_models = {
             "late" : MagicMock(),
             "fron" : MagicMock(),
@@ -30,8 +30,9 @@ class TestEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+
         self.assertEqual(evaluation.use_method, 1)
-        #Change the weights to match the program's manually
+        # Change the weights to match the program's manually
         self.assertEqual(evaluation.weights, [0.25, 0.25, 0.25, 0.25])
         self.assertEqual(evaluation.trained_models, mock_models)
         self.assertEqual(evaluation.height, 224)
@@ -39,7 +40,9 @@ class TestEvaluationMethod(unittest.TestCase):
 
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    def test_heaviest_is_best(self, mock_file):
+    @patch("json.load", return_value = {
+        "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
+    def test_heaviest_is_best(self, mock_json, mock_file):
         """test heaviest is best for proper tracking of highest certainty"""
         mock_models = {
             "late" : MagicMock(),
@@ -52,14 +55,22 @@ class TestEvaluationMethod(unittest.TestCase):
         mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
-        evaluation.species_idx_dict = {6:"chinensis"}
+        mock_json.assert_called_once()
 
-        species, conf = evaluation.heaviest_is_best([0.1, 0.3, 0.5, 0.4],[1, 4, 6, 3])
-        self.assertEqual(species, "chinensis")
-        self.assertEqual(conf, 0.5)
+        test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
+        test_species = [1, 4, 2, 3, 0]
+        # Run heaviest_is_best method with test scores and species
+        test_results = evaluation.heaviest_is_best(
+            [test_conf_scores, test_conf_scores, test_conf_scores, test_conf_scores],
+            [test_species, test_species, test_species, test_species])
+        # Assert top species is as expected
+        self.assertEqual(test_results[0][0], "nubigens")
+        self.assertEqual(round(test_results[0][1], 2), 0.6)
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    def test_weighted_eval(self, mock_file):
+    @patch("json.load", return_value = {
+        "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
+    def test_weighted_eval(self, mock_json, mock_file):
         """test weighted eval for proper calculation"""
         mock_models = {
             "late" : MagicMock(),
@@ -72,18 +83,25 @@ class TestEvaluationMethod(unittest.TestCase):
         mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
-        evaluation.species_idx_dict = {2:"mimosae"}
-        #must be changed if weights are adjusted in code
-        given_weights = [0.25, 0.25, 0.25, 0.25]
-        conf_scores = [0.8, 0.6, 0.9, 0.7]
-        species_predictions = [1, 2, 2, 3]
+        mock_json.assert_called_once()
 
-        prediction, score = evaluation.weighted_eval(conf_scores, species_predictions)
-        self.assertEqual(prediction, "mimosae")
-        assert score == given_weights[1] * conf_scores[1] + given_weights[2] * conf_scores[2]
+        test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
+        test_species = [1, 4, 2, 3, 0]
+        # Run weighted_eval with test scores and species
+        test_results = evaluation.weighted_eval(
+            [test_conf_scores, test_conf_scores, test_conf_scores, test_conf_scores],
+            [test_species, test_species, test_species, test_species])
+        # Assert top species is as expected
+        self.assertEqual(test_results[0][0], "nubigens")
+        self.assertEqual(round(test_results[0][1], 2),
+                         (evaluation.weights[0] * test_conf_scores[1] +
+                          evaluation.weights[1] * test_conf_scores[1] +
+                          evaluation.weights[2] * test_conf_scores[1] +
+                          evaluation.weights[3] * test_conf_scores[1]))
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    def test_transform_input(self, mock_file):
+    @patch("json.load", return_value = {"0":"objectus"})
+    def test_transform_input(self, mock_json, mock_file):
         """test transform input for proper image transformation"""
         mock_models = {
             "late" : MagicMock(),
@@ -96,6 +114,8 @@ class TestEvaluationMethod(unittest.TestCase):
         mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
+        mock_json.assert_called_once()
+
         evaluation.height = 224
         fake_input = Image.new("RGB", (224, 224))
         result = evaluation.transform_input(fake_input)
@@ -103,48 +123,18 @@ class TestEvaluationMethod(unittest.TestCase):
         assert result.shape == (1, 3, 224, 224)
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
-    @patch("torch.max", return_value=(None, torch.tensor([0])))
-    @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.8, 0.1, 0.1]]))
-    @patch("json.load", return_value = {0:"objectus"})
-    def test_evaluate_image_single_input(self, mock_json, mock_softmax, mock_max, mock_file):
-        """test proper output with a single image entered"""
-        mock_models = {
-            "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
-            "dors": MagicMock(return_value=torch.tensor([[0.2, 0.5, 0.3]])),
-            "fron": MagicMock(return_value=torch.tensor([[0.7, 0.2, 0.1]])),
-            "caud": MagicMock(return_value=torch.tensor([[0.4, 0.4, 0.2]])),
-        }
-
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
-        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
-                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
-                                    any_order = True)
-        mock_json.assert_called_once()
-
-        #mock transform_input for dummy output
-        mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
-        evaluation.transform_input = mock_transform
-
-        result_species, result_conf = evaluation.evaluate_image(late=Image.new("RGB", (224, 224)))
-
-        self.assertEqual(result_species, "objectus")
-        self.assertEqual(round(result_conf, 2), 0.8)
-
-        mock_transform.assert_called_once()
-        mock_softmax.assert_called_once()
-        mock_max.assert_called_once()
-
-    @patch("builtins.open", new_callable=mock_open, read_data="224")
-    @patch("torch.max", return_value=(None, torch.tensor([1])))
-    @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1]]))
-    @patch("json.load", return_value = {0:"objectus", 1:"analis", 2:"maculatus", 3:"phaseoli"})
-    def test_evaluate_image_multiple_input(self, mock_json, mock_softmax, mock_max, mock_file):
+    @patch("torch.topk", return_value=(
+        torch.tensor([0.6, 0.5, 0.4, 0.3, 0.1]), torch.tensor([1, 4, 3, 0, 2])))
+    @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1, 0.4, 0.5]]))
+    @patch("json.load", return_value = {
+        "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
+    def test_evaluate_image(self, mock_json, mock_softmax, mock_topk, mock_file):
         """test proper output with multiple images entered"""
         mock_models = {
-            "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
-            "dors": MagicMock(return_value=torch.tensor([[0.2, 0.5, 0.3]])),
-            "fron": MagicMock(return_value=torch.tensor([[0.7, 0.2, 0.1]])),
-            "caud": MagicMock(return_value=torch.tensor([[0.4, 0.4, 0.2]])),
+            "late": MagicMock(),
+            "dors": MagicMock(),
+            "fron": MagicMock(),
+            "caud": MagicMock(),
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
@@ -153,21 +143,36 @@ class TestEvaluationMethod(unittest.TestCase):
                                     any_order = True)
         mock_json.assert_called_once()
 
-        #mock transform_input for dummy output
+        # Mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
         evaluation.transform_input = mock_transform
 
-        result_species, result_conf = evaluation.evaluate_image(
+        # Run the evaluate image with test images
+        test_results = evaluation.evaluate_image(
             late=Image.new("RGB", (224, 224)),
             dors=Image.new("RGB", (224, 224)),
             fron=Image.new("RGB", (224, 224)),
             caud=Image.new("RGB", (224, 224)))
 
-        self.assertEqual(result_species, "analis")
-        self.assertEqual(round(result_conf, 2), 0.6)
+        # Assert top 5 species are in correct order of confidence with correct species
+        self.assertEqual(test_results[0][0], "analis")
+        self.assertEqual(round(test_results[0][1], 2), 0.6)
 
+        self.assertEqual(test_results[1][0], "nubigens")
+        self.assertEqual(round(test_results[1][1], 2), 0.5)
+
+        self.assertEqual(test_results[2][0], "phaseoli")
+        self.assertEqual(round(test_results[2][1], 2), 0.4)
+
+        self.assertEqual(test_results[3][0], "objectus")
+        self.assertEqual(round(test_results[3][1], 2), 0.3)
+
+        self.assertEqual(test_results[4][0], "maculatus")
+        self.assertEqual(round(test_results[4][1], 2), 0.1)
+
+        # Make sure that the evaluate_image method behaved as expected
         self.assertEqual(mock_transform.call_count, 4)
-        self.assertEqual(mock_max.call_count, 4)
+        self.assertEqual(mock_topk.call_count, 4)
         self.assertEqual(mock_softmax.call_count, 4)
 
 if __name__ == "__main__":
