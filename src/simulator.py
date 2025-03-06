@@ -20,13 +20,13 @@ if __name__ == '__main__':
     # Read converted data
     dbr = DatabaseReader("training.db")
     df = dbr.get_dataframe()
-    
+
     # initialize number of outputs
-    species_outputs = 15
-    genus_outputs = 3
+    SPECIES_OUTPUTS = 15
+    GENUS_OUTPUTS = 3
 
     # Run training with dataframe
-    species_tp = TrainingProgram(df, 1, species_outputs)
+    species_tp = TrainingProgram(df, 1, SPECIES_OUTPUTS)
 
     # Training
     species_tp.train_caudal(1)
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         "spec_dict.json")
 
     # Run training with dataframe
-    genus_tp = TrainingProgram(df, 0, genus_outputs)
+    genus_tp = TrainingProgram(df, 0, GENUS_OUTPUTS)
 
     # Training
     genus_tp.train_caudal(1)
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         "gen_late.pth",
         "height.txt",
         "gen_dict.json")
-    
+
     # Load Genus models
     genus_model_paths = {
             "caud" : "src/models/gen_caud.pth", 
@@ -68,7 +68,7 @@ if __name__ == '__main__':
             "late" : "src/models/gen_late.pth"
         }
 
-    genus_ml = ModelLoader(genus_model_paths, genus_outputs)
+    genus_ml = ModelLoader(genus_model_paths, GENUS_OUTPUTS)
     genus_models = genus_ml.get_models()
 
     print(genus_models.keys)
@@ -108,7 +108,7 @@ if __name__ == '__main__':
             "fron" : "src/models/fron.pth",
             "late" : "src/models/late.pth"
         }
-    species_ml = ModelLoader(species_model_paths, species_outputs)
+    species_ml = ModelLoader(species_model_paths, SPECIES_OUTPUTS)
     species_models = species_ml.get_models()
 
     print(species_models.keys)
