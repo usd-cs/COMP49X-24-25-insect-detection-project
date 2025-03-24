@@ -178,25 +178,19 @@ class TestTrainingProgram(unittest.TestCase):
 
     def test_train_dorsal(self):
         """ Test train_dorsal method """
-       # Mock dataset with multiple samples
-        mock_train_x = ["img1.jpg", "img2.jpg", "img3.jpg", "img4.jpg"]
-        mock_test_x = ["img5.jpg", "img6.jpg"]
-        mock_train_y = [0, 1, 0, 1]
-        mock_test_y = [1, 0]
 
-        # Mock DataLoader
-        mock_loader = MagicMock(spec=DataLoader)
-        mock_loader.__iter__.return_value = iter([(torch.randn(2, 3, 224, 224),
-                                                torch.tensor([0, 1]))])
-        mock_loader.__len__.return_value = 2  # Mocked DataLoader length
         # Mock train-test split
         self.training_program.get_train_test_split = MagicMock(
-            return_value=[mock_train_x, mock_test_x, mock_train_y, mock_test_y])
-        # Mock evaluation function
+            return_value=(["img1.jpg"], ["img2.jpg"], [0], [1])
+        )
+
+        # Mock the evaluation function
         self.training_program.training_evaluation_dorsal = MagicMock()
-        # Run train_caudal
-        self.training_program.train_dorsal(1)
-        # Ensure training_evaluation_caudal was called once
+
+        # Run train_dorsal with 1 epoch
+        self.training_program.train_dorsal(num_epochs=1)
+
+        # Verify the evaluation function was called once
         self.training_program.training_evaluation_dorsal.assert_called_once()
 
     @patch('training_program.DataLoader')
