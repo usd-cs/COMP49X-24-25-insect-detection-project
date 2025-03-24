@@ -33,6 +33,13 @@ class EvaluationMethod:
         with open("src/models/" + height_filename, 'r', encoding='utf-8') as file:
             self.height = int(file.readline().strip())
 
+        #load transformations to a list for use in the program
+        self.transformations = []
+        self.transformations[0] = torch.load("caud_transformation.pth")
+        self.transformations[1] = torch.load("dors_transformation.pth")
+        self.transformations[2] = torch.load("fron_transformation.pth")
+        self.transformations[3] = torch.load("late_transformation.pth")
+
         # initialize the size of how many classifications you want outputted by the evaluation
         self.k = 5
 
@@ -72,7 +79,7 @@ class EvaluationMethod:
         }
 
         if late:
-            late_image = self.transform_input(late).to(device)
+            late_image = self.transform_input(late, self.transformations[3]).to(device)
 
             with torch.no_grad():
                 late_output = self.trained_models["late"].to(device)(late_image)
@@ -88,7 +95,7 @@ class EvaluationMethod:
 
         if dors:
             # Mirrors above usage but for the dors angle
-            dors_image = self.transform_input(dors).to(device)
+            dors_image = self.transform_input(dors, self.transformations[1]).to(device)
 
             with torch.no_grad():
                 dors_output = self.trained_models["dors"].to(device)(dors_image)
@@ -101,7 +108,7 @@ class EvaluationMethod:
 
         if fron:
             # Mirrors above usage but for the fron angle
-            fron_image = self.transform_input(fron).to(device)
+            fron_image = self.transform_input(fron, self.transformations[2]).to(device)
 
             with torch.no_grad():
                 fron_output = self.trained_models["fron"].to(device)(fron_image)
@@ -114,7 +121,7 @@ class EvaluationMethod:
 
         if caud:
             # Mirrors above usage but for the caud angle
-            caud_image = self.transform_input(caud).to(device)
+            caud_image = self.transform_input(caud, self.transformations[0]).to(device)
 
             with torch.no_grad():
                 caud_output = self.trained_models["caud"].to(device)(caud_image)
@@ -224,18 +231,13 @@ class EvaluationMethod:
         Returns: classification of combined models
         """
 
-    def transform_input(self, image_input):
+    def transform_input(self, image_input, transformation):
         """
-        Takes the app side's image and transforms it to fit our model
+        Takes the app side's image and a given transformation
+        and transforms it to fit our model
 
         Returns: transformed image for classification
         """
-        transformation = transforms.Compose([
-            transforms.Resize((self.height, self.height)), #ResNet expects 224x224 images
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ])
-
         transformed_image = transformation(image_input)
         transformed_image = transformed_image.unsqueeze(0)
 

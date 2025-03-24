@@ -5,6 +5,7 @@ import os
 from unittest.mock import patch, mock_open, call, MagicMock
 from PIL import Image
 import torch
+from torchvision import transforms
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from genus_evaluation_method import GenusEvaluationMethod
 
@@ -104,7 +105,11 @@ class TestGenusEvaluationMethod(unittest.TestCase):
         mock_json.assert_called_once()
         evaluation.height = 224
         fake_input = Image.new("RGB", (224, 224))
-        result = evaluation.transform_input(fake_input)
+        transformation = transforms.Compose([
+        transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+        result = evaluation.transform_input(fake_input, transformation)
 
         assert result.shape == (1, 3, 224, 224)
 

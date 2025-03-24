@@ -292,6 +292,10 @@ class TrainingProgram:
         transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+
+        #save transformation to a file
+        self.save_transformation(transformation, 0)
+
         # Create DataLoaders
         train_dataset = ImageDataset(train_x, train_y, transform=transformation)
         test_dataset = ImageDataset(test_x, test_y, transform=transformation)
@@ -313,6 +317,10 @@ class TrainingProgram:
         transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+
+        #save transformation to a file
+        self.save_transformation(transformation, 1)
+
         # Create DataLoaders
         train_dataset = ImageDataset(train_x, train_y, transform=transformation)
         test_dataset = ImageDataset(test_x, test_y, transform=transformation)
@@ -334,6 +342,10 @@ class TrainingProgram:
         transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+
+        #save transformation to a file
+        self.save_transformation(transformation, 2)
+
         # Create DataLoaders
         train_dataset = ImageDataset(train_x, train_y, transform=transformation)
         test_dataset = ImageDataset(test_x, test_y, transform=transformation)
@@ -355,6 +367,10 @@ class TrainingProgram:
         transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+
+        #save transformation to a file
+        self.save_transformation(transformation, 3)
+
         # Create DataLoaders
         train_dataset = ImageDataset(train_x, train_y, transform=transformation)
         test_dataset = ImageDataset(test_x, test_y, transform=transformation)
@@ -449,6 +465,25 @@ class TrainingProgram:
         # save class index dictionary for evaluation
         with open(dict_filename, "w") as file:
             json.dump(self.class_index_dictionary, file, indent=4)
+
+    def save_transformation(self, transformation, angle):
+        """
+        Takes a transformation and angle input and saves the transformation
+        to a file for use in the evaluation method program
+
+        Returns: None
+        """
+        if angle == 0:
+            torch.save(transformation, "caud_transformation.pth")
+
+        elif angle == 1:
+            torch.save(transformation, "dors_transformation.pth")
+
+        elif angle == 2:
+            torch.save(transformation, "fron_transformation.pth")
+
+        elif angle == 3:
+            torch.save(transformation, "late_transformation.pth")
 
 # Custom Dataset class for loading images from binary data
 class ImageDataset(Dataset):
