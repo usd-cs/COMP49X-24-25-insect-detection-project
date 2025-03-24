@@ -364,17 +364,21 @@ class TrainingProgram:
         testing_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
         self.training_evaluation_lateral(num_epochs, training_loader, testing_loader)
-    
+
     def sobel_edge_detection(self, tensor):
         """
         Transforms image tensor to exaggerate shape and contour features
         """
-        sobel_kernel_x = torch.tensor([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]).float().unsqueeze(0).unsqueeze(0)
-        sobel_kernel_y = torch.tensor([[-1, -2 , -1], [0, 0, 0], [1, 2, 1]]).float().unsqueeze(0).unsqueeze(0)
+        sobel_kernel_x = torch.tensor(
+            [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
+            ).float().unsqueeze(0).unsqueeze(0)
+        sobel_kernel_y = torch.tensor(
+            [[-1, -2 , -1], [0, 0, 0], [1, 2, 1]]
+            ).float().unsqueeze(0).unsqueeze(0)
 
-        image_tensor = image_tensor.unsqueeze(0)
-        edge_x = F.conv2d(image_tensor, sobel_kernel_x, padding = 1)
-        edge_y = F.conv2d(image_tensor, sobel_kernel_y, padding = 1)
+        tensor = tensor.unsqueeze(0)
+        edge_x = F.conv2d(tensor, sobel_kernel_x, padding = 1)
+        edge_y = F.conv2d(tensor, sobel_kernel_y, padding = 1)
 
         edges = torch.sqrt(edge_x**2 + edge_y**2)
         return edges.squeeze(0)
