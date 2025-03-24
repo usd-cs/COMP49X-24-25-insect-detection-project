@@ -170,17 +170,16 @@ class TestEvaluationMethod(unittest.TestCase):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
     def test_evaluate_image(self, mock_torch, mock_json, mock_softmax, mock_topk):
         """test proper output with multiple images entered"""
-        mock_open_func = mock_open(read_data="224")
-        patch("builtins.open", mock_open_func)
-
         mock_models = {
             "late": MagicMock(),
             "dors": MagicMock(),
             "fron": MagicMock(),
             "caud": MagicMock(),
         }
+        mock_open_func = mock_open(read_data="224")
+        with patch("builtins.open", mock_open_func):
+            evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
 
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
         mock_open_func.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
