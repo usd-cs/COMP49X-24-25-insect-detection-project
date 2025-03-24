@@ -365,23 +365,31 @@ class TrainingProgram:
 
         self.training_evaluation_lateral(num_epochs, training_loader, testing_loader)
 
-    def sobel_edge_detection(self, tensor):
+    def sobel_edge_detection(image_tensor):
         """
         Transforms image tensor to exaggerate shape and contour features
         """
+        # Ensure the input is a 4D tensor [batch, channels, height, width]
+        if image_tensor.dim() == 3:
+            image_tensor = image_tensor.unsqueeze(0)
+
+        # Define Sobel kernels
         sobel_kernel_x = torch.tensor(
             [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
-            ).float().unsqueeze(0).unsqueeze(0)
+        ).float().unsqueeze(0).unsqueeze(0).to(image_tensor.device)
+
         sobel_kernel_y = torch.tensor(
-            [[-1, -2 , -1], [0, 0, 0], [1, 2, 1]]
-            ).float().unsqueeze(0).unsqueeze(0)
+            [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]
+        ).float().unsqueeze(0).unsqueeze(0).to(image_tensor.device)
 
-        tensor = tensor.unsqueeze(0)
-        edge_x = F.conv2d(tensor, sobel_kernel_x, padding = 1)
-        edge_y = F.conv2d(tensor, sobel_kernel_y, padding = 1)
+        # Apply Sobel filters
+        edge_x = torch.nn.functional.conv2d(image_tensor, sobel_kernel_x, padding=1)
+        edge_y = torch.nn.functional.conv2d(image_tensor, sobel_kernel_y, padding=1)
 
-        edges = torch.sqrt(edge_x**2 + edge_y**2)
-        return edges.squeeze(0)
+        # Combine Sobel X and Y edges
+        edges = torch.sqrt(edge_x ** 2 + edge_y ** 2)
+
+        return edges
 
     def load_caud_model(self):
         """
