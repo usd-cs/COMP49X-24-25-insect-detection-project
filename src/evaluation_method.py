@@ -33,11 +33,7 @@ class EvaluationMethod:
             self.height = int(file.readline().strip())
 
         #load transformations to a list for use in the program
-        self.transformations = []
-        self.transformations.append(torch.load("caud_transformation.pth"))
-        self.transformations.append(torch.load("dors_transformation.pth"))
-        self.transformations.append(torch.load("fron_transformation.pth"))
-        self.transformations.append(torch.load("late_transformation.pth"))
+        self.transformations = self.get_transformations()
 
         # initialize the size of how many classifications you want outputted by the evaluation
         self.k = 5
@@ -56,6 +52,21 @@ class EvaluationMethod:
         class_dict = {int(key): value for key, value in class_dict.items()}
 
         return class_dict
+
+    def get_transformations(self):
+        """
+        Create and return a list of transformations for each angle using
+        the pre-made transformation files
+
+        Returns: list of transformations
+        """
+        transformations = []
+        transformations.append(torch.load("caud_transformation.pth"))
+        transformations.append(torch.load("dors_transformation.pth"))
+        transformations.append(torch.load("fron_transformation.pth"))
+        transformations.append(torch.load("late_transformation.pth"))
+
+        return transformations
 
     def evaluate_image(self, late=None, dors=None, fron=None, caud=None):
         """

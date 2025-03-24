@@ -33,11 +33,7 @@ class GenusEvaluationMethod:
             self.height = int(file.readline().strip())
 
         #load transformations to a list for use in the program
-        self.transformations = []
-        self.transformations[0] = torch.load("caud_transformation.pth")
-        self.transformations[1] = torch.load("dors_transformation.pth")
-        self.transformations[2] = torch.load("fron_transformation.pth")
-        self.transformations[3] = torch.load("late_transformation.pth")
+        self.transformations = self.get_transformations()
 
     def open_class_dictionary(self, filename):
         """
@@ -57,6 +53,21 @@ class GenusEvaluationMethod:
             class_dict[int(key)] = value
 
         return class_dict
+
+    def get_transformations(self):
+        """
+        Create and return a list of transformations for each angle using
+        the pre-made transformation files
+
+        Returns: list of transformations
+        """
+        transformations = []
+        transformations.append(torch.load("caud_transformation.pth"))
+        transformations.append(torch.load("dors_transformation.pth"))
+        transformations.append(torch.load("fron_transformation.pth"))
+        transformations.append(torch.load("late_transformation.pth"))
+
+        return transformations
 
     def evaluate_image(self, late=None, dors=None, fron=None, caud=None):
         """
