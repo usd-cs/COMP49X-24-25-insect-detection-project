@@ -5,7 +5,6 @@ the loaded trained models and creates a combined classification output
 import sys
 import os
 import json
-from torchvision import transforms
 import torch
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
