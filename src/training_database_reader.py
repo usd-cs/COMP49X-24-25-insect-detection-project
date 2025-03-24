@@ -51,7 +51,7 @@ class DatabaseReader:
         Simple getter method that returns the objects DataFrame
         """
         return self.dataframe
-    
+
     def get_num_species(self):
         """
         Gets number of unique classes within species column
