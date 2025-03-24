@@ -159,7 +159,6 @@ class TestEvaluationMethod(unittest.TestCase):
 
         assert result.shape == (1, 3, 224, 224)
 
-    @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("torch.topk", return_value=(
         torch.tensor([0.6, 0.5, 0.4, 0.3, 0.1]), torch.tensor([1, 4, 3, 0, 2])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1, 0.4, 0.5]]))
@@ -169,8 +168,11 @@ class TestEvaluationMethod(unittest.TestCase):
         transforms.Resize((224, 224)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
-    def test_evaluate_image(self, mock_torch, mock_json, mock_softmax, mock_topk, mock_file):
+    def test_evaluate_image(self, mock_torch, mock_json, mock_softmax, mock_topk):
         """test proper output with multiple images entered"""
+        mock_open_func = mock_open(read_data="224")
+        patch("builtins.open", mock_open_func)
+
         mock_models = {
             "late": MagicMock(),
             "dors": MagicMock(),
@@ -179,7 +181,7 @@ class TestEvaluationMethod(unittest.TestCase):
         }
 
         evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
-        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
+        mock_open_func.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
