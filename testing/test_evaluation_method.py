@@ -35,6 +35,11 @@ class TestEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+        mock_torch.assert_has_calls([call("caud_transformation.pth"),
+                                    call("dors_transformation.pth"),
+                                    call("fron_transformation.pth"),
+                                    call("late_transformation.pth"),],
+                                    any_order = True)
 
         self.assertEqual(evaluation.use_method, 1)
         # Change the weights to match the program's manually
@@ -65,6 +70,11 @@ class TestEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+        mock_torch.assert_has_calls([call("caud_transformation.pth"),
+                                    call("dors_transformation.pth"),
+                                    call("fron_transformation.pth"),
+                                    call("late_transformation.pth"),],
+                                    any_order = True)
 
         test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
         test_species = [1, 4, 2, 3, 0]
@@ -97,6 +107,11 @@ class TestEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+        mock_torch.assert_has_calls([call("caud_transformation.pth"),
+                                    call("dors_transformation.pth"),
+                                    call("fron_transformation.pth"),
+                                    call("late_transformation.pth"),],
+                                    any_order = True)
 
         test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
         test_species = [1, 4, 2, 3, 0]
@@ -132,6 +147,11 @@ class TestEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+        mock_torch.assert_has_calls([call("caud_transformation.pth"),
+                                    call("dors_transformation.pth"),
+                                    call("fron_transformation.pth"),
+                                    call("late_transformation.pth"),],
+                                    any_order = True)
 
         evaluation.height = 224
         fake_input = Image.new("RGB", (224, 224))
@@ -167,6 +187,11 @@ class TestEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+        mock_torch.assert_has_calls([call("caud_transformation.pth"),
+                                    call("dors_transformation.pth"),
+                                    call("fron_transformation.pth"),
+                                    call("late_transformation.pth"),],
+                                    any_order = True)
 
         # Mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
