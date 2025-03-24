@@ -22,8 +22,8 @@ if __name__ == '__main__':
     df = dbr.get_dataframe()
 
     # initialize number of outputs
-    SPECIES_OUTPUTS = 15
-    GENUS_OUTPUTS = 3
+    SPECIES_OUTPUTS = dbr.get_num_species()
+    GENUS_OUTPUTS = dbr.get_num_genus()
 
     # Run training with dataframe
     species_tp = TrainingProgram(df, 1, SPECIES_OUTPUTS)
@@ -103,10 +103,10 @@ if __name__ == '__main__':
 
     # Load species models
     species_model_paths = {
-            "caud" : "src/models/caud.pth", 
-            "dors" : "src/models/dors.pth",
-            "fron" : "src/models/fron.pth",
-            "late" : "src/models/late.pth"
+            "caud" : "src/models/spec_caud.pth", 
+            "dors" : "src/models/spec_dors.pth",
+            "fron" : "src/models/spec_fron.pth",
+            "late" : "src/models/spec_late.pth"
         }
     species_ml = ModelLoader(species_model_paths, SPECIES_OUTPUTS)
     species_models = species_ml.get_models()

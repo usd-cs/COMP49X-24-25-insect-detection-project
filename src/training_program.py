@@ -6,6 +6,7 @@ from io import BytesIO
 import pandas as pd
 from torchvision import transforms, models
 import torch
+import torch.nn.functional as F
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
@@ -22,7 +23,7 @@ class TrainingProgram:
         Initialize dataset, image height, and individual model training
         """
         self.dataframe = dataframe
-        self.height = 224
+        self.height = 300
         self.num_classes = num_classes
         # subsets to save database reading to
         self.caud_subset = self.get_subset("CAUD", self.dataframe)
@@ -171,7 +172,7 @@ class TrainingProgram:
 
                 running_loss += loss.item()
 
-                print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
+            print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
 
         # evaluate testing machine
         self.dors_model.eval()
@@ -289,7 +290,7 @@ class TrainingProgram:
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_caudal_view())
         # Define image transformations, placeholder for preprocessing
         transformation = transforms.Compose([
-        transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
+        transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         # Create DataLoaders
@@ -310,9 +311,10 @@ class TrainingProgram:
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_dorsal_view())
         # Define image transformations, placeholder for preprocessing
         transformation = transforms.Compose([
-        transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
+        transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+        transformation = self.sobel_edge_detection(transformation)
         # Create DataLoaders
         train_dataset = ImageDataset(train_x, train_y, transform=transformation)
         test_dataset = ImageDataset(test_x, test_y, transform=transformation)
@@ -331,7 +333,7 @@ class TrainingProgram:
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_frontal_view())
         # Define image transformations, placeholder for preprocessing
         transformation = transforms.Compose([
-        transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
+        transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         # Create DataLoaders
@@ -352,7 +354,7 @@ class TrainingProgram:
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_lateral_view())
         # Define image transformations, placeholder for preprocessing
         transformation = transforms.Compose([
-        transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
+        transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         # Create DataLoaders
@@ -362,6 +364,20 @@ class TrainingProgram:
         testing_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
         self.training_evaluation_lateral(num_epochs, training_loader, testing_loader)
+    
+    def sobel_edge_detection(self, tensor):
+        """
+        Transforms image tensor to exaggerate shape and contour features
+        """
+        sobel_kernel_x = torch.tensor([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]).float().unsqueeze(0).unsqueeze(0)
+        sobel_kernel_y = torch.tensor([[-1, -2 , -1], [0, 0, 0], [1, 2, 1]]).float().unsqueeze(0).unsqueeze(0)
+
+        image_tensor = image_tensor.unsqueeze(0)
+        edge_x = F.conv2d(image_tensor, sobel_kernel_x, padding = 1)
+        edge_y = F.conv2d(image_tensor, sobel_kernel_y, padding = 1)
+
+        edges = torch.sqrt(edge_x**2 + edge_y**2)
+        return edges.squeeze(0)
 
     def load_caud_model(self):
         """
