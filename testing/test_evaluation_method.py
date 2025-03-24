@@ -15,7 +15,11 @@ class TestEvaluationMethod(unittest.TestCase):
     """
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {"0":"objectus"})
-    def test_initializer(self, mock_json, mock_file):
+    @patch("torch.load", return_value = transforms.Compose([
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
+    def test_initializer(self, mock_torch, mock_json, mock_file):
         """test the initializer for proper setup"""
         # Mock the models
         mock_models = {
@@ -43,7 +47,11 @@ class TestEvaluationMethod(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {
         "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
-    def test_heaviest_is_best(self, mock_json, mock_file):
+    @patch("torch.load", return_value = transforms.Compose([
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
+    def test_heaviest_is_best(self, mock_torch, mock_json, mock_file):
         """test heaviest is best for proper tracking of highest certainty"""
         mock_models = {
             "late" : MagicMock(),
@@ -71,7 +79,11 @@ class TestEvaluationMethod(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {
         "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
-    def test_weighted_eval(self, mock_json, mock_file):
+    @patch("torch.load", return_value = transforms.Compose([
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
+    def test_weighted_eval(self, mock_torch, mock_json, mock_file):
         """test weighted eval for proper calculation"""
         mock_models = {
             "late" : MagicMock(),
@@ -102,7 +114,11 @@ class TestEvaluationMethod(unittest.TestCase):
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {"0":"objectus"})
-    def test_transform_input(self, mock_json, mock_file):
+    @patch("torch.load", return_value = transforms.Compose([
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
+    def test_transform_input(self, mock_torch, mock_json, mock_file):
         """test transform input for proper image transformation"""
         mock_models = {
             "late" : MagicMock(),
@@ -133,7 +149,11 @@ class TestEvaluationMethod(unittest.TestCase):
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1, 0.4, 0.5]]))
     @patch("json.load", return_value = {
         "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
-    def test_evaluate_image(self, mock_json, mock_softmax, mock_topk, mock_file):
+    @patch("torch.load", return_value = transforms.Compose([
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
+    def test_evaluate_image(self, mock_torch, mock_json, mock_softmax, mock_topk, mock_file):
         """test proper output with multiple images entered"""
         mock_models = {
             "late": MagicMock(),
