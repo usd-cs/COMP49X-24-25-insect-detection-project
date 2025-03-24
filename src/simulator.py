@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     # Training
     species_tp.train_caudal(1)
-    species_tp.train_dorsal(1)
+    species_tp.train_dorsal(20)
     species_tp.train_frontal(1)
     species_tp.train_lateral(1)
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     # Training
     genus_tp.train_caudal(1)
-    genus_tp.train_dorsal(1)
+    genus_tp.train_dorsal(20)
     genus_tp.train_frontal(1)
     genus_tp.train_lateral(1)
 
