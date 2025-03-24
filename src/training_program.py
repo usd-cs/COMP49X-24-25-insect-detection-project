@@ -313,8 +313,8 @@ class TrainingProgram:
         transformation = transforms.Compose([
         transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
+        SobelEdgeDetection(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-        transformation = self.sobel_edge_detection(transformation)
         # Create DataLoaders
         train_dataset = ImageDataset(train_x, train_y, transform=transformation)
         test_dataset = ImageDataset(test_x, test_y, transform=transformation)
@@ -364,32 +364,6 @@ class TrainingProgram:
         testing_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
         self.training_evaluation_lateral(num_epochs, training_loader, testing_loader)
-
-    def sobel_edge_detection(image_tensor):
-        """
-        Transforms image tensor to exaggerate shape and contour features
-        """
-        # Ensure the input is a 4D tensor [batch, channels, height, width]
-        if image_tensor.dim() == 3:
-            image_tensor = image_tensor.unsqueeze(0)
-
-        # Define Sobel kernels
-        sobel_kernel_x = torch.tensor(
-            [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
-        ).float().unsqueeze(0).unsqueeze(0).to(image_tensor.device)
-
-        sobel_kernel_y = torch.tensor(
-            [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]
-        ).float().unsqueeze(0).unsqueeze(0).to(image_tensor.device)
-
-        # Apply Sobel filters
-        edge_x = torch.nn.functional.conv2d(image_tensor, sobel_kernel_x, padding=1)
-        edge_y = torch.nn.functional.conv2d(image_tensor, sobel_kernel_y, padding=1)
-
-        # Combine Sobel X and Y edges
-        edges = torch.sqrt(edge_x ** 2 + edge_y ** 2)
-
-        return edges
 
     def load_caud_model(self):
         """
@@ -514,3 +488,36 @@ class ImageDataset(Dataset):
             image = self.transform(image)
 
         return image, self.label[idx]
+
+class SobelEdgeDetection(object):
+    def __init__(self):
+        # Define Sobel kernels
+        self.sobel_x = torch.tensor([[-1, 0, 1],
+                                    [-2, 0, 2],
+                                    [-1, 0, 1]], dtype=torch.float32).view(1, 1, 3, 3)
+        
+        self.sobel_y = torch.tensor([[-1, -2, -1],
+                                    [ 0,  0,  0],
+                                    [ 1,  2,  1]], dtype=torch.float32).view(1, 1, 3, 3)
+    
+    def __call__(self, tensor):
+            # Ensure the kernel is on the same device as the input tensor
+            sobel_x = self.sobel_x.to(tensor.device)
+            sobel_y = self.sobel_y.to(tensor.device)
+            
+            # Initialize output tensors
+            grad_x = torch.zeros_like(tensor)
+            grad_y = torch.zeros_like(tensor)
+            
+            # Apply Sobel operator to each channel
+            for i in range(tensor.size(0)):
+                grad_x[i:i+1] = F.conv2d(tensor[i:i+1].unsqueeze(0), sobel_x, padding=1)
+                grad_y[i:i+1] = F.conv2d(tensor[i:i+1].unsqueeze(0), sobel_y, padding=1)
+            
+            # Compute gradient magnitude
+            edge_magnitude = torch.sqrt(grad_x**2 + grad_y**2)
+            
+            # Normalize to [0, 1]
+            edge_magnitude = edge_magnitude / edge_magnitude.max()
+            
+            return edge_magnitude.squeeze(0)
