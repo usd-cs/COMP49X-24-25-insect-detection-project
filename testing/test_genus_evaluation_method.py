@@ -15,7 +15,11 @@ class TestGenusEvaluationMethod(unittest.TestCase):
     """
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {"0":"acanthoscelides"})
-    def test_initializer(self, mock_json, mock_file):
+    @patch("torch.load", return_value = transforms.Compose([
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
+    def test_initializer(self, mock_torch, mock_json, mock_file):
         """test the initializer for proper setup"""
         #mock the models
         mock_models = {
@@ -31,6 +35,12 @@ class TestGenusEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+        mock_torch.assert_has_calls([call("caud_transformation.pth"),
+                                    call("dors_transformation.pth"),
+                                    call("fron_transformation.pth"),
+                                    call("late_transformation.pth"),],
+                                    any_order = True)
+        
         self.assertEqual(evaluation.use_method, 1)
         #Change the weights to match the program's manually
         self.assertEqual(evaluation.weights, [0.25, 0.25, 0.25, 0.25])
@@ -41,7 +51,11 @@ class TestGenusEvaluationMethod(unittest.TestCase):
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {"0":"acanthoscelides"})
-    def test_heaviest_is_best(self, mock_json, mock_file):
+    @patch("torch.load", return_value = transforms.Compose([
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
+    def test_heaviest_is_best(self, mock_torch, mock_json, mock_file):
         """test heaviest is best for proper tracking of highest certainty"""
         mock_models = {
             "late" : MagicMock(),
@@ -55,6 +69,11 @@ class TestGenusEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+        mock_torch.assert_has_calls([call("caud_transformation.pth"),
+                                    call("dors_transformation.pth"),
+                                    call("fron_transformation.pth"),
+                                    call("late_transformation.pth"),],
+                                    any_order = True)
         evaluation.genus_idx_dict = {6:"chinensis"}
 
         genus, conf = evaluation.heaviest_is_best([0.1, 0.3, 0.5, 0.4],[1, 4, 6, 3])
@@ -63,7 +82,11 @@ class TestGenusEvaluationMethod(unittest.TestCase):
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {"0":"acanthoscelides"})
-    def test_weighted_eval(self, mock_json, mock_file):
+    @patch("torch.load", return_value = transforms.Compose([
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
+    def test_weighted_eval(self, mock_torch, mock_json, mock_file):
         """test weighted eval for proper calculation"""
         mock_models = {
             "late" : MagicMock(),
@@ -77,6 +100,12 @@ class TestGenusEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+        mock_torch.assert_has_calls([call("caud_transformation.pth"),
+                                    call("dors_transformation.pth"),
+                                    call("fron_transformation.pth"),
+                                    call("late_transformation.pth"),],
+                                    any_order = True)
+        
         evaluation.genus_idx_dict = {2:"mimosae"}
         #must be changed if weights are adjusted in code
         given_weights = [0.25, 0.25, 0.25, 0.25]
@@ -89,7 +118,11 @@ class TestGenusEvaluationMethod(unittest.TestCase):
 
     @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {"0":"acanthoscelides"})
-    def test_transform_input(self, mock_json, mock_file):
+    @patch("torch.load", return_value = transforms.Compose([
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
+    def test_transform_input(self, mock_torch, mock_json, mock_file):
         """test transform input for proper image transformation"""
         mock_models = {
             "late" : MagicMock(),
@@ -103,6 +136,12 @@ class TestGenusEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+        mock_torch.assert_has_calls([call("caud_transformation.pth"),
+                                    call("dors_transformation.pth"),
+                                    call("fron_transformation.pth"),
+                                    call("late_transformation.pth"),],
+                                    any_order = True)
+        
         evaluation.height = 224
         fake_input = Image.new("RGB", (224, 224))
         transformation = transforms.Compose([
@@ -117,7 +156,11 @@ class TestGenusEvaluationMethod(unittest.TestCase):
     @patch("torch.max", return_value=(None, torch.tensor([0])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.8, 0.1, 0.1]]))
     @patch("json.load", return_value = {"0":"acanthoscelides"})
-    def test_evaluate_image_single_input(self, mock_json, mock_softmax, mock_max, mock_file):
+    @patch("torch.load", return_value = transforms.Compose([
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
+    def test_evaluate_image_single_input(self, mock_torch, mock_json, mock_softmax, mock_max, mock_file):
         """test proper output with a single image entered"""
         mock_models = {
             "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
@@ -131,6 +174,11 @@ class TestGenusEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+        mock_torch.assert_has_calls([call("caud_transformation.pth"),
+                                    call("dors_transformation.pth"),
+                                    call("fron_transformation.pth"),
+                                    call("late_transformation.pth"),],
+                                    any_order = True)
 
         #mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
@@ -150,7 +198,11 @@ class TestGenusEvaluationMethod(unittest.TestCase):
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1]]))
     @patch("json.load", return_value = {"0":"acanthoscelides", "1":"callosobruchus",
                                         "2":"mimosestes", "3":"phaseoli"})
-    def test_evaluate_image_multiple_input(self, mock_json, mock_softmax, mock_max, mock_file):
+    @patch("torch.load", return_value = transforms.Compose([
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
+    def test_evaluate_image_multiple_input(self, mock_torch, mock_json, mock_softmax, mock_max, mock_file):
         """test proper output with multiple images entered"""
         mock_models = {
             "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
