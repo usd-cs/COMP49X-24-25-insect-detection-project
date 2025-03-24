@@ -40,7 +40,7 @@ class TestGenusEvaluationMethod(unittest.TestCase):
                                     call("fron_transformation.pth"),
                                     call("late_transformation.pth"),],
                                     any_order = True)
-        
+
         self.assertEqual(evaluation.use_method, 1)
         #Change the weights to match the program's manually
         self.assertEqual(evaluation.weights, [0.25, 0.25, 0.25, 0.25])
@@ -105,7 +105,7 @@ class TestGenusEvaluationMethod(unittest.TestCase):
                                     call("fron_transformation.pth"),
                                     call("late_transformation.pth"),],
                                     any_order = True)
-        
+
         evaluation.genus_idx_dict = {2:"mimosae"}
         #must be changed if weights are adjusted in code
         given_weights = [0.25, 0.25, 0.25, 0.25]
@@ -141,7 +141,7 @@ class TestGenusEvaluationMethod(unittest.TestCase):
                                     call("fron_transformation.pth"),
                                     call("late_transformation.pth"),],
                                     any_order = True)
-        
+
         evaluation.height = 224
         fake_input = Image.new("RGB", (224, 224))
         transformation = transforms.Compose([
@@ -160,7 +160,8 @@ class TestGenusEvaluationMethod(unittest.TestCase):
         transforms.Resize((224, 224)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
-    def test_evaluate_image_single_input(self, mock_torch, mock_json, mock_softmax, mock_max, mock_file):
+    def test_evaluate_image_single_input(self, mock_torch, mock_json,
+                                         mock_softmax, mock_max, mock_file):
         """test proper output with a single image entered"""
         mock_models = {
             "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
@@ -202,7 +203,8 @@ class TestGenusEvaluationMethod(unittest.TestCase):
         transforms.Resize((224, 224)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
-    def test_evaluate_image_multiple_input(self, mock_torch, mock_json, mock_softmax, mock_max, mock_file):
+    def test_evaluate_image_multiple_input(self, mock_torch, mock_json,
+                                           mock_softmax, mock_max, mock_file):
         """test proper output with multiple images entered"""
         mock_models = {
             "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
@@ -216,6 +218,11 @@ class TestGenusEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
+        mock_torch.assert_has_calls([call("caud_transformation.pth"),
+                                    call("dors_transformation.pth"),
+                                    call("fron_transformation.pth"),
+                                    call("late_transformation.pth"),],
+                                    any_order = True)
 
         #mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
