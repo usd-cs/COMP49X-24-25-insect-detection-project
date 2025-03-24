@@ -489,35 +489,36 @@ class ImageDataset(Dataset):
 
         return image, self.label[idx]
 
+    # Edge Detection function in transformation
 class SobelEdgeDetection(object):
     def __init__(self):
         # Define Sobel kernels
         self.sobel_x = torch.tensor([[-1, 0, 1],
-                                    [-2, 0, 2],
-                                    [-1, 0, 1]], dtype=torch.float32).view(1, 1, 3, 3)
-        
+            [-2, 0, 2],
+            [-1, 0, 1]], dtype=torch.float32).view(1, 1, 3, 3)
+
         self.sobel_y = torch.tensor([[-1, -2, -1],
-                                    [ 0,  0,  0],
-                                    [ 1,  2,  1]], dtype=torch.float32).view(1, 1, 3, 3)
-    
+            [ 0,  0,  0],
+            [ 1,  2,  1]], dtype=torch.float32).view(1, 1, 3, 3)
+
     def __call__(self, tensor):
-            # Ensure the kernel is on the same device as the input tensor
-            sobel_x = self.sobel_x.to(tensor.device)
-            sobel_y = self.sobel_y.to(tensor.device)
-            
-            # Initialize output tensors
-            grad_x = torch.zeros_like(tensor)
-            grad_y = torch.zeros_like(tensor)
-            
-            # Apply Sobel operator to each channel
-            for i in range(tensor.size(0)):
-                grad_x[i:i+1] = F.conv2d(tensor[i:i+1].unsqueeze(0), sobel_x, padding=1)
-                grad_y[i:i+1] = F.conv2d(tensor[i:i+1].unsqueeze(0), sobel_y, padding=1)
-            
-            # Compute gradient magnitude
-            edge_magnitude = torch.sqrt(grad_x**2 + grad_y**2)
-            
-            # Normalize to [0, 1]
-            edge_magnitude = edge_magnitude / edge_magnitude.max()
-            
-            return edge_magnitude.squeeze(0)
+        # Ensure the kernel is on the same device as the input tensor
+        sobel_x = self.sobel_x.to(tensor.device)
+        sobel_y = self.sobel_y.to(tensor.device)
+
+        # Initialize output tensors
+        grad_x = torch.zeros_like(tensor)
+        grad_y = torch.zeros_like(tensor)
+
+        # Apply Sobel operator to each channel
+        for i in range(tensor.size(0)):
+            grad_x[i:i+1] = F.conv2d(tensor[i:i+1].unsqueeze(0), sobel_x, padding=1)
+            grad_y[i:i+1] = F.conv2d(tensor[i:i+1].unsqueeze(0), sobel_y, padding=1)
+
+        # Compute gradient magnitude
+        edge_magnitude = torch.sqrt(grad_x**2 + grad_y**2)
+
+        # Normalize to [0, 1]
+        edge_magnitude = edge_magnitude / edge_magnitude.max()
+
+        return edge_magnitude.squeeze(0)
