@@ -152,7 +152,6 @@ class TestGenusEvaluationMethod(unittest.TestCase):
 
         assert result.shape == (1, 3, 224, 224)
 
-    @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("torch.max", return_value=(None, torch.tensor([0])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.8, 0.1, 0.1]]))
     @patch("json.load", return_value = {"0":"acanthoscelides"})
@@ -160,8 +159,7 @@ class TestGenusEvaluationMethod(unittest.TestCase):
         transforms.Resize((224, 224)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
-    def test_evaluate_image_single_input(self, mock_torch, mock_json,
-                                         mock_softmax, mock_max, mock_file):
+    def test_evaluate_image_single_input(self, mock_torch, mock_json, mock_softmax, mock_max):
         """test proper output with a single image entered"""
         mock_models = {
             "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
@@ -170,8 +168,10 @@ class TestGenusEvaluationMethod(unittest.TestCase):
             "caud": MagicMock(return_value=torch.tensor([[0.4, 0.4, 0.2]])),
         }
 
-        evaluation = GenusEvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
-        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
+        mock_open_func = mock_open(read_data="224")
+        with patch("builtins.open", mock_open_func):
+            evaluation = GenusEvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
+        mock_open_func.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
@@ -194,7 +194,6 @@ class TestGenusEvaluationMethod(unittest.TestCase):
         mock_softmax.assert_called_once()
         mock_max.assert_called_once()
 
-    @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("torch.max", return_value=(None, torch.tensor([1])))
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1]]))
     @patch("json.load", return_value = {"0":"acanthoscelides", "1":"callosobruchus",
@@ -203,8 +202,7 @@ class TestGenusEvaluationMethod(unittest.TestCase):
         transforms.Resize((224, 224)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
-    def test_evaluate_image_multiple_input(self, mock_torch, mock_json,
-                                           mock_softmax, mock_max, mock_file):
+    def test_evaluate_image_multiple_input(self, mock_torch, mock_json, mock_softmax, mock_max):
         """test proper output with multiple images entered"""
         mock_models = {
             "late": MagicMock(return_value=torch.tensor([[0.1, 0.3, 0.6]])),
@@ -213,8 +211,10 @@ class TestGenusEvaluationMethod(unittest.TestCase):
             "caud": MagicMock(return_value=torch.tensor([[0.4, 0.4, 0.2]])),
         }
 
-        evaluation = GenusEvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
-        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
+        mock_open_func = mock_open(read_data="224")
+        with patch("builtins.open", mock_open_func):
+            evaluation = GenusEvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
+        mock_open_func.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
