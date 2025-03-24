@@ -489,9 +489,17 @@ class ImageDataset(Dataset):
 
         return image, self.label[idx]
 
-    # Edge Detection function in transformation
+# Edge Detection function in transformation
 class SobelEdgeDetection():
+    """
+    Transformation class to transform image tensor using 
+    Sobel Edge Detection and focusing on shape and contours
+    Arguments: None
+    """
     def __init__(self):
+        """
+        Initialize values
+        """
         # Define Sobel kernels
         self.sobel_x = torch.tensor([[-1, 0, 1],
             [-2, 0, 2],
@@ -502,6 +510,9 @@ class SobelEdgeDetection():
             [ 1,  2,  1]], dtype=torch.float32).view(1, 1, 3, 3)
 
     def __call__(self, tensor):
+        """
+        Return: modified tensor
+        """
         # Ensure the kernel is on the same device as the input tensor
         sobel_x = self.sobel_x.to(tensor.device)
         sobel_y = self.sobel_y.to(tensor.device)
