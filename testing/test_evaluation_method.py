@@ -169,11 +169,7 @@ class TestEvaluationMethod(unittest.TestCase):
     @patch("torch.nn.functional.softmax", return_value=torch.tensor([[0.3, 0.6, 0.1, 0.4, 0.5]]))
     @patch("json.load", return_value = {
         "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
-    @patch("torch.load", return_value = transforms.Compose([
-        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
-    def test_evaluate_image(self, mock_torch, mock_json, mock_softmax, mock_topk, mock_file):
+    def test_evaluate_image(self, mock_json, mock_softmax, mock_topk, mock_file):
         """test proper output with multiple images entered"""
         mock_models = {
             "late": MagicMock(),
@@ -187,11 +183,6 @@ class TestEvaluationMethod(unittest.TestCase):
                                     call("src/models/json_mock.txt", 'r', encoding='utf-8')],
                                     any_order = True)
         mock_json.assert_called_once()
-        mock_torch.assert_has_calls([call("caud_transformation.pth"),
-                                    call("dors_transformation.pth"),
-                                    call("fron_transformation.pth"),
-                                    call("late_transformation.pth"),],
-                                    any_order = True)
 
         # Mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
