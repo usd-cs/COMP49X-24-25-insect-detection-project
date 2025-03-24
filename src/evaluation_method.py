@@ -34,10 +34,10 @@ class EvaluationMethod:
 
         #load transformations to a list for use in the program
         self.transformations = []
-        self.transformations[0] = torch.load("caud_transformation.pth")
-        self.transformations[1] = torch.load("dors_transformation.pth")
-        self.transformations[2] = torch.load("fron_transformation.pth")
-        self.transformations[3] = torch.load("late_transformation.pth")
+        self.transformations.append(torch.load("caud_transformation.pth"))
+        self.transformations.append(torch.load("dors_transformation.pth"))
+        self.transformations.append(torch.load("fron_transformation.pth"))
+        self.transformations.append(torch.load("late_transformation.pth"))
 
         # initialize the size of how many classifications you want outputted by the evaluation
         self.k = 5
