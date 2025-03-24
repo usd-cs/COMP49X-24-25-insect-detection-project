@@ -490,7 +490,7 @@ class ImageDataset(Dataset):
         return image, self.label[idx]
 
     # Edge Detection function in transformation
-class SobelEdgeDetection(object):
+class SobelEdgeDetection():
     def __init__(self):
         # Define Sobel kernels
         self.sobel_x = torch.tensor([[-1, 0, 1],
