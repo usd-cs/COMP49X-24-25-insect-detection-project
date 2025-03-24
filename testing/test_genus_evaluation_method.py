@@ -106,7 +106,7 @@ class TestGenusEvaluationMethod(unittest.TestCase):
         evaluation.height = 224
         fake_input = Image.new("RGB", (224, 224))
         transformation = transforms.Compose([
-        transforms.Resize((self.height, self.height)),  # ResNet expects 224x224 images
+        transforms.Resize((224, 224)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         result = evaluation.transform_input(fake_input, transformation)
