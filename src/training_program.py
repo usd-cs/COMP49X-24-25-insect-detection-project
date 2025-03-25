@@ -30,8 +30,11 @@ class TrainingProgram:
         self.dors_subset = self.get_subset("DORS", self.dataframe)
         self.fron_subset = self.get_subset("FRON", self.dataframe)
         self.late_subset = self.get_subset("LATE", self.dataframe)
-        # To be replaced to maximize use of graphics card
-        self.device = torch.device('mps' if torch.backends.mps.is_built() else 'cpu')
+        # Set device to a CUDA-compatible gpu, else mps, else cpu
+        self.device = torch.device(
+            'cuda' if torch.cuda.is_available()
+            else 'mps' if torch.backends.mps.is_built()
+            else 'cpu')
         self.caud_model = self.load_caud_model()
         self.dors_model = self.load_dors_model()
         self.fron_model = self.load_fron_model()
