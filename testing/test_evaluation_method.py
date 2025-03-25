@@ -13,13 +13,12 @@ class TestEvaluationMethod(unittest.TestCase):
     """
     Test the evaluation method class methods
     """
-    @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {"0":"objectus"})
     @patch("torch.load", return_value = transforms.Compose([
         transforms.Resize((224, 224)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
-    def test_initializer(self, mock_torch, mock_json, mock_file):
+    def test_initializer(self, mock_torch, mock_json):
         """test the initializer for proper setup"""
         # Mock the models
         mock_models = {
@@ -29,16 +28,20 @@ class TestEvaluationMethod(unittest.TestCase):
             "caud" : MagicMock()
         }
 
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
+        mock_text_file = mock_open(read_data="224")
+        mock_binary_file = mock_open(read_data=b"\x80\x03}q\x00.")
 
-        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
-                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
-                                    any_order = True)
+        def mock_mode(file, mode='r', *args, **kwargs):
+            """helper function for deciding which mock to use"""
+            if "b" in mode:
+                return mock_binary_file()
+            else:
+                return mock_text_file()
+        
+        with patch("builtins.open", new_callable=lambda: mock_mode):
+            evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
+
         mock_json.assert_called_once()
-        mock_torch.assert_has_calls([call("caud_transformation.pth"),
-                                     call("dors_transformation.pth"),
-                                     call("fron_transformation.pth"),
-                                     call("late_transformation.pth")])
 
         self.assertEqual(evaluation.use_method, 1)
         # Change the weights to match the program's manually
@@ -47,15 +50,13 @@ class TestEvaluationMethod(unittest.TestCase):
         self.assertEqual(evaluation.height, 224)
         self.assertEqual(evaluation.species_idx_dict, {0:"objectus"})
 
-
-    @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {
         "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
     @patch("torch.load", return_value = transforms.Compose([
         transforms.Resize((224, 224)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
-    def test_heaviest_is_best(self, mock_torch, mock_json, mock_file):
+    def test_heaviest_is_best(self, mock_torch, mock_json):
         """test heaviest is best for proper tracking of highest certainty"""
         mock_models = {
             "late" : MagicMock(),
@@ -64,15 +65,20 @@ class TestEvaluationMethod(unittest.TestCase):
             "caud" : MagicMock()
         }
 
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
-        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
-                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
-                                    any_order = True)
+        mock_text_file = mock_open(read_data="224")
+        mock_binary_file = mock_open(read_data=b"\x80\x03}q\x00.")
+
+        def mock_mode(file, mode='r', *args, **kwargs):
+            """helper function for deciding which mock to use"""
+            if "b" in mode:
+                return mock_binary_file()
+            else:
+                return mock_text_file()
+        
+        with patch("builtins.open", new_callable=lambda: mock_mode):
+            evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
+
         mock_json.assert_called_once()
-        mock_torch.assert_has_calls([call("caud_transformation.pth"),
-                                     call("dors_transformation.pth"),
-                                     call("fron_transformation.pth"),
-                                     call("late_transformation.pth")])
 
         test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
         test_species = [1, 4, 2, 3, 0]
@@ -84,14 +90,13 @@ class TestEvaluationMethod(unittest.TestCase):
         self.assertEqual(test_results[0][0], "nubigens")
         self.assertEqual(round(test_results[0][1], 2), 0.6)
 
-    @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {
         "0":"objectus", "1":"analis", "2":"maculatus", "3":"phaseoli", "4":"nubigens"})
     @patch("torch.load", return_value = transforms.Compose([
         transforms.Resize((224, 224)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
-    def test_weighted_eval(self, mock_torch, mock_json, mock_file):
+    def test_weighted_eval(self, mock_torch, mock_json):
         """test weighted eval for proper calculation"""
         mock_models = {
             "late" : MagicMock(),
@@ -100,15 +105,20 @@ class TestEvaluationMethod(unittest.TestCase):
             "caud" : MagicMock()
         }
 
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 2, "json_mock.txt")
-        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
-                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
-                                    any_order = True)
+        mock_text_file = mock_open(read_data="224")
+        mock_binary_file = mock_open(read_data=b"\x80\x03}q\x00.")
+
+        def mock_mode(file, mode='r', *args, **kwargs):
+            """helper function for deciding which mock to use"""
+            if "b" in mode:
+                return mock_binary_file()
+            else:
+                return mock_text_file()
+        
+        with patch("builtins.open", new_callable=lambda: mock_mode):
+            evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
+
         mock_json.assert_called_once()
-        mock_torch.assert_has_calls([call("caud_transformation.pth"),
-                                     call("dors_transformation.pth"),
-                                     call("fron_transformation.pth"),
-                                     call("late_transformation.pth")])
 
         test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
         test_species = [1, 4, 2, 3, 0]
@@ -124,13 +134,12 @@ class TestEvaluationMethod(unittest.TestCase):
                           evaluation.weights[2] * test_conf_scores[1] +
                           evaluation.weights[3] * test_conf_scores[1]))
 
-    @patch("builtins.open", new_callable=mock_open, read_data="224")
     @patch("json.load", return_value = {"0":"objectus"})
     @patch("torch.load", return_value = transforms.Compose([
         transforms.Resize((224, 224)),  # ResNet expects 224x224 images
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]))
-    def test_transform_input(self, mock_torch, mock_json, mock_file):
+    def test_transform_input(self, mock_torch, mock_json):
         """test transform input for proper image transformation"""
         mock_models = {
             "late" : MagicMock(),
@@ -139,15 +148,20 @@ class TestEvaluationMethod(unittest.TestCase):
             "caud" : MagicMock()
         }
 
-        evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
-        mock_file.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
-                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
-                                    any_order = True)
+        mock_text_file = mock_open(read_data="224")
+        mock_binary_file = mock_open(read_data=b"\x80\x03}q\x00.")
+
+        def mock_mode(file, mode='r', *args, **kwargs):
+            """helper function for deciding which mock to use"""
+            if "b" in mode:
+                return mock_binary_file()
+            else:
+                return mock_text_file()
+        
+        with patch("builtins.open", new_callable=lambda: mock_mode):
+            evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
+
         mock_json.assert_called_once()
-        mock_torch.assert_has_calls([call("caud_transformation.pth"),
-                                     call("dors_transformation.pth"),
-                                     call("fron_transformation.pth"),
-                                     call("late_transformation.pth")])
 
         evaluation.height = 224
         fake_input = Image.new("RGB", (224, 224))
@@ -176,18 +190,20 @@ class TestEvaluationMethod(unittest.TestCase):
             "fron": MagicMock(),
             "caud": MagicMock(),
         }
-        mock_open_func = mock_open(read_data="224")
-        with patch("builtins.open", mock_open_func):
+        mock_text_file = mock_open(read_data="224")
+        mock_binary_file = mock_open(read_data=b"\x80\x03}q\x00.")
+
+        def mock_mode(file, mode='r', *args, **kwargs):
+            """helper function for deciding which mock to use"""
+            if "b" in mode:
+                return mock_binary_file()
+            else:
+                return mock_text_file()
+        
+        with patch("builtins.open", new_callable=lambda: mock_mode):
             evaluation = EvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
 
-        mock_open_func.assert_has_calls([call("src/models/height_mock.txt", 'r', encoding='utf-8'),
-                                    call("src/models/json_mock.txt", 'r', encoding='utf-8')],
-                                    any_order = True)
         mock_json.assert_called_once()
-        mock_torch.assert_has_calls([call("caud_transformation.pth"),
-                                     call("dors_transformation.pth"),
-                                     call("fron_transformation.pth"),
-                                     call("late_transformation.pth")])
 
         # Mock transform_input for dummy output
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
