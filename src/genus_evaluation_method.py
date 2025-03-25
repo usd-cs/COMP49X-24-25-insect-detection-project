@@ -79,9 +79,11 @@ class GenusEvaluationMethod:
                 A return of None, -1 indicates an error
         """
         # Set device to a CUDA-compatible gpu
-        # Else use CPU to allow general usability and Metal Performance Shader if user has Apple Silicon
+        # Else use CPU to allow general usability and MPS if user has Apple Silicon
         device = torch.device(
-            'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_built() else 'cpu')
+            'cuda' if torch.cuda.is_available() 
+            else 'mps' if torch.backends.mps.is_built()
+            else 'cpu')
 
         #define variables outside the if statements so they can be used in other method calls
         predictions = {

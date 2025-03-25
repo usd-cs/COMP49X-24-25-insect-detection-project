@@ -32,7 +32,9 @@ class TrainingProgram:
         self.late_subset = self.get_subset("LATE", self.dataframe)
         # Set device to a CUDA-compatible gpu, else mps, else cpu
         self.device = torch.device(
-            'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_built() else 'cpu')
+            'cuda' if torch.cuda.is_available()
+            else 'mps' if torch.backends.mps.is_built()
+            else 'cpu')
         self.caud_model = self.load_caud_model()
         self.dors_model = self.load_dors_model()
         self.fron_model = self.load_fron_model()
