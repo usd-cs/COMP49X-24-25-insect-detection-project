@@ -475,24 +475,20 @@ class TrainingProgram:
         Returns: None
         """
         if angle == 0:
-            f = open("caud_transformation.pth", "wb")
-            dill.dump(transformation, f)
-            f.close()
+            with open("caud_transformation.pth", "wb") as f:
+                dill.dump(transformation, f)
 
         elif angle == 1:
-            f = open("dors_transformation.pth", "wb")
-            dill.dump(transformation, f)
-            f.close()
+            with open("dors_transformation.pth", "wb") as f:
+                dill.dump(transformation, f)
 
         elif angle == 2:
-            f = open("fron_transformation.pth", "wb")
-            dill.dump(transformation, f)
-            f.close()
+            with open("fron_transformation.pth", "wb") as f:
+                dill.dump(transformation, f)
 
         elif angle == 3:
-            f = open("late_transformation.pth", "wb")
-            dill.dump(transformation, f)
-            f.close()
+            with open("late_transformation.pth", "wb") as f:
+                dill.dump(transformation, f)
 
 # Custom Dataset class for loading images from binary data
 class ImageDataset(Dataset):

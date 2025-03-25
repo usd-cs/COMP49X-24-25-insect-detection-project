@@ -64,21 +64,17 @@ class GenusEvaluationMethod:
         """
         transformations = []
 
-        f = open("caud_transformation.pth", "rb")
-        transformations.append(dill.load(f))
-        f.close()
+        with open("caud_transformation.pth", "rb") as f:
+            transformations.append(dill.load(f))
 
-        f = open("dors_transformation.pth", "rb")
-        transformations.append(dill.load(f))
-        f.close()
+        with open("dors_transformation.pth", "rb") as f:
+            transformations.append(dill.load(f))
 
-        f = open("fron_transformation.pth", "rb")
-        transformations.append(dill.load(f))
-        f.close()
+        with open("fron_transformation.pth", "rb") as f:
+            transformations.append(dill.load(f))
 
-        f = open("late_transformation.pth", "rb")
-        transformations.append(dill.load(f))
-        f.close()
+        with open("late_transformation.pth", "rb") as f:
+            transformations.append(dill.load(f))
 
         return transformations
 
