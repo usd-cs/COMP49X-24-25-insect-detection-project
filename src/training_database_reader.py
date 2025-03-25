@@ -52,6 +52,18 @@ class DatabaseReader:
         """
         return self.dataframe
 
+    def get_num_species(self):
+        """
+        Gets number of unique classes within species column
+        """
+        return self.dataframe['Species'].nunique()
+
+    def get_num_genus(self):
+        """
+        Gets number of unique classes within genus column
+        """
+        return self.dataframe['Species'].nunique()
+
 if __name__ == "__main__":
     db_path = input("Please input the file path of the SQLite database: ")
     reader = DatabaseReader(db_path)

@@ -102,7 +102,7 @@ class TrainingDataConverter:
             if filename.lower().endswith(('png', 'jpg', 'jpeg', 'bmp', 'gif')):
                 file_path = os.path.join(self.dir_path, filename)
 
-                name_parts = self.parse_name(file_path) # placeholder parsing
+                name_parts = self.parse_name(filename) # placeholder parsing
 
                 if name_parts:
                     image_data = name_parts[:4]
