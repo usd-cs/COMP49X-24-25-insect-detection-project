@@ -6,6 +6,7 @@ import sys
 import os
 import json
 import torch
+import dill
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 class EvaluationMethod:
@@ -61,10 +62,23 @@ class EvaluationMethod:
         Returns: list of transformations
         """
         transformations = []
-        transformations.append(torch.load("caud_transformation.pth"))
-        transformations.append(torch.load("dors_transformation.pth"))
-        transformations.append(torch.load("fron_transformation.pth"))
-        transformations.append(torch.load("late_transformation.pth"))
+        
+        #open each file and load the transformation then save it to the list
+        f = open("caud_transformation.pth", "rb")
+        transformations.append(dill.load(f))
+        f.close()
+
+        f = open("dors_transformation.pth", "rb")
+        transformations.append(dill.load(f))
+        f.close()
+
+        f = open("fron_transformation.pth", "rb")
+        transformations.append(dill.load(f))
+        f.close()
+
+        f = open("late_transformation.pth", "rb")
+        transformations.append(dill.load(f))
+        f.close()
 
         return transformations
 
