@@ -71,12 +71,12 @@ class TrainingDataConverter:
         Returns: Tuple (Genus, Species, UniqueID, View)
         """
         name_parts = name.split(' ')
-        if len(name_parts) < 5:
+        if len(name_parts) != 5:
             return None
         cur_index= len(name_parts)-1
         view = name_parts[cur_index][:name_parts[cur_index].find('.')]
         cur_index -= 2
-        unique_id = name_parts[cur_index]
+        unique_id = name_parts[cur_index] + view
         cur_index -= 1
         species = name_parts[cur_index]
         cur_index -= 1
@@ -101,9 +101,9 @@ class TrainingDataConverter:
             # loop through image files
             if filename.lower().endswith(('png', 'jpg', 'jpeg', 'bmp', 'gif')):
                 file_path = os.path.join(self.dir_path, filename)
-
+                print(filename)
                 name_parts = self.parse_name(filename) # placeholder parsing
-
+                print(name_parts)
                 if name_parts:
                     image_data = name_parts[:4]
                     image_binary = self.img_to_binary(file_path)
