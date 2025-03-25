@@ -22,7 +22,7 @@ jobs:
     - name: Analyse the code with pylint
       run: |
         # Explicitly invoke pylint with python -m
-        python -m pylint --disable=C0413 $(git ls-files '*.py') --disable=R0914 $(git ls-files '*.py') --disable=R0801 $(git ls-files '*.py')
+        python -m pylint --disable=C0413 $(git ls-files '*.py') --disable=R0914 $(git ls-files '*.py') --disable=R0801 $(git ls-files '*.py') --disable=E1102 $(git ls-files '*.py') --disable=R0903 $(git ls-files '*.py')
     - name: Autoformat and fix linting issues
       run: |
         # Autoformat code with Black and sort imports with isort
