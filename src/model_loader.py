@@ -25,9 +25,11 @@ class ModelLoader:
             "fron" : None,
             "late" : None
         }
-
-        # use CPU to allow general usability and Metal Performance Shader if user has Apple Silicon
+        # Set device to a CUDA-compatible gpu
+        # Else use CPU to allow general usability and Metal Performance Shader if user has Apple Silicon
         self.device = torch.device("mps" if torch.backends.mps.is_built() else "cpu")
+        self.device = torch.device(
+            'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_built() else 'cpu')
 
         if not test:
             self.model_initializer()

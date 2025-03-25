@@ -78,7 +78,10 @@ class GenusEvaluationMethod:
         Returns: Classification of input images and confidence score. 
                 A return of None, -1 indicates an error
         """
-        device = torch.device('mps' if torch.backends.mps.is_built() else 'cpu')
+        # Set device to a CUDA-compatible gpu
+        # Else use CPU to allow general usability and Metal Performance Shader if user has Apple Silicon
+        device = torch.device(
+            'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_built() else 'cpu')
 
         #define variables outside the if statements so they can be used in other method calls
         predictions = {
