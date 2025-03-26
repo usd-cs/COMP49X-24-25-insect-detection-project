@@ -98,8 +98,8 @@ class TestTrainingDataConverter(unittest.TestCase):
             )
 
         mock_add_img.assert_has_calls([
-            call(('genus', 'species', '123', 'view1'), b'binary_data'),
-            call(('genus', 'species', '124', 'view2'), b'binary_data')
+            call(('genus', 'species', '123view1', 'view1'), b'binary_data'),
+            call(('genus', 'species', '124view2', 'view2'), b'binary_data')
         ])
 
     @patch('os.path.exists')
@@ -141,7 +141,7 @@ class TestTrainingDataConverter(unittest.TestCase):
     def test_valid_name(self):
         """ Tests that parsing returns proper results with valid input """
         test_name = "data/Genus Species 12345 5XEXT side.jpg"
-        expected = ("Genus", "Species", "12345", "side")
+        expected = ("Genus", "Species", "12345side", "side")
         tdc = TrainingDataConverter("")
         result = tdc.parse_name(test_name)
         self.assertEqual(result, expected)
