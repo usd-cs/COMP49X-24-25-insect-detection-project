@@ -583,17 +583,17 @@ class HistogramEqualization():
     which enhances the contrast of the image.
     Arguments: None
     """
-    
+
     def __call__(self, tensor):
         """
         Return: modified tensor
         """
         # Ensure image is in PIL format
         if isinstance(tensor, torch.Tensor):
-            img = transforms.ToPILImage()(tensor)
+            tensor = transforms.ToPILImage()(tensor)
 
         # Apply histogram equalization on image
-        transformed_img = ImageOps.equalize(img)
+        transformed_img = ImageOps.equalize(tensor)
 
         # Convert transformed image back to tensor
         transformed_tensor = transforms.ToTensor()(transformed_img)
