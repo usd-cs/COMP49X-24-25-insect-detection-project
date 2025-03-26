@@ -2,8 +2,7 @@
 import unittest
 import sys
 import os
-import io
-from unittest.mock import patch, mock_open, call, MagicMock
+from unittest.mock import patch, mock_open, MagicMock
 from PIL import Image
 import torch
 from torchvision import transforms
