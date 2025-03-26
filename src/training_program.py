@@ -7,6 +7,7 @@ import pandas as pd
 from torchvision import transforms, models
 import torch
 import torch.nn.functional as F
+import dill
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
@@ -479,16 +480,20 @@ class TrainingProgram:
         Returns: None
         """
         if angle == 0:
-            torch.save(transformation, "caud_transformation.pth")
+            with open("caud_transformation.pth", "wb") as f:
+                dill.dump(transformation, f)
 
         elif angle == 1:
-            torch.save(transformation, "dors_transformation.pth")
+            with open("dors_transformation.pth", "wb") as f:
+                dill.dump(transformation, f)
 
         elif angle == 2:
-            torch.save(transformation, "fron_transformation.pth")
+            with open("fron_transformation.pth", "wb") as f:
+                dill.dump(transformation, f)
 
         elif angle == 3:
-            torch.save(transformation, "late_transformation.pth")
+            with open("late_transformation.pth", "wb") as f:
+                dill.dump(transformation, f)
 
 # Custom Dataset class for loading images from binary data
 class ImageDataset(Dataset):
