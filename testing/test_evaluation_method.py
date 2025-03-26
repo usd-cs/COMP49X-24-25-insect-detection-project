@@ -2,7 +2,7 @@
 import unittest
 import sys
 import os
-from unittest.mock import patch, mock_open, call, MagicMock
+from unittest.mock import patch, mock_open, MagicMock
 from PIL import Image
 import torch
 from torchvision import transforms
@@ -27,7 +27,7 @@ class TestEvaluationMethod(unittest.TestCase):
         mock_text_file = mock_open(read_data="224")
         mock_binary_file = mock_open(read_data=b"\x80\x03}q\x00.")
 
-        def mock_mode(file, mode='r', *args, **kwargs):
+        def mock_mode(_file, mode='r', *_args, **_kwargs):
             """helper function for deciding which mock to use"""
             if "b" in mode:
                 return mock_binary_file()
@@ -60,7 +60,7 @@ class TestEvaluationMethod(unittest.TestCase):
         mock_text_file = mock_open(read_data="224")
         mock_binary_file = mock_open(read_data=b"\x80\x03}q\x00.")
 
-        def mock_mode(file, mode='r', *args, **kwargs):
+        def mock_mode(_file, mode='r', *_args, **_kwargs):
             """helper function for deciding which mock to use"""
             if "b" in mode:
                 return mock_binary_file()
@@ -96,7 +96,7 @@ class TestEvaluationMethod(unittest.TestCase):
         mock_text_file = mock_open(read_data="224")
         mock_binary_file = mock_open(read_data=b"\x80\x03}q\x00.")
 
-        def mock_mode(file, mode='r', *args, **kwargs):
+        def mock_mode(_file, mode='r', *_args, **_kwargs):
             """helper function for deciding which mock to use"""
             if "b" in mode:
                 return mock_binary_file()
@@ -135,7 +135,7 @@ class TestEvaluationMethod(unittest.TestCase):
         mock_text_file = mock_open(read_data="224")
         mock_binary_file = mock_open(read_data=b"\x80\x03}q\x00.")
 
-        def mock_mode(file, mode='r', *args, **kwargs):
+        def mock_mode(_file, mode='r', *_args, **_kwargs):
             """helper function for deciding which mock to use"""
             if "b" in mode:
                 return mock_binary_file()
@@ -173,7 +173,7 @@ class TestEvaluationMethod(unittest.TestCase):
         mock_text_file = mock_open(read_data="224")
         mock_binary_file = mock_open(read_data=b"\x80\x03}q\x00.")
 
-        def mock_mode(file, mode='r', *args, **kwargs):
+        def mock_mode(_file, mode='r', *_args, **_kwargs):
             """helper function for deciding which mock to use"""
             if "b" in mode:
                 return mock_binary_file()

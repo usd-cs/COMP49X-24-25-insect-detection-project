@@ -6,8 +6,8 @@ from io import BytesIO
 import pandas as pd
 from torchvision import transforms, models
 import torch
-import dill
 import torch.nn.functional as F
+import dill
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
