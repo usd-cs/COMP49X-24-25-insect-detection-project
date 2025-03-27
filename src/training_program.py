@@ -10,7 +10,7 @@ import torch.nn.functional as F
 import dill
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
-from PIL import Image
+from PIL import Image, ImageOps
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 # pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, unspecified-encoding
@@ -266,7 +266,7 @@ class TrainingProgram:
 
                 running_loss += loss.item()
 
-                print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
+            print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
 
         # evaluate testing machine
         self.late_model.eval()
@@ -321,7 +321,7 @@ class TrainingProgram:
         transformation = transforms.Compose([
         transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
-        SobelEdgeDetection(),
+        HistogramEqualization(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
         #save transformation to a file
@@ -576,3 +576,26 @@ class SobelEdgeDetection():
         edge_magnitude = edge_magnitude / edge_magnitude.max()
 
         return edge_magnitude.squeeze(0)
+
+class HistogramEqualization():
+    """
+    Transformation class to transform image tensor using Histogram Equalization,
+    which enhances the contrast of the image.
+    Arguments: None
+    """
+
+    def __call__(self, tensor):
+        """
+        Return: modified tensor
+        """
+        # Ensure image is in PIL format
+        if isinstance(tensor, torch.Tensor):
+            tensor = transforms.ToPILImage()(tensor)
+
+        # Apply histogram equalization on image
+        transformed_img = ImageOps.equalize(tensor)
+
+        # Convert transformed image back to tensor
+        transformed_tensor = transforms.ToTensor()(transformed_img)
+
+        return transformed_tensor

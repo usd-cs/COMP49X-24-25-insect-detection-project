@@ -21,6 +21,13 @@ if __name__ == '__main__':
     dbr = DatabaseReader("training.db")
     df = dbr.get_dataframe()
 
+    # Display how many images we have for each angle
+    print("Number of Images for Each Angle:")
+    print(f"CAUD: {(df['View'] == 'CAUD').sum()}")
+    print(f"DORS: {(df['View'] == 'DORS').sum()}")
+    print(f"FRON: {(df['View'] == 'FRON').sum()}")
+    print(f"LATE: {(df['View'] == 'LATE').sum()}")
+
     # initialize number of outputs
     SPECIES_OUTPUTS = dbr.get_num_species()
     GENUS_OUTPUTS = dbr.get_num_genus()
