@@ -266,7 +266,7 @@ class TrainingProgram:
 
                 running_loss += loss.item()
 
-                print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
+            print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
 
         # evaluate testing machine
         self.late_model.eval()
