@@ -438,7 +438,8 @@ class TrainingProgram:
         return model
 
     def save_models(self, caud_filename = None, dors_filename = None,
-                   fron_filename = None, late_filename = None, height_filename = None, dict_filename = None):
+                   fron_filename = None, late_filename = None, 
+                   height_filename = None, dict_filename = None):
         """
         Saves trained models to their respective files and image height file
         
@@ -468,7 +469,14 @@ class TrainingProgram:
         # Handle dict_filename similarly if needed
         if dict_filename:
             dict_filename = os.path.join("src/models", dict_filename)
+            with open(dict_filename, "w") as file:
+                json.dump(self.class_index_dictionary, file, indent=4)
             print(f"Dictionary saved to {dict_filename}")
+        
+        if height_filename:
+            with open(height_filename, "w") as file:
+                file.write(str(self.height))
+            print(f"Height saved to {height_filename}.")
 
     def save_transformation(self, transformation, angle):
         """

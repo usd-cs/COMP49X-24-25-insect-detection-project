@@ -19,7 +19,7 @@ if __name__ == '__main__':
     train_fron = False
     train_late = False
     can_continue = False
-    
+
     while not can_continue:
         print("Dorsal: 1\nCaudal: 2\nFrontal: 3\nLateral: 4")
         input = int(input("Choose a model you would like to train (type corresponding number): "))
@@ -34,7 +34,9 @@ if __name__ == '__main__':
         else:
             print("Invalid Input")
         del input
-        continue_input = int(input("Press 1 to choose more models to train, anything other number to start training: "))
+        continue_input = int(
+            input("Press 1 to choose more models to train, anything other number to start training: ")
+            )
         if continue_input != 1:
             can_continue = True
             if not train_dors and not train_late and not train_caud and not train_fron:
