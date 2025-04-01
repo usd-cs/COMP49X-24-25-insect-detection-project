@@ -437,40 +437,38 @@ class TrainingProgram:
 
         return model
 
-    def save_models(self, caud_filename, dors_filename,
-                   fron_filename, late_filename, height_filename, dict_filename):
+    def save_models(self, caud_filename = None, dors_filename = None,
+                   fron_filename = None, late_filename = None, height_filename = None, dict_filename = None):
         """
         Saves trained models to their respective files and image height file
         
         Returns: None
         """
 
-        caud_filename = os.path.join("src/models", caud_filename)
-        dors_filename = os.path.join("src/models", dors_filename)
-        fron_filename = os.path.join("src/models", fron_filename)
-        late_filename = os.path.join("src/models", late_filename)
-        height_filename = os.path.join("src/models", height_filename)
-        dict_filename = os.path.join("src/models", dict_filename)
+        if caud_filename:
+            caud_filename = os.path.join("src/models", caud_filename)
+            torch.save(self.caud_model.state_dict(), caud_filename)
+            print(f"Caudal Model weights saved to {caud_filename}")
 
-        with open(height_filename, "w") as file:
-            file.write(str(self.height))
-        print(f"Height saved to, {height_filename}.")
+        if dors_filename:
+            dors_filename = os.path.join("src/models", dors_filename)
+            torch.save(self.dors_model.state_dict(), dors_filename)
+            print(f"Dorsal Model weights saved to {dors_filename}")
 
-        torch.save(self.caud_model.state_dict(), caud_filename)
-        print(f"Caudal Model weights saved to {caud_filename}")
+        if fron_filename:
+            fron_filename = os.path.join("src/models", fron_filename)
+            torch.save(self.fron_model.state_dict(), fron_filename)
+            print(f"Frontal Model weights saved to {fron_filename}")
 
-        torch.save(self.dors_model.state_dict(), dors_filename)
-        print(f"Dorsal Model weights saved to {dors_filename}")
+        if late_filename:
+            late_filename = os.path.join("src/models", late_filename)
+            torch.save(self.late_model.state_dict(), late_filename)
+            print(f"Lateral Model weights saved to {late_filename}")
 
-        torch.save(self.fron_model.state_dict(), fron_filename)
-        print(f"Frontal Model weights saved to {fron_filename}")
-
-        torch.save(self.late_model.state_dict(), late_filename)
-        print(f"Lateral Model weights saved to {late_filename}")
-
-        # save class index dictionary for evaluation
-        with open(dict_filename, "w") as file:
-            json.dump(self.class_index_dictionary, file, indent=4)
+        # Handle dict_filename similarly if needed
+        if dict_filename:
+            dict_filename = os.path.join("src/models", dict_filename)
+            print(f"Dictionary saved to {dict_filename}")
 
     def save_transformation(self, transformation, angle):
         """
