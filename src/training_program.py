@@ -5,6 +5,8 @@ import json
 from io import BytesIO
 import pandas as pd
 from torchvision import transforms, models
+import numpy as np
+import mahotas
 import torch
 import torch.nn.functional as F
 import dill
@@ -372,6 +374,7 @@ class TrainingProgram:
         transformation = transforms.Compose([
         transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
+        ZernikeTransform(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
         #save transformation to a file
@@ -605,3 +608,33 @@ class HistogramEqualization():
         transformed_tensor = transforms.ToTensor()(transformed_img)
 
         return transformed_tensor
+
+class ZernikeTransform:
+    """
+    Transformation class to transform image tensor using Zernike Transformation,
+    which edge detection while allowing variance of the image.
+    Arguments: None
+    """
+    def __call__(self, img):
+        # Ensure input is a PIL image
+        if isinstance(img, torch.Tensor):
+            to_pil = transforms.ToPILImage()
+            img = to_pil(img)
+
+        gray = img.convert("L")  # Convert to grayscale
+        np_img = np.array(gray)  # Convert to NumPy array
+        features = mahotas.features.zernike_moments(np_img, radius=21)
+        # Reshape the features into a 2D matrix for visualization
+        features = np.array(features)
+        feature_image = np.reshape(features, (5, 5))  # Reshape to a 5x5 matrix or as per the feature size
+
+        # Normalize features to be in the 0-255 range for visualization
+        feature_image = (feature_image - feature_image.min()) / (feature_image.max() - feature_image.min()) * 255
+        feature_image = np.uint8(feature_image)
+        
+        feature_image_rgb = np.stack([feature_image] * 3, axis=-1)  # Shape: [5, 5, 3]
+
+        # Convert the feature matrix back to a PIL image
+        feature_pil_image = Image.fromarray(feature_image_rgb)
+
+        return transforms.ToTensor()(feature_pil_image)
