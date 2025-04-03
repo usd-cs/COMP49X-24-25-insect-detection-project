@@ -14,6 +14,36 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../'
 # simple simulation of end-to-end functionality of files
 
 if __name__ == '__main__':
+    train_dors = False
+    train_caud = False
+    train_fron = False
+    train_late = False
+    can_continue = False
+
+    while not can_continue:
+        print("Dorsal: 1\nCaudal: 2\nFrontal: 3\nLateral: 4")
+        input = int(input("Choose a model you would like to train (type corresponding number): "))
+        if input == 1:
+            train_dors = True
+        elif input == 2:
+            train_caud = True
+        elif input == 3:
+            train_fron = True
+        elif input == 4:
+            train_late = True
+        else:
+            print("Invalid Input")
+        del input
+        continue_input = int(
+            input(
+                "Press 1 to choose more models to train, anything other number to start training: "
+                )
+                )
+        if continue_input != 1:
+            can_continue = True
+            if not train_dors and not train_late and not train_caud and not train_fron:
+                print("No Training Requested")
+                sys.exit(0)
     # Set up data converter
     tdc = TrainingDataConverter("dataset")
     tdc.conversion("training.db")
@@ -36,17 +66,21 @@ if __name__ == '__main__':
     species_tp = TrainingProgram(df, 1, SPECIES_OUTPUTS)
 
     # Training
-    species_tp.train_caudal(1)
-    species_tp.train_dorsal(20)
-    species_tp.train_frontal(1)
-    species_tp.train_lateral(1)
+    if train_caud:
+        species_tp.train_caudal(1)
+    if train_dors:
+        species_tp.train_dorsal(20)
+    if train_fron:
+        species_tp.train_frontal(1)
+    if train_late:
+        species_tp.train_lateral(1)
 
     # Save models
     species_tp.save_models(
-        "spec_caud.pth",
-        "spec_dors.pth",
-        "spec_fron.pth",
-        "spec_late.pth",
+        "spec_caud.pth" if train_caud else None,
+        "spec_dors.pth" if train_dors else None,
+        "spec_fron.pth" if train_fron else None,
+        "spec_late.pth" if train_late else None,
         "height.txt",
         "spec_dict.json")
 
@@ -54,16 +88,21 @@ if __name__ == '__main__':
     genus_tp = TrainingProgram(df, 0, GENUS_OUTPUTS)
 
     # Training
-    genus_tp.train_caudal(1)
-    genus_tp.train_dorsal(20)
-    genus_tp.train_frontal(1)
-    genus_tp.train_lateral(1)
+    if train_caud:
+        genus_tp.train_caudal(1)
+    if train_dors:
+        genus_tp.train_dorsal(20)
+    if train_fron:
+        genus_tp.train_frontal(1)
+    if train_late:
+        genus_tp.train_lateral(1)
 
     # Save models
-    genus_tp.save_models("gen_caud.pth",
-        "gen_dors.pth",
-        "gen_fron.pth",
-        "gen_late.pth",
+    genus_tp.save_models(
+        "gen_caud.pth" if train_caud else None,
+        "gen_dors.pth" if train_dors else None,
+        "gen_fron.pth" if train_fron else None,
+        "gen_late.pth" if train_late else None,
         "height.txt",
         "gen_dict.json")
 
