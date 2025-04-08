@@ -476,6 +476,7 @@ class TrainingProgram:
             print(f"Dictionary saved to {dict_filename}")
 
         if height_filename:
+            height_filename = os.path.join("src/models", height_filename)
             with open(height_filename, "w") as file:
                 file.write(str(self.height))
             print(f"Height saved to {height_filename}.")
