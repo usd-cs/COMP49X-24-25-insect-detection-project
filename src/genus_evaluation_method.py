@@ -211,21 +211,25 @@ class GenusEvaluationMethod:
 
         Returns: classification of combined models
         """
-        species_scores = {}
+        # adjust weight percentages by normalizing to sum to 1
+        weights_sum = sum(self.weights)
+        normalized_weights = [weight / weights_sum for weight in self.weights]
+
+        genus_scores = {}
 
         for i in range(4):
-            weighted_score = self.weights[i] * conf_scores[i]
+            weighted_score = normalized_weights[i] * conf_scores[i]
 
-            if genus_predictions[i] in species_scores:
-                species_scores[genus_predictions[i]] += weighted_score
+            if genus_predictions[i] in genus_scores:
+                genus_scores[genus_predictions[i]] += weighted_score
 
             else:
-                species_scores[genus_predictions[i]] = weighted_score
+                genus_scores[genus_predictions[i]] = weighted_score
 
         highest_score = -1
         highest_species = None
 
-        for i, j in species_scores.items():
+        for i, j in genus_scores.items():
             if j > highest_score:
                 highest_score = j
                 highest_species = i
