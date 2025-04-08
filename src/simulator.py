@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     # Training
     if train_caud:
-        species_tp.train_caudal(1)
+        species_tp.train_caudal(20)
     if train_dors:
         species_tp.train_dorsal(20)
     if train_fron:
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     # Training
     if train_caud:
-        genus_tp.train_caudal(1)
+        genus_tp.train_caudal(20)
     if train_dors:
         genus_tp.train_dorsal(20)
     if train_fron:

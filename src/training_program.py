@@ -297,6 +297,7 @@ class TrainingProgram:
         transformation = transforms.Compose([
         transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
+        HistogramEqualization(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
         #save transformation to a file
@@ -475,6 +476,7 @@ class TrainingProgram:
             print(f"Dictionary saved to {dict_filename}")
 
         if height_filename:
+            height_filename = os.path.join("src/models", height_filename)
             with open(height_filename, "w") as file:
                 file.write(str(self.height))
             print(f"Height saved to {height_filename}.")
