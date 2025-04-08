@@ -73,7 +73,7 @@ if __name__ == '__main__':
     if train_fron:
         species_tp.train_frontal(1)
     if train_late:
-        species_tp.train_lateral(1)
+        species_tp.train_lateral(20)
 
     # Save models
     species_tp.save_models(
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     if train_fron:
         genus_tp.train_frontal(1)
     if train_late:
-        genus_tp.train_lateral(1)
+        genus_tp.train_lateral(20)
 
     # Save models
     genus_tp.save_models(

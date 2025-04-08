@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import math
 from io import BytesIO
 import pandas as pd
 from torchvision import transforms, models
@@ -605,3 +606,58 @@ class HistogramEqualization():
         transformed_tensor = transforms.ToTensor()(transformed_img)
 
         return transformed_tensor
+
+class DCTTransform:
+    """
+    Apply 2D Discrete Cosine Transform as a preprocessing step.
+    Can be used in a transforms.Compose pipeline.
+    """
+    def dct_2d(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply 2D DCT to input tensor"""
+        B, C, H, W = x.shape
+        device = x.device
+
+        # Compute 1D DCT basis
+        def get_dct_matrix(N, dtype=torch.float32):
+            n = torch.arange(N, dtype=dtype)
+            k = torch.arange(N, dtype=dtype).unsqueeze(1)
+
+            dct_m = torch.cos(math.pi * k * (n + 0.5) / N)
+            dct_m[0, :] *= 1 / math.sqrt(2)
+
+            dct_m *= math.sqrt(2 / N)
+            dct_m[0, :] *= 1 / math.sqrt(2)
+
+            return dct_m.to(device)
+
+        # Get DCT matrices
+        dct_h = get_dct_matrix(H)
+        dct_w = get_dct_matrix(W)
+
+        # Apply DCT to each channel
+        result = torch.zeros_like(x)
+        for b in range(B):
+            for c in range(C):
+                # Apply DCT to rows (height dimension)
+                tmp = torch.matmul(dct_h, x[b, c])
+                # Apply DCT to columns (width dimension)
+                result[b, c] = torch.matmul(tmp, dct_w.T)
+
+        return result
+
+    def __call__(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Return: modified tensor
+        """
+        # Add batch dimension if needed
+        if x.dim() == 3:
+            x = x.unsqueeze(0)
+
+        # Apply DCT
+        x_dct = self.dct_2d(x)
+
+        # Remove batch dimension if we added it
+        if x.dim() == 4 and x.size(0) == 1:
+            x_dct = x_dct.squeeze(0)
+
+        return x_dct
