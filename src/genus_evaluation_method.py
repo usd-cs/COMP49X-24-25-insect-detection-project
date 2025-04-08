@@ -7,6 +7,8 @@ import os
 import json
 import torch
 import dill
+from transformation_classes import HistogramEqualization
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 class GenusEvaluationMethod:
