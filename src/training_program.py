@@ -5,9 +5,8 @@ import json
 from io import BytesIO
 import pandas as pd
 from PIL import Image
-from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms, models
-from torch.utils.data import DataLoader
 import torch
 import dill
 from sklearn.model_selection import train_test_split
