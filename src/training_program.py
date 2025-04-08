@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import math
 from io import BytesIO
 import pandas as pd
 from torchvision import transforms, models
@@ -10,7 +11,7 @@ import torch.nn.functional as F
 import dill
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
-from PIL import Image
+from PIL import Image, ImageOps
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 # pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, unspecified-encoding
@@ -266,7 +267,7 @@ class TrainingProgram:
 
                 running_loss += loss.item()
 
-                print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
+            print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
 
         # evaluate testing machine
         self.late_model.eval()
@@ -321,7 +322,7 @@ class TrainingProgram:
         transformation = transforms.Compose([
         transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
-        SobelEdgeDetection(),
+        HistogramEqualization(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
         #save transformation to a file
@@ -437,40 +438,46 @@ class TrainingProgram:
 
         return model
 
-    def save_models(self, caud_filename, dors_filename,
-                   fron_filename, late_filename, height_filename, dict_filename):
+    def save_models(self, caud_filename = None, dors_filename = None,
+                   fron_filename = None, late_filename = None,
+                   height_filename = None, dict_filename = None):
         """
         Saves trained models to their respective files and image height file
         
         Returns: None
         """
 
-        caud_filename = os.path.join("src/models", caud_filename)
-        dors_filename = os.path.join("src/models", dors_filename)
-        fron_filename = os.path.join("src/models", fron_filename)
-        late_filename = os.path.join("src/models", late_filename)
-        height_filename = os.path.join("src/models", height_filename)
-        dict_filename = os.path.join("src/models", dict_filename)
+        if caud_filename:
+            caud_filename = os.path.join("src/models", caud_filename)
+            torch.save(self.caud_model.state_dict(), caud_filename)
+            print(f"Caudal Model weights saved to {caud_filename}")
 
-        with open(height_filename, "w") as file:
-            file.write(str(self.height))
-        print(f"Height saved to, {height_filename}.")
+        if dors_filename:
+            dors_filename = os.path.join("src/models", dors_filename)
+            torch.save(self.dors_model.state_dict(), dors_filename)
+            print(f"Dorsal Model weights saved to {dors_filename}")
 
-        torch.save(self.caud_model.state_dict(), caud_filename)
-        print(f"Caudal Model weights saved to {caud_filename}")
+        if fron_filename:
+            fron_filename = os.path.join("src/models", fron_filename)
+            torch.save(self.fron_model.state_dict(), fron_filename)
+            print(f"Frontal Model weights saved to {fron_filename}")
 
-        torch.save(self.dors_model.state_dict(), dors_filename)
-        print(f"Dorsal Model weights saved to {dors_filename}")
+        if late_filename:
+            late_filename = os.path.join("src/models", late_filename)
+            torch.save(self.late_model.state_dict(), late_filename)
+            print(f"Lateral Model weights saved to {late_filename}")
 
-        torch.save(self.fron_model.state_dict(), fron_filename)
-        print(f"Frontal Model weights saved to {fron_filename}")
+        # Handle dict_filename similarly if needed
+        if dict_filename:
+            dict_filename = os.path.join("src/models", dict_filename)
+            with open(dict_filename, "w") as file:
+                json.dump(self.class_index_dictionary, file, indent=4)
+            print(f"Dictionary saved to {dict_filename}")
 
-        torch.save(self.late_model.state_dict(), late_filename)
-        print(f"Lateral Model weights saved to {late_filename}")
-
-        # save class index dictionary for evaluation
-        with open(dict_filename, "w") as file:
-            json.dump(self.class_index_dictionary, file, indent=4)
+        if height_filename:
+            with open(height_filename, "w") as file:
+                file.write(str(self.height))
+            print(f"Height saved to {height_filename}.")
 
     def save_transformation(self, transformation, angle):
         """
@@ -576,3 +583,81 @@ class SobelEdgeDetection():
         edge_magnitude = edge_magnitude / edge_magnitude.max()
 
         return edge_magnitude.squeeze(0)
+
+class HistogramEqualization():
+    """
+    Transformation class to transform image tensor using Histogram Equalization,
+    which enhances the contrast of the image.
+    Arguments: None
+    """
+
+    def __call__(self, tensor):
+        """
+        Return: modified tensor
+        """
+        # Ensure image is in PIL format
+        if isinstance(tensor, torch.Tensor):
+            tensor = transforms.ToPILImage()(tensor)
+
+        # Apply histogram equalization on image
+        transformed_img = ImageOps.equalize(tensor)
+
+        # Convert transformed image back to tensor
+        transformed_tensor = transforms.ToTensor()(transformed_img)
+
+        return transformed_tensor
+
+class DCTTransform:
+    """
+    Apply 2D Discrete Cosine Transform as a preprocessing step.
+    Can be used in a transforms.Compose pipeline.
+    """
+    def dct_2d(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply 2D DCT to input tensor"""
+        B, C, H, W = x.shape
+        device = x.device
+
+        # Compute 1D DCT basis
+        def get_dct_matrix(N, dtype=torch.float32):
+            n = torch.arange(N, dtype=dtype)
+            k = torch.arange(N, dtype=dtype).unsqueeze(1)
+
+            dct_m = torch.cos(math.pi * k * (n + 0.5) / N)
+            dct_m[0, :] *= 1 / math.sqrt(2)
+
+            dct_m *= math.sqrt(2 / N)
+            dct_m[0, :] *= 1 / math.sqrt(2)
+
+            return dct_m.to(device)
+
+        # Get DCT matrices
+        dct_h = get_dct_matrix(H)
+        dct_w = get_dct_matrix(W)
+
+        # Apply DCT to each channel
+        result = torch.zeros_like(x)
+        for b in range(B):
+            for c in range(C):
+                # Apply DCT to rows (height dimension)
+                tmp = torch.matmul(dct_h, x[b, c])
+                # Apply DCT to columns (width dimension)
+                result[b, c] = torch.matmul(tmp, dct_w.T)
+
+        return result
+
+    def __call__(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Return: modified tensor
+        """
+        # Add batch dimension if needed
+        if x.dim() == 3:
+            x = x.unsqueeze(0)
+
+        # Apply DCT
+        x_dct = self.dct_2d(x)
+
+        # Remove batch dimension if we added it
+        if x.dim() == 4 and x.size(0) == 1:
+            x_dct = x_dct.squeeze(0)
+
+        return x_dct
