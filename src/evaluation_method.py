@@ -209,19 +209,24 @@ class EvaluationMethod:
 
     def weighted_eval(self, conf_scores, species_predictions):
         """
-        Takes the classifications of the models and combines them based on programmer determined
-        weights to create a list of tuples containing the top 5 species(from the weighted algorithm)
+        Takes the classifications of the models and combines them based on the normalized 
+        weights from the programmer determined weights to create a list of tuples containing
+        the top 5 species(from the weighted algorithm)
 
         Returns: List of tuples [(species_name, confidence_score), ...]
             sorted by confidence(index 0 being the highest).
         """
+        # adjust weight percentages by normalizing to sum to 1
+        weights_sum = sum(self.weights)
+        normalized_weights = [weight / weights_sum for weight in self.weights]
+
         top_species_scores = {}
         # Iterate through each model and perform the weighted algorithm on their top scores
         for i in range(4):
             if species_predictions[i] is not None:
                 for rank in range(self.k):
                     species_idx = species_predictions[i][rank]
-                    weighted_score = self.weights[i] * conf_scores[i][rank]
+                    weighted_score = normalized_weights[i] * conf_scores[i][rank]
 
                     if species_idx in top_species_scores:
                         top_species_scores[species_idx] += weighted_score
