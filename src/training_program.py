@@ -2,15 +2,15 @@
 import os
 import sys
 import json
+from io import BytesIO
 import pandas as pd
 from PIL import Image
-from io import BytesIO
 from torch.utils.data import Dataset
 from torchvision import transforms, models
+from torch.utils.data import DataLoader
 import torch
 import dill
 from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader
 from transformation_classes import HistogramEqualization
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
