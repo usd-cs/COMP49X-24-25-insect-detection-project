@@ -2,11 +2,10 @@
 import os
 import sys
 import json
+import math
 from io import BytesIO
 import pandas as pd
 from torchvision import transforms, models
-import numpy as np
-import mahotas
 import torch
 import torch.nn.functional as F
 import dill
@@ -374,7 +373,6 @@ class TrainingProgram:
         transformation = transforms.Compose([
         transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
-        ZernikeTransform(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
         #save transformation to a file
@@ -609,32 +607,57 @@ class HistogramEqualization():
 
         return transformed_tensor
 
-class ZernikeTransform:
+class DCTTransform:
     """
-    Transformation class to transform image tensor using Zernike Transformation,
-    which edge detection while allowing variance of the image.
-    Arguments: None
+    Apply 2D Discrete Cosine Transform as a preprocessing step.
+    Can be used in a transforms.Compose pipeline.
     """
-    def __call__(self, img):
-        # Ensure input is a PIL image
-        if isinstance(img, torch.Tensor):
-            to_pil = transforms.ToPILImage()
-            img = to_pil(img)
-
-        gray = img.convert("L")  # Convert to grayscale
-        np_img = np.array(gray)  # Convert to NumPy array
-        features = mahotas.features.zernike_moments(np_img, radius=21)
-        # Reshape the features into a 2D matrix for visualization
-        features = np.array(features)
-        feature_image = np.reshape(features, (5, 5))  # Reshape to a 5x5 matrix or as per the feature size
-
-        # Normalize features to be in the 0-255 range for visualization
-        feature_image = (feature_image - feature_image.min()) / (feature_image.max() - feature_image.min()) * 255
-        feature_image = np.uint8(feature_image)
+    def dct_2d(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply 2D DCT to input tensor"""
+        B, C, H, W = x.shape
+        device = x.device
         
-        feature_image_rgb = np.stack([feature_image] * 3, axis=-1)  # Shape: [5, 5, 3]
-
-        # Convert the feature matrix back to a PIL image
-        feature_pil_image = Image.fromarray(feature_image_rgb)
-
-        return transforms.ToTensor()(feature_pil_image)
+        # Compute 1D DCT basis
+        def get_dct_matrix(N, dtype=torch.float32):
+            n = torch.arange(N, dtype=dtype)
+            k = torch.arange(N, dtype=dtype).unsqueeze(1)
+            
+            dct_m = torch.cos(math.pi * k * (n + 0.5) / N)
+            dct_m[0, :] *= 1 / math.sqrt(2)
+                
+            dct_m *= math.sqrt(2 / N)
+            dct_m[0, :] *= 1 / math.sqrt(2)
+            
+            return dct_m.to(device)
+        
+        # Get DCT matrices
+        dct_h = get_dct_matrix(H)
+        dct_w = get_dct_matrix(W)
+        
+        # Apply DCT to each channel
+        result = torch.zeros_like(x)
+        for b in range(B):
+            for c in range(C):
+                # Apply DCT to rows (height dimension)
+                tmp = torch.matmul(dct_h, x[b, c])
+                # Apply DCT to columns (width dimension)
+                result[b, c] = torch.matmul(tmp, dct_w.T)
+        
+        return result
+    
+    def __call__(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Return: modified tensor
+        """
+        # Add batch dimension if needed
+        if x.dim() == 3:
+            x = x.unsqueeze(0)
+        
+        # Apply DCT
+        x_dct = self.dct_2d(x)
+        
+        # Remove batch dimension if we added it
+        if x.dim() == 4 and x.size(0) == 1:
+            x_dct = x_dct.squeeze(0)
+            
+        return x_dct
