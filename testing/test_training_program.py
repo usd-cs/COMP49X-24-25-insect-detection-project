@@ -2,7 +2,8 @@
 import sys
 import os
 import unittest
-from unittest.mock import MagicMock, patch
+import json
+from unittest.mock import MagicMock, patch, mock_open
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
@@ -232,22 +233,39 @@ class TestTrainingProgram(unittest.TestCase):
     def test_save_models(self, mock_torch_save):
         """ Test that save_models writes to proper files """
 
-        # Call the function
-        self.training_program.save_models(
-            "caud.pth",
-            "dors.pth",
-            "fron.pth",
-            "late.pth",
-            "height.txt",
-            "dict.json"
-        )
+        # Mock previous model accuracies
+        mock_accuracy_dict = {
+            "caud": 0.6,
+            "dors": 0.4,
+            "fron": 0.7,
+            "late": 0.8,
+        }
+
+        self.training_program.model_accuracies = {
+            "caud": 0.5, # worse than previous
+            "dors": 0.6, # improved
+            "fron": 0.8, # improved
+            "late": 0.8, # same
+        }
+
+        # Call the function with mocked json accuracy dump
+        with patch("builtins.open", mock_open(read_data=json.dumps(mock_accuracy_dict))):
+            self.training_program.save_models(
+                {
+                    "caud": "caud.pth",
+                    "dors": "dors.pth",
+                    "fron": "fron.pth",
+                    "late": "late.pth",
+                },
+                "height.txt",
+                "dict.json",
+                "test_accuracies.json"
+            )
 
         # Verify torch.save is called for each model, ignoring exact state_dict() content
         expected_calls = [
-            ((unittest.mock.ANY, os.path.join("src/models", "caud.pth")),),
             ((unittest.mock.ANY, os.path.join("src/models", "dors.pth")),),
             ((unittest.mock.ANY, os.path.join("src/models", "fron.pth")),),
-            ((unittest.mock.ANY, os.path.join("src/models", "late.pth")),)
         ]
         mock_torch_save.assert_has_calls(expected_calls, any_order=True)
 

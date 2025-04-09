@@ -14,7 +14,7 @@ from transformation_classes import HistogramEqualization
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-# pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, unspecified-encoding
+# pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, unspecified-encoding too-many-public-methods
 class TrainingProgram:
     """
     Reads 4 subsets of pandas database from DatabaseReader, and trains and saves 4 models
@@ -46,6 +46,13 @@ class TrainingProgram:
         self.class_index_dictionary = {}
         self.class_string_dictionary = {}
         self.class_set = set()
+        # model accuracy dictionary
+        self.model_accuracies = {
+            "caud" : 0,
+            "dors" : 0,
+            "fron" : 0,
+            "late" : 0
+        }
 
         classes = dataframe.iloc[:, self.class_column].values
         class_to_idx = {label: idx for idx, label in enumerate(sorted(set(classes)))}
@@ -148,7 +155,9 @@ class TrainingProgram:
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
         if total != 0:
-            print(f"Accuracy: {100 * correct / total:.2f}%")
+            accuracy = correct / total
+            self.model_accuracies["caud"] = accuracy
+            print(f"Accuracy: {100 * accuracy:.2f}%")
 
     def training_evaluation_dorsal(self, num_epochs, train_loader, test_loader):
         """
@@ -193,7 +202,9 @@ class TrainingProgram:
                 correct += (predicted == labels).sum().item()
 
         if total != 0:
-            print(f"Accuracy: {100 * correct / total:.2f}%")
+            accuracy = correct / total
+            self.model_accuracies["dors"] = accuracy
+            print(f"Accuracy: {100 * accuracy:.2f}%")
 
     def training_evaluation_frontal(self, num_epochs, train_loader, test_loader):
         """
@@ -238,7 +249,9 @@ class TrainingProgram:
                 correct += (predicted == labels).sum().item()
 
         if total != 0:
-            print(f"Accuracy: {100 * correct / total:.2f}%")
+            accuracy = correct / total
+            self.model_accuracies["fron"] = accuracy
+            print(f"Accuracy: {100 * accuracy:.2f}%")
 
     def training_evaluation_lateral(self, num_epochs, train_loader, test_loader):
         """
@@ -283,7 +296,9 @@ class TrainingProgram:
                 correct += (predicted == labels).sum().item()
 
         if total != 0:
-            print(f"Accuracy: {100 * correct / total:.2f}%")
+            accuracy = correct / total
+            self.model_accuracies["late"] = accuracy
+            print(f"Accuracy: {100 * accuracy:.2f}%")
 
     def train_caudal(self, num_epochs):
         """
@@ -439,47 +454,97 @@ class TrainingProgram:
 
         return model
 
-    def save_models(self, caud_filename = None, dors_filename = None,
-                   fron_filename = None, late_filename = None,
-                   height_filename = None, dict_filename = None):
+    def save_models(self, model_filenames = None, height_filename = None,
+                    class_dict_filename = None, accuracy_dict_filename = None):
         """
         Saves trained models to their respective files and image height file
         
         Returns: None
         """
 
-        if caud_filename:
-            caud_filename = os.path.join("src/models", caud_filename)
+        # Update/Initialize Model Accuracy Dictionary
+        # update_flags indicates which models weights need to be updated and saved
+        update_flags = self.update_accuracies(accuracy_dict_filename)
+
+        if "caud" in model_filenames and model_filenames["caud"] and update_flags["caud"]:
+            caud_file = model_filenames["caud"]
+            caud_filename = os.path.join("src/models", caud_file)
             torch.save(self.caud_model.state_dict(), caud_filename)
             print(f"Caudal Model weights saved to {caud_filename}")
 
-        if dors_filename:
-            dors_filename = os.path.join("src/models", dors_filename)
+        if "dors" in model_filenames and model_filenames["dors"] and update_flags["dors"]:
+            dors_file = model_filenames["dors"]
+            dors_filename = os.path.join("src/models", dors_file)
             torch.save(self.dors_model.state_dict(), dors_filename)
             print(f"Dorsal Model weights saved to {dors_filename}")
 
-        if fron_filename:
-            fron_filename = os.path.join("src/models", fron_filename)
+        if "fron" in model_filenames and model_filenames["fron"] and update_flags["fron"]:
+            fron_file = model_filenames["fron"]
+            fron_filename = os.path.join("src/models", fron_file)
             torch.save(self.fron_model.state_dict(), fron_filename)
             print(f"Frontal Model weights saved to {fron_filename}")
 
-        if late_filename:
-            late_filename = os.path.join("src/models", late_filename)
+        if "late" in model_filenames and model_filenames["late"] and update_flags["late"]:
+            late_file = model_filenames["late"]
+            late_filename = os.path.join("src/models", late_file)
             torch.save(self.late_model.state_dict(), late_filename)
             print(f"Lateral Model weights saved to {late_filename}")
 
         # Handle dict_filename similarly if needed
-        if dict_filename:
-            dict_filename = os.path.join("src/models", dict_filename)
-            with open(dict_filename, "w") as file:
+        if class_dict_filename:
+            class_dict_filename = os.path.join("src/models", class_dict_filename)
+            with open(class_dict_filename, "w") as file:
                 json.dump(self.class_index_dictionary, file, indent=4)
-            print(f"Dictionary saved to {dict_filename}")
+            print(f"Dictionary saved to {class_dict_filename}")
 
         if height_filename:
             height_filename = os.path.join("src/models", height_filename)
             with open(height_filename, "w") as file:
                 file.write(str(self.height))
             print(f"Height saved to {height_filename}.")
+
+    def update_accuracies(self, accuracy_dict_filename = None):
+        """
+        Reads in the previously saved model accuracies(if exists), and updates and saves 
+        accuracy dictionary if accuracies increased during training. If model accuracies
+        dictionary does not exist, then it initializes with training values or 0 if that
+        model was not trained.
+        
+        Returns: update_flags - dictionary that tracks which models should update their weights
+        """
+
+        model_names = ["caud", "dors", "fron", "late"]
+        update_flags = {}
+        try:
+            with open(accuracy_dict_filename, 'r') as f:
+                accuracy_dict = json.load(f)
+
+            for model in model_names:
+                accuracy = accuracy_dict.get(model, 0)
+                if model in self.model_accuracies:
+                    if accuracy < self.model_accuracies[model]:
+                        # accuracy from most recent train is better than saved, so update
+                        self.model_accuracies[model] = accuracy
+                        update_flags[model] = True
+                        print(f"Updated Accuracy in Dictionary - Improved for {model} model.")
+                    elif accuracy >= self.model_accuracies[model]:
+                        # accuracy did not improve from previously saved accuracy
+                        update_flags[model] = False
+                        print(f"No Improvement to Accuracy for {model} model.")
+                else:
+                    self.model_accuracies[model] = accuracy
+                    update_flags[model] = True
+
+        except FileNotFoundError:
+            for model in model_names:
+                update_flags[model] = True
+            print(f"Accuracy File Not Found - Initializing at {accuracy_dict_filename}")
+
+        with open(accuracy_dict_filename, "w") as file:
+            json.dump(self.model_accuracies, file, indent=4)
+        print(f"Model accuracies saved to {accuracy_dict_filename}.")
+
+        return update_flags
 
     def save_transformation(self, transformation, angle):
         """

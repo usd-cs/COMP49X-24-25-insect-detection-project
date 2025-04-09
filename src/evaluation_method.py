@@ -9,13 +9,15 @@ import torch
 import dill
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 class EvaluationMethod:
     """
     Takes image input and creates a classification by running the image through
     loaded CNN models
     """
 
-    def __init__(self, height_filename, models_dict, eval_method, species_filename):
+    def __init__(self, height_filename, models_dict, eval_method,
+                 species_filename, accuracies_filename=None):
         """
         Load the trained models for usage and have the class prepared for user input.
         During testing phases, determining which evaluation method defined below will 
@@ -23,8 +25,21 @@ class EvaluationMethod:
         """
         self.use_method = eval_method     #1 = heaviest, 2 = weighted, 3 = stacked
 
-        #weights for use in weighted eval. Can be tweaked later to optimize evaluation accuracy
-        self.weights = [0.25, 0.25, 0.25, 0.25]
+        # Initialize weights for use in weighted eval, using the species models accuracies
+        self.weights = None
+        if accuracies_filename:
+            with open(accuracies_filename, 'r', encoding='utf-8') as f:
+                accuracy_dict = json.load(f)
+            i = 0
+            for key in ["fron", "dors", "late", "caud"]:
+                self.weights[i] = accuracy_dict[key]
+        else:
+            self.weights = [0.25, 0.25, 0.25, 0.25]
+
+        # adjust weight percentages by normalizing to sum to 1
+        weights_sum = sum(self.weights)
+        self.weights = [weight / weights_sum for weight in self.weights]
+
         self.trained_models = models_dict
 
         self.species_idx_dict = self.open_class_dictionary(species_filename)
@@ -209,12 +224,14 @@ class EvaluationMethod:
 
     def weighted_eval(self, conf_scores, species_predictions):
         """
-        Takes the classifications of the models and combines them based on programmer determined
-        weights to create a list of tuples containing the top 5 species(from the weighted algorithm)
+        Takes the classifications of the models and combines them based on the normalized 
+        weights from the programmer determined weights to create a list of tuples containing
+        the top 5 species(from the weighted algorithm)
 
         Returns: List of tuples [(species_name, confidence_score), ...]
             sorted by confidence(index 0 being the highest).
         """
+
         top_species_scores = {}
         # Iterate through each model and perform the weighted algorithm on their top scores
         for i in range(4):

@@ -76,13 +76,18 @@ if __name__ == '__main__':
         species_tp.train_lateral(20)
 
     # Save models
+    species_model_filenames = {
+            "caud" : "spec_caud.pth" if train_caud else None, 
+            "dors" : "spec_dors.pth" if train_dors else None,
+            "fron" : "spec_fron.pth" if train_fron else None,
+            "late" : "spec_late.pth" if train_late else None
+        }
+
     species_tp.save_models(
-        "spec_caud.pth" if train_caud else None,
-        "spec_dors.pth" if train_dors else None,
-        "spec_fron.pth" if train_fron else None,
-        "spec_late.pth" if train_late else None,
+        species_model_filenames,
         "height.txt",
-        "spec_dict.json")
+        "spec_dict.json",
+        "spec_accuracies.json")
 
     # Run training with dataframe
     genus_tp = TrainingProgram(df, 0, GENUS_OUTPUTS)
@@ -98,13 +103,18 @@ if __name__ == '__main__':
         genus_tp.train_lateral(20)
 
     # Save models
+    genus_model_filenmaes = {
+        "caud" : "gen_caud.pth" if train_caud else None, 
+        "dors" : "gen_dors.pth" if train_dors else None,
+        "fron" : "gen_fron.pth" if train_fron else None,
+        "late" : "gen_late.pth" if train_late else None
+    }
+
     genus_tp.save_models(
-        "gen_caud.pth" if train_caud else None,
-        "gen_dors.pth" if train_dors else None,
-        "gen_fron.pth" if train_fron else None,
-        "gen_late.pth" if train_late else None,
+        genus_model_filenmaes,
         "height.txt",
-        "gen_dict.json")
+        "gen_dict.json",
+        "gen_accuracies.json")
 
     # Load Genus models
     genus_model_paths = {
@@ -125,7 +135,8 @@ if __name__ == '__main__':
         genus_models[key].eval()
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
-    genus_evaluator = GenusEvaluationMethod("height.txt", genus_models, 1, "gen_dict.json")
+    genus_evaluator = GenusEvaluationMethod("height.txt", genus_models, 1,
+                                            "gen_dict.json", "gen_accuracies.json")
 
     # Get the images to be evaluated through user input
     LATE_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT LATE.jpg"
@@ -165,7 +176,8 @@ if __name__ == '__main__':
         species_models[key].eval()
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
-    species_evaluator = EvaluationMethod("height.txt", species_models, 1, "dict.json")
+    species_evaluator = EvaluationMethod("height.txt", species_models, 1,
+                                         "dict.json", "spec_accuracies.json")
 
     # Run the evaluation method
     top_5_species = species_evaluator.evaluate_image(

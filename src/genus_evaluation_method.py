@@ -11,13 +11,15 @@ from transformation_classes import HistogramEqualization
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 class GenusEvaluationMethod:
     """
     Takes image input and creates a classification by running the image through
     loaded CNN models
     """
 
-    def __init__(self, height_filename, models_dict, eval_method, genus_filename):
+    def __init__(self, height_filename, models_dict, eval_method,
+                 genus_filename, accuracies_filename=None):
         """
         Load the trained models for usage and have the class prepared for user input.
         During testing phases, determining which evaluation method defined below will 
@@ -25,8 +27,21 @@ class GenusEvaluationMethod:
         """
         self.use_method = eval_method     #1 = heaviest, 2 = weighted, 3 = stacked
 
-        #weights for use in weighted eval. Can be tweaked later to optimize evaluation accuracy
-        self.weights = [0.25, 0.25, 0.25, 0.25]
+        # Initialize weights for use in weighted eval, using the genus models accuracies
+        self.weights = None
+        if accuracies_filename:
+            with open(accuracies_filename, 'r', encoding='utf-8') as f:
+                accuracy_dict = json.load(f)
+            i = 0
+            for key in ["fron", "dors", "late", "caud"]:
+                self.weights[i] = accuracy_dict[key]
+        else:
+            self.weights = [0.25, 0.25, 0.25, 0.25]
+
+        # adjust weight percentages by normalizing to sum to 1
+        weights_sum = sum(self.weights)
+        self.weights = [weight / weights_sum for weight in self.weights]
+
         self.trained_models = models_dict
 
         self.genus_idx_dict = self.open_class_dictionary(genus_filename)
@@ -213,21 +228,21 @@ class GenusEvaluationMethod:
 
         Returns: classification of combined models
         """
-        species_scores = {}
 
+        genus_scores = {}
         for i in range(4):
             weighted_score = self.weights[i] * conf_scores[i]
 
-            if genus_predictions[i] in species_scores:
-                species_scores[genus_predictions[i]] += weighted_score
+            if genus_predictions[i] in genus_scores:
+                genus_scores[genus_predictions[i]] += weighted_score
 
             else:
-                species_scores[genus_predictions[i]] = weighted_score
+                genus_scores[genus_predictions[i]] = weighted_score
 
         highest_score = -1
         highest_species = None
 
-        for i, j in species_scores.items():
+        for i, j in genus_scores.items():
             if j > highest_score:
                 highest_score = j
                 highest_species = i
