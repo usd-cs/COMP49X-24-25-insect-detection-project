@@ -460,35 +460,10 @@ class TrainingProgram:
         
         Returns: None
         """
-        model_names = ["caud", "dors", "fron", "late"]
-        update_flags = {}
-        try:
-            with open(accuracy_dict_filename, 'r') as f:
-                accuracy_dict = json.load(f)
-            
-            for model in model_names:
-                accuracy = accuracy_dict.get(model, 0)
-                if model in self.model_accuracies:
-                    if accuracy < self.model_accuracies[model]:
-                        self.model_accuracies[model] = accuracy
-                        update_flags[model] = True
-                        print(f"Updated Accuracy in Dictionary - Accuracy improved for {model} model.")
-                    elif accuracy >= self.model_accuracies[model]:
-                        update_flags[model] = False
-                        print(f"No Improvement to Accuracy for {model} model.")
-                else:
-                    self.model_accuracies[model] = accuracy
-                    update_flags[model] = True
-
-        except FileNotFoundError:
-            for model in model_names:
-                update_flags[model] = True
-            print(f"Accuracy File Not Found - Initializing at {accuracy_dict_filename}")
         
-        with open(accuracy_dict_filename, "w") as file:
-            json.dump(self.model_accuracies, file, indent=4)
-        print(f"Model accuracies saved to {accuracy_dict_filename}.")
-            
+        # Update/Initialize Model Accuracy Dictionary
+        # update_flags indicates which models weights need to be updated and saved
+        update_flags = self.update_accuracies(accuracy_dict_filename)
 
         if "caud" in model_filenames and model_filenames["caud"] and update_flags["caud"]:
             caud_file = model_filenames["caud"]
@@ -525,6 +500,49 @@ class TrainingProgram:
             with open(height_filename, "w") as file:
                 file.write(str(self.height))
             print(f"Height saved to {height_filename}.")
+    
+    def update_accuracies(self, accuracy_dict_filename = None):
+        """
+        Reads in the previously saved model accuracies(if exists), and updates and saves 
+        accuracy dictionary if accuracies increased during training. If model accuracies
+        dictionary does not exist, then it initializes with training values or 0 if that
+        model was not trained.
+        
+        Returns: update_flags - dictionary that tracks which models should update their weights
+        """
+
+        model_names = ["caud", "dors", "fron", "late"]
+        update_flags = {}
+        try:
+            with open(accuracy_dict_filename, 'r') as f:
+                accuracy_dict = json.load(f)
+
+            for model in model_names:
+                accuracy = accuracy_dict.get(model, 0)
+                if model in self.model_accuracies:
+                    if accuracy < self.model_accuracies[model]:
+                        # accuracy from most recent train is better than saved, so update
+                        self.model_accuracies[model] = accuracy
+                        update_flags[model] = True
+                        print(f"Updated Accuracy in Dictionary - Accuracy improved for {model} model.")
+                    elif accuracy >= self.model_accuracies[model]:
+                        # accuracy did not improve from previously saved accuracy
+                        update_flags[model] = False
+                        print(f"No Improvement to Accuracy for {model} model.")
+                else:
+                    self.model_accuracies[model] = accuracy
+                    update_flags[model] = True
+
+        except FileNotFoundError:
+            for model in model_names:
+                update_flags[model] = True
+            print(f"Accuracy File Not Found - Initializing at {accuracy_dict_filename}")
+
+        with open(accuracy_dict_filename, "w") as file:
+            json.dump(self.model_accuracies, file, indent=4)
+        print(f"Model accuracies saved to {accuracy_dict_filename}.")
+
+        return update_flags
 
     def save_transformation(self, transformation, angle):
         """
