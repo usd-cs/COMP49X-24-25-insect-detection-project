@@ -14,7 +14,7 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image, ImageOps
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-# pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, unspecified-encoding
+# pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, unspecified-encoding too-many-public-methods
 class TrainingProgram:
     """
     Reads 4 subsets of pandas database from DatabaseReader, and trains and saves 4 models
@@ -460,7 +460,7 @@ class TrainingProgram:
         
         Returns: None
         """
-        
+
         # Update/Initialize Model Accuracy Dictionary
         # update_flags indicates which models weights need to be updated and saved
         update_flags = self.update_accuracies(accuracy_dict_filename)
@@ -500,7 +500,7 @@ class TrainingProgram:
             with open(height_filename, "w") as file:
                 file.write(str(self.height))
             print(f"Height saved to {height_filename}.")
-    
+
     def update_accuracies(self, accuracy_dict_filename = None):
         """
         Reads in the previously saved model accuracies(if exists), and updates and saves 
@@ -524,7 +524,7 @@ class TrainingProgram:
                         # accuracy from most recent train is better than saved, so update
                         self.model_accuracies[model] = accuracy
                         update_flags[model] = True
-                        print(f"Updated Accuracy in Dictionary - Accuracy improved for {model} model.")
+                        print(f"Updated Accuracy in Dictionary - Improved for {model} model.")
                     elif accuracy >= self.model_accuracies[model]:
                         # accuracy did not improve from previously saved accuracy
                         update_flags[model] = False
