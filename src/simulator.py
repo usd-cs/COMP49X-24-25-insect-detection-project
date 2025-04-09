@@ -135,7 +135,8 @@ if __name__ == '__main__':
         genus_models[key].eval()
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
-    genus_evaluator = GenusEvaluationMethod("height.txt", genus_models, 1, "gen_dict.json")
+    genus_evaluator = GenusEvaluationMethod("height.txt", genus_models, 1,
+                                            "gen_dict.json", "gen_accuracies.json")
 
     # Get the images to be evaluated through user input
     LATE_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT LATE.jpg"
@@ -175,7 +176,8 @@ if __name__ == '__main__':
         species_models[key].eval()
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
-    species_evaluator = EvaluationMethod("height.txt", species_models, 1, "dict.json")
+    species_evaluator = EvaluationMethod("height.txt", species_models, 1,
+                                         "dict.json", "spec_accuracies.json")
 
     # Run the evaluation method
     top_5_species = species_evaluator.evaluate_image(
