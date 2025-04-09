@@ -232,14 +232,19 @@ class TestTrainingProgram(unittest.TestCase):
     def test_save_models(self, mock_torch_save):
         """ Test that save_models writes to proper files """
 
+        model_filenames = {
+            "caud" : "caud.pth",
+            "dors" : "dors.pth",
+            "fron" : "fron.pth",
+            "late" : "late.pth"
+        }
+
         # Call the function
         self.training_program.save_models(
-            "caud.pth",
-            "dors.pth",
-            "fron.pth",
-            "late.pth",
+            model_filenames,
             "height.txt",
-            "dict.json"
+            "dict.json",
+            "accuracies.json"
         )
 
         # Verify torch.save is called for each model, ignoring exact state_dict() content
