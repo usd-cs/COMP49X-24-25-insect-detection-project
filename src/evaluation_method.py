@@ -9,13 +9,14 @@ import torch
 import dill
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
+# pylint: disable=too-many-arguments
 class EvaluationMethod:
     """
     Takes image input and creates a classification by running the image through
     loaded CNN models
     """
 
-    def __init__(self, height_filename, models_dict, eval_method, 
+    def __init__(self, height_filename, models_dict, eval_method,
                  species_filename, accuracies_filename=None):
         """
         Load the trained models for usage and have the class prepared for user input.

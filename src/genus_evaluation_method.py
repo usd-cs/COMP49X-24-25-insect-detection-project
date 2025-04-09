@@ -9,6 +9,7 @@ import torch
 import dill
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
+# pylint: disable=too-many-arguments
 class GenusEvaluationMethod:
     """
     Takes image input and creates a classification by running the image through
