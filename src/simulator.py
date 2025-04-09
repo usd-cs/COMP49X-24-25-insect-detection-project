@@ -76,13 +76,18 @@ if __name__ == '__main__':
         species_tp.train_lateral(20)
 
     # Save models
+    species_model_filenames = {
+            "caud" : "spec_caud.pth" if train_caud else None, 
+            "dors" : "spec_dors.pth" if train_dors else None,
+            "fron" : "spec_fron.pth" if train_fron else None,
+            "late" : "spec_late.pth" if train_late else None
+        }
+
     species_tp.save_models(
-        "spec_caud.pth" if train_caud else None,
-        "spec_dors.pth" if train_dors else None,
-        "spec_fron.pth" if train_fron else None,
-        "spec_late.pth" if train_late else None,
+        species_model_filenames,
         "height.txt",
-        "spec_dict.json")
+        "spec_dict.json",
+        "spec_accuracies.json")
 
     # Run training with dataframe
     genus_tp = TrainingProgram(df, 0, GENUS_OUTPUTS)
@@ -98,13 +103,18 @@ if __name__ == '__main__':
         genus_tp.train_lateral(20)
 
     # Save models
+    genus_model_filenmaes = {
+        "caud" : "gen_caud.pth" if train_caud else None, 
+        "dors" : "gen_dors.pth" if train_dors else None,
+        "fron" : "gen_fron.pth" if train_fron else None,
+        "late" : "gen_late.pth" if train_late else None
+    }
+
     genus_tp.save_models(
-        "gen_caud.pth" if train_caud else None,
-        "gen_dors.pth" if train_dors else None,
-        "gen_fron.pth" if train_fron else None,
-        "gen_late.pth" if train_late else None,
+        genus_model_filenmaes,
         "height.txt",
-        "gen_dict.json")
+        "gen_dict.json",
+        "gen_accuracies.json")
 
     # Load Genus models
     genus_model_paths = {
