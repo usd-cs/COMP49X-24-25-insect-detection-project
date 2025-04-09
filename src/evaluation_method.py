@@ -15,7 +15,7 @@ class EvaluationMethod:
     loaded CNN models
     """
 
-    def __init__(self, height_filename, models_dict, eval_method, species_filename):
+    def __init__(self, height_filename, models_dict, eval_method, species_filename, accuracies_filename=None):
         """
         Load the trained models for usage and have the class prepared for user input.
         During testing phases, determining which evaluation method defined below will 
@@ -23,8 +23,16 @@ class EvaluationMethod:
         """
         self.use_method = eval_method     #1 = heaviest, 2 = weighted, 3 = stacked
 
-        #weights for use in weighted eval. Can be tweaked later to optimize evaluation accuracy
-        self.weights = [0.25, 0.25, 0.25, 0.25]
+        # Initialize weights for use in weighted eval, using the species models accuracies
+        if accuracies_filename:
+            with open(accuracies_filename, 'r') as f:
+                accuracy_dict = json.load(f)
+            i = 0
+            for key in ["fron", "dors", "late", "caud"]:
+                self.weights[i] = accuracy_dict[key]
+        else:
+            self.weights = [0.25, 0.25, 0.25, 0.25]
+
         self.trained_models = models_dict
 
         self.species_idx_dict = self.open_class_dictionary(species_filename)

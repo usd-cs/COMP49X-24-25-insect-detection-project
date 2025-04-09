@@ -155,9 +155,9 @@ class TrainingProgram:
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
         if total != 0:
-            accuracy = 100 * correct / total
+            accuracy = correct / total
             self.model_accuracies["caud"] = accuracy
-            print(f"Accuracy: {accuracy:.2f}%")
+            print(f"Accuracy: {100 * accuracy:.2f}%")
 
     def training_evaluation_dorsal(self, num_epochs, train_loader, test_loader):
         """
@@ -202,9 +202,9 @@ class TrainingProgram:
                 correct += (predicted == labels).sum().item()
 
         if total != 0:
-            accuracy = 100 * correct / total
+            accuracy = correct / total
             self.model_accuracies["dors"] = accuracy
-            print(f"Accuracy: {accuracy:.2f}%")
+            print(f"Accuracy: {100 * accuracy:.2f}%")
 
     def training_evaluation_frontal(self, num_epochs, train_loader, test_loader):
         """
@@ -249,9 +249,9 @@ class TrainingProgram:
                 correct += (predicted == labels).sum().item()
 
         if total != 0:
-            accuracy = 100 * correct / total
+            accuracy = correct / total
             self.model_accuracies["fron"] = accuracy
-            print(f"Accuracy: {accuracy:.2f}%")
+            print(f"Accuracy: {100 * accuracy:.2f}%")
 
     def training_evaluation_lateral(self, num_epochs, train_loader, test_loader):
         """
@@ -296,9 +296,9 @@ class TrainingProgram:
                 correct += (predicted == labels).sum().item()
 
         if total != 0:
-            accuracy = 100 * correct / total
+            accuracy = correct / total
             self.model_accuracies["late"] = accuracy
-            print(f"Accuracy: {accuracy:.2f}%")
+            print(f"Accuracy: {100 * accuracy:.2f}%")
 
     def train_caudal(self, num_epochs):
         """
