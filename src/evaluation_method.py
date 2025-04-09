@@ -36,6 +36,10 @@ class EvaluationMethod:
         else:
             self.weights = [0.25, 0.25, 0.25, 0.25]
 
+        # adjust weight percentages by normalizing to sum to 1
+        weights_sum = sum(self.weights)
+        self.weights = [weight / weights_sum for weight in self.weights]
+
         self.trained_models = models_dict
 
         self.species_idx_dict = self.open_class_dictionary(species_filename)
@@ -227,9 +231,6 @@ class EvaluationMethod:
         Returns: List of tuples [(species_name, confidence_score), ...]
             sorted by confidence(index 0 being the highest).
         """
-        # adjust weight percentages by normalizing to sum to 1
-        weights_sum = sum(self.weights)
-        normalized_weights = [weight / weights_sum for weight in self.weights]
 
         top_species_scores = {}
         # Iterate through each model and perform the weighted algorithm on their top scores
@@ -237,7 +238,7 @@ class EvaluationMethod:
             if species_predictions[i] is not None:
                 for rank in range(self.k):
                     species_idx = species_predictions[i][rank]
-                    weighted_score = normalized_weights[i] * conf_scores[i][rank]
+                    weighted_score = self.weights[i] * conf_scores[i][rank]
 
                     if species_idx in top_species_scores:
                         top_species_scores[species_idx] += weighted_score

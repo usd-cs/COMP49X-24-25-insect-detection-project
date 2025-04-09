@@ -38,6 +38,10 @@ class GenusEvaluationMethod:
         else:
             self.weights = [0.25, 0.25, 0.25, 0.25]
 
+        # adjust weight percentages by normalizing to sum to 1
+        weights_sum = sum(self.weights)
+        self.weights = [weight / weights_sum for weight in self.weights]
+
         self.trained_models = models_dict
 
         self.genus_idx_dict = self.open_class_dictionary(genus_filename)
@@ -224,14 +228,10 @@ class GenusEvaluationMethod:
 
         Returns: classification of combined models
         """
-        # adjust weight percentages by normalizing to sum to 1
-        weights_sum = sum(self.weights)
-        normalized_weights = [weight / weights_sum for weight in self.weights]
 
         genus_scores = {}
-
         for i in range(4):
-            weighted_score = normalized_weights[i] * conf_scores[i]
+            weighted_score = self.weights[i] * conf_scores[i]
 
             if genus_predictions[i] in genus_scores:
                 genus_scores[genus_predictions[i]] += weighted_score
