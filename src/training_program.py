@@ -46,6 +46,13 @@ class TrainingProgram:
         self.class_index_dictionary = {}
         self.class_string_dictionary = {}
         self.class_set = set()
+        # model accuracy dictionary
+        self.model_accuracies = {
+            "caud" : 0,
+            "dors" : 0,
+            "fron" : 0,
+            "late" : 0
+        }
 
         classes = dataframe.iloc[:, self.class_column].values
         class_to_idx = {label: idx for idx, label in enumerate(sorted(set(classes)))}
@@ -148,7 +155,9 @@ class TrainingProgram:
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
         if total != 0:
-            print(f"Accuracy: {100 * correct / total:.2f}%")
+            accuracy = 100 * correct / total
+            self.model_accuracies["caud"] = accuracy
+            print(f"Accuracy: {accuracy:.2f}%")
 
     def training_evaluation_dorsal(self, num_epochs, train_loader, test_loader):
         """
@@ -193,7 +202,9 @@ class TrainingProgram:
                 correct += (predicted == labels).sum().item()
 
         if total != 0:
-            print(f"Accuracy: {100 * correct / total:.2f}%")
+            accuracy = 100 * correct / total
+            self.model_accuracies["dors"] = accuracy
+            print(f"Accuracy: {accuracy:.2f}%")
 
     def training_evaluation_frontal(self, num_epochs, train_loader, test_loader):
         """
@@ -238,7 +249,9 @@ class TrainingProgram:
                 correct += (predicted == labels).sum().item()
 
         if total != 0:
-            print(f"Accuracy: {100 * correct / total:.2f}%")
+            accuracy = 100 * correct / total
+            self.model_accuracies["fron"] = accuracy
+            print(f"Accuracy: {accuracy:.2f}%")
 
     def training_evaluation_lateral(self, num_epochs, train_loader, test_loader):
         """
@@ -283,7 +296,9 @@ class TrainingProgram:
                 correct += (predicted == labels).sum().item()
 
         if total != 0:
-            print(f"Accuracy: {100 * correct / total:.2f}%")
+            accuracy = 100 * correct / total
+            self.model_accuracies["late"] = accuracy
+            print(f"Accuracy: {accuracy:.2f}%")
 
     def train_caudal(self, num_epochs):
         """
@@ -438,41 +453,73 @@ class TrainingProgram:
 
         return model
 
-    def save_models(self, caud_filename = None, dors_filename = None,
-                   fron_filename = None, late_filename = None,
-                   height_filename = None, dict_filename = None):
+    def save_models(self, model_filenames = None, height_filename = None,
+                    class_dict_filename = None, accuracy_dict_filename = None):
         """
         Saves trained models to their respective files and image height file
         
         Returns: None
         """
+        model_names = ["caud", "dors", "fron", "late"]
+        update_flags = {}
+        try:
+            with open(accuracy_dict_filename, 'r') as f:
+                accuracy_dict = json.load(f)
+            
+            for model in model_names:
+                accuracy = accuracy_dict.get(model, 0)
+                if model in self.model_accuracies:
+                    if accuracy < self.model_accuracies[model]:
+                        self.model_accuracies[model] = accuracy
+                        update_flags[model] = True
+                        print(f"Updated Accuracy in Dictionary - Accuracy improved for {model} model.")
+                    elif accuracy >= self.model_accuracies[model]:
+                        update_flags[model] = False
+                        print(f"No Improvement to Accuracy for {model} model.")
+                else:
+                    self.model_accuracies[model] = accuracy
+                    update_flags[model] = True
 
-        if caud_filename:
-            caud_filename = os.path.join("src/models", caud_filename)
+        except FileNotFoundError:
+            for model in model_names:
+                update_flags[model] = True
+            print(f"Accuracy File Not Found - Initializing at {accuracy_dict_filename}")
+        
+        with open(accuracy_dict_filename, "w") as file:
+            json.dump(self.model_accuracies, file, indent=4)
+        print(f"Model accuracies saved to {accuracy_dict_filename}.")
+            
+
+        if "caud" in model_filenames and model_filenames["caud"] and update_flags["caud"]:
+            caud_file = model_filenames["caud"]
+            caud_filename = os.path.join("src/models", caud_file)
             torch.save(self.caud_model.state_dict(), caud_filename)
             print(f"Caudal Model weights saved to {caud_filename}")
 
-        if dors_filename:
-            dors_filename = os.path.join("src/models", dors_filename)
+        if "dors" in model_filenames and model_filenames["dors"] and update_flags["dors"]:
+            dors_file = model_filenames["dors"]
+            dors_filename = os.path.join("src/models", dors_file)
             torch.save(self.dors_model.state_dict(), dors_filename)
             print(f"Dorsal Model weights saved to {dors_filename}")
 
-        if fron_filename:
-            fron_filename = os.path.join("src/models", fron_filename)
+        if "fron" in model_filenames and model_filenames["fron"] and update_flags["fron"]:
+            fron_file = model_filenames["fron"]
+            fron_filename = os.path.join("src/models", fron_file)
             torch.save(self.fron_model.state_dict(), fron_filename)
             print(f"Frontal Model weights saved to {fron_filename}")
 
-        if late_filename:
-            late_filename = os.path.join("src/models", late_filename)
+        if "late" in model_filenames and model_filenames["late"] and update_flags["late"]:
+            late_file = model_filenames["late"]
+            late_filename = os.path.join("src/models", late_file)
             torch.save(self.late_model.state_dict(), late_filename)
             print(f"Lateral Model weights saved to {late_filename}")
 
         # Handle dict_filename similarly if needed
-        if dict_filename:
-            dict_filename = os.path.join("src/models", dict_filename)
-            with open(dict_filename, "w") as file:
+        if class_dict_filename:
+            class_dict_filename = os.path.join("src/models", class_dict_filename)
+            with open(class_dict_filename, "w") as file:
                 json.dump(self.class_index_dictionary, file, indent=4)
-            print(f"Dictionary saved to {dict_filename}")
+            print(f"Dictionary saved to {class_dict_filename}")
 
         if height_filename:
             with open(height_filename, "w") as file:
