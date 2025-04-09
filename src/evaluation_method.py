@@ -9,7 +9,7 @@ import torch
 import dill
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 class EvaluationMethod:
     """
     Takes image input and creates a classification by running the image through
