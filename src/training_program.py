@@ -62,6 +62,28 @@ class TrainingProgram:
                 self.class_string_dictionary[class_values] = class_to_idx[class_values]
                 self.class_set.add(class_to_idx[class_values])
 
+        # Create transformation method dictionary
+        self.transformations = {
+            "caud": transforms.Compose([
+        transforms.Resize((self.height, self.height)),
+        transforms.ToTensor(),
+        HistogramEqualization(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]),
+            "dors": transforms.Compose([
+        transforms.Resize((self.height, self.height)),
+        transforms.ToTensor(),
+        HistogramEqualization(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]),
+            "fron": transforms.Compose([
+        transforms.Resize((self.height, self.height)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]),
+            "late": transforms.Compose([
+        transforms.Resize((self.height, self.height)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+        }
+
     def get_subset(self, view_type, dataframe):
         """
         Reads database and pulls subset where View column is equal to parameter, view_type
@@ -309,14 +331,7 @@ class TrainingProgram:
         # Get training and testing data
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_caudal_view())
         # Define image transformations, placeholder for preprocessing
-        transformation = transforms.Compose([
-        transforms.Resize((self.height, self.height)),
-        transforms.ToTensor(),
-        HistogramEqualization(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-
-        #save transformation to a file
-        self.save_transformation(transformation, 0)
+        transformation = self.transformations["caud"]
 
         # Create DataLoaders
         train_dataset = ImageDataset(train_x, train_y, transform=transformation)
@@ -335,14 +350,7 @@ class TrainingProgram:
         # Get training and testing data
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_dorsal_view())
         # Define image transformations, placeholder for preprocessing
-        transformation = transforms.Compose([
-        transforms.Resize((self.height, self.height)),
-        transforms.ToTensor(),
-        HistogramEqualization(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-
-        #save transformation to a file
-        self.save_transformation(transformation, 1)
+        transformation = self.transformations["dors"]
 
         # Create DataLoaders
         train_dataset = ImageDataset(train_x, train_y, transform=transformation)
@@ -361,13 +369,7 @@ class TrainingProgram:
         # Get training and testing data
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_frontal_view())
         # Define image transformations, placeholder for preprocessing
-        transformation = transforms.Compose([
-        transforms.Resize((self.height, self.height)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-
-        #save transformation to a file
-        self.save_transformation(transformation, 2)
+        transformation = self.transformations["fron"]
 
         # Create DataLoaders
         train_dataset = ImageDataset(train_x, train_y, transform=transformation)
@@ -386,13 +388,7 @@ class TrainingProgram:
         # Get training and testing data
         train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_lateral_view())
         # Define image transformations, placeholder for preprocessing
-        transformation = transforms.Compose([
-        transforms.Resize((self.height, self.height)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-
-        #save transformation to a file
-        self.save_transformation(transformation, 3)
+        transformation = self.transformations["late"]
 
         # Create DataLoaders
         train_dataset = ImageDataset(train_x, train_y, transform=transformation)
@@ -470,24 +466,28 @@ class TrainingProgram:
             caud_file = model_filenames["caud"]
             caud_filename = os.path.join("src/models", caud_file)
             torch.save(self.caud_model.state_dict(), caud_filename)
+            self.save_transformation(self.transformations["caud"], 0)
             print(f"Caudal Model weights saved to {caud_filename}")
 
         if "dors" in model_filenames and model_filenames["dors"] and update_flags["dors"]:
             dors_file = model_filenames["dors"]
             dors_filename = os.path.join("src/models", dors_file)
             torch.save(self.dors_model.state_dict(), dors_filename)
+            self.save_transformation(self.transformations["dors"], 1)
             print(f"Dorsal Model weights saved to {dors_filename}")
 
         if "fron" in model_filenames and model_filenames["fron"] and update_flags["fron"]:
             fron_file = model_filenames["fron"]
             fron_filename = os.path.join("src/models", fron_file)
             torch.save(self.fron_model.state_dict(), fron_filename)
+            self.save_transformation(self.transformations["fron"], 2)
             print(f"Frontal Model weights saved to {fron_filename}")
 
         if "late" in model_filenames and model_filenames["late"] and update_flags["late"]:
             late_file = model_filenames["late"]
             late_filename = os.path.join("src/models", late_file)
             torch.save(self.late_model.state_dict(), late_filename)
+            self.save_transformation(self.transformations["late"], 3)
             print(f"Lateral Model weights saved to {late_filename}")
 
         # Handle dict_filename similarly if needed
