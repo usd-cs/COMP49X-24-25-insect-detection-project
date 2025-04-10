@@ -129,10 +129,6 @@ if __name__ == '__main__':
 
     print(genus_models.keys)
     print(genus_ml.get_model("caud").named_parameters())
-    # pylint: disable=C0206
-    # Set models to evaluation mode
-    for key in genus_models:
-        genus_models[key].eval()
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
     genus_evaluator = GenusEvaluationMethod("height.txt", genus_models, 1,
@@ -170,10 +166,6 @@ if __name__ == '__main__':
 
     print(species_models.keys)
     print(species_ml.get_model("caud").named_parameters())
-    # pylint: disable=C0206
-    # Set models to evaluation mode
-    for key in species_models:
-        species_models[key].eval()
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
     species_evaluator = EvaluationMethod("height.txt", species_models, 1,

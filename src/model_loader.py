@@ -57,6 +57,9 @@ class ModelLoader:
 
             self.load_model_weights(key)
 
+            # set models to evaluation mode
+            self.models[key].eval()
+
     def load_model_weights(self, key):
         """
         Loads the specified model with the pre-trained weights.
