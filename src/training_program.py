@@ -77,6 +77,7 @@ class TrainingProgram:
             "fron": transforms.Compose([
         transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
+        HistogramEqualization(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]),
             "late": transforms.Compose([
         transforms.Resize((self.height, self.height)),
@@ -521,19 +522,15 @@ class TrainingProgram:
 
             for model in model_names:
                 accuracy = accuracy_dict.get(model, 0)
-                if model in self.model_accuracies:
-                    if accuracy < self.model_accuracies[model]:
-                        # accuracy from most recent train is better than saved, so update
-                        self.model_accuracies[model] = accuracy
-                        update_flags[model] = True
-                        print(f"Updated Accuracy in Dictionary - Improved for {model} model.")
-                    elif accuracy >= self.model_accuracies[model]:
-                        # accuracy did not improve from previously saved accuracy
-                        update_flags[model] = False
-                        print(f"No Improvement to Accuracy for {model} model.")
-                else:
-                    self.model_accuracies[model] = accuracy
+                if accuracy < self.model_accuracies[model]:
+                    # accuracy from most recent train is better than saved, so update
                     update_flags[model] = True
+                    print(f"Updated Accuracy in Dictionary - Improved for {model} model.")
+                elif accuracy >= self.model_accuracies[model]:
+                    # accuracy did not improve from previously saved accuracy
+                    self.model_accuracies[model] = accuracy
+                    update_flags[model] = False
+                    print(f"No Improvement to Accuracy for {model} model.")
 
         except FileNotFoundError:
             for model in model_names:
