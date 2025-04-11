@@ -521,19 +521,15 @@ class TrainingProgram:
 
             for model in model_names:
                 accuracy = accuracy_dict.get(model, 0)
-                if model in self.model_accuracies:
-                    if accuracy < self.model_accuracies[model]:
-                        # accuracy from most recent train is better than saved, so update
-                        self.model_accuracies[model] = accuracy
-                        update_flags[model] = True
-                        print(f"Updated Accuracy in Dictionary - Improved for {model} model.")
-                    elif accuracy >= self.model_accuracies[model]:
-                        # accuracy did not improve from previously saved accuracy
-                        update_flags[model] = False
-                        print(f"No Improvement to Accuracy for {model} model.")
-                else:
-                    self.model_accuracies[model] = accuracy
+                if accuracy < self.model_accuracies[model]:
+                    # accuracy from most recent train is better than saved, so update
                     update_flags[model] = True
+                    print(f"Updated Accuracy in Dictionary - Improved for {model} model.")
+                elif accuracy >= self.model_accuracies[model]:
+                    # accuracy did not improve from previously saved accuracy
+                    self.model_accuracies[model] = accuracy
+                    update_flags[model] = False
+                    print(f"No Improvement to Accuracy for {model} model.")
 
         except FileNotFoundError:
             for model in model_names:
