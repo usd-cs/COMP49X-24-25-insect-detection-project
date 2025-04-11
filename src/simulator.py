@@ -71,7 +71,7 @@ if __name__ == '__main__':
     if train_dors:
         species_tp.train_dorsal(20)
     if train_fron:
-        species_tp.train_frontal(1)
+        species_tp.train_frontal(20)
     if train_late:
         species_tp.train_lateral(20)
 
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     if train_dors:
         genus_tp.train_dorsal(20)
     if train_fron:
-        genus_tp.train_frontal(1)
+        genus_tp.train_frontal(20)
     if train_late:
         genus_tp.train_lateral(20)
 
