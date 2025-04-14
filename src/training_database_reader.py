@@ -23,7 +23,9 @@ class DatabaseReader:
         self.connection = connection
         self.table = table
         # if query is specified, set it to the specified, else set to default query if query=None
-        self.query = query or f"SELECT Genus, Species, UniqueID, View, Image, SpecimenID FROM {self.table}"
+        self.query = query or (
+            f"SELECT Genus, Species, UniqueID, View, Image, SpecimenID FROM {self.table}"
+        )
         self.dataframe = self.load_data()
 
     def load_data(self):

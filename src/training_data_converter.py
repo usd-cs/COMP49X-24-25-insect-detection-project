@@ -52,7 +52,9 @@ class TrainingDataConverter:
         try:
             # ensure array contains correct data
             if len(image_data) != 5:
-                raise ValueError("image_data invalid, needs: [genus, species, unique_id, view, specimen_id]")
+                raise ValueError(
+                    "image_data invalid, needs: [genus, species, unique_id, view, specimen_id]"
+                    )
 
             cursor.execute('''
             INSERT INTO TrainingData (Genus, Species, UniqueID, View, Image, SpecimenID) 
