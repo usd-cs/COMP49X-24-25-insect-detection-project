@@ -50,7 +50,7 @@ class TestTrainingDataConverter(unittest.TestCase):
         tdc.db = 'test_database.db'
 
         # mock parameters
-        data = ('TestGenus', 'TestSpecies', '12345', 'test_view')
+        data = ('TestGenus', 'TestSpecies', '12345', 'test_view', '123')
         image_binary = b'test_binary_data'
 
         tdc.add_img(data, image_binary)
@@ -58,8 +58,8 @@ class TestTrainingDataConverter(unittest.TestCase):
         # check that img is added to database
         cursor.execute.assert_called_once_with(
             '''
-            INSERT INTO TrainingData (Genus, Species, UniqueID, View, Image) 
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO TrainingData (Genus, Species, UniqueID, View, Image, SpecimenID) 
+            VALUES (?, ?, ?, ?, ?, ?)
             ''', data + (image_binary,)
         )
 
@@ -98,8 +98,8 @@ class TestTrainingDataConverter(unittest.TestCase):
             )
 
         mock_add_img.assert_has_calls([
-            call(('genus', 'species', '123view1', 'view1'), b'binary_data'),
-            call(('genus', 'species', '124view2', 'view2'), b'binary_data')
+            call(('genus', 'species', '123view1', 'view1', '123'), b'binary_data'),
+            call(('genus', 'species', '124view2', 'view2', '124'), b'binary_data')
         ])
 
     @patch('os.path.exists')
@@ -141,7 +141,7 @@ class TestTrainingDataConverter(unittest.TestCase):
     def test_valid_name(self):
         """ Tests that parsing returns proper results with valid input """
         test_name = "data/Genus Species 12345 5XEXT side.jpg"
-        expected = ("Genus", "Species", "12345side", "side")
+        expected = ("Genus", "Species", "12345side", "side", "12345")
         tdc = TrainingDataConverter("")
         result = tdc.parse_name(test_name)
         self.assertEqual(result, expected)
