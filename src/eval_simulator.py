@@ -9,7 +9,18 @@ from genus_evaluation_method import GenusEvaluationMethod
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-def evaluate_images(species_evaluator, genus_evaluator, late_path, dors_path, fron_path, caud_path) -> tuple:
+def evaluate_images(species_eval,
+                    genus_eval,
+                    late_path,
+                    dors_path,
+                    fron_path,
+                    caud_path) -> tuple:
+    """
+    Uses the inputted models to classify the species and 
+    genus of the inputted bug.
+    
+    Returns: Tuple of top species list and genus/genus confidence
+    """
     # Load the provided images
     LATE_IMG = Image.open(late_path) if late_path else None
     DORS_IMG = Image.open(dors_path) if dors_path else None
@@ -17,16 +28,16 @@ def evaluate_images(species_evaluator, genus_evaluator, late_path, dors_path, fr
     CAUD_IMG = Image.open(caud_path) if caud_path else None
 
     # Run the species evaluation method
-    top_species = species_evaluator.evaluate_image(
+    top_spec = species_eval.evaluate_image(
         late=LATE_IMG, dors=DORS_IMG, fron=FRON_IMG, caud=CAUD_IMG
     )
 
     # Run the genus evaluation method
-    top_genus, genus_confidence = genus_evaluator.evaluate_image(
+    top_gen, genus_confidence = genus_eval.evaluate_image(
         late=LATE_IMG, dors=DORS_IMG, fron=FRON_IMG, caud=CAUD_IMG
     )
 
-    return (top_species, top_genus, genus_confidence)
+    return (top_spec, top_gen, genus_confidence)
 
 if __name__ == '__main__':
     # Get Species and Genus Class Number
@@ -72,8 +83,8 @@ if __name__ == '__main__':
 
     # Genus and Species Evaluation
     top_species, top_genus, genus_conf_score = evaluate_images(
-        species_evaluator=species_evaluator,
-        genus_evaluator=genus_evaluator,
+        species_eval=species_evaluator,
+        genus_eval=genus_evaluator,
         late_path=LATE_PATH,
         dors_path=DORS_PATH,
         fron_path=FRON_PATH,
