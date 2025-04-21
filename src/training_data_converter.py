@@ -35,8 +35,8 @@ class TrainingDataConverter:
                 Species TEXT,
                 UniqueID TEXT PRIMARY KEY,
                 View TEXT,
-                Image BLOB,
-                SpecimenID TEXT
+                SpecimenID TEXT,
+                Image BLOB
             )
         ''')
         table.commit()
@@ -57,7 +57,7 @@ class TrainingDataConverter:
                     )
 
             cursor.execute('''
-            INSERT INTO TrainingData (Genus, Species, UniqueID, View, Image, SpecimenID) 
+            INSERT INTO TrainingData (Genus, Species, UniqueID, View, SpecimenID, Image) 
             VALUES (?, ?, ?, ?, ?, ?)
             ''', image_data + (image_binary,))
 

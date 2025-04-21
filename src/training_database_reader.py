@@ -24,7 +24,7 @@ class DatabaseReader:
         self.table = table
         # if query is specified, set it to the specified, else set to default query if query=None
         self.query = query or (
-            f"SELECT Genus, Species, UniqueID, View, Image, SpecimenID FROM {self.table}"
+            f"SELECT Genus, Species, UniqueID, View, SpecimenID, Image FROM {self.table}"
         )
         self.dataframe = self.load_data()
 

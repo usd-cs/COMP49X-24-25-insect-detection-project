@@ -75,20 +75,33 @@ if __name__ == '__main__':
                                          "spec_dict.json", "spec_accuracies.json")
 
     ###### TO BE CHANGED FOR MULTIPLE TESTS
-    LATE_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT LATE.jpg"
-    DORS_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT DORS.jpg"
-    FRON_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT FRON.jpg"
-    CAUD_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT CAUD.jpg"
+    #LATE_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT LATE.jpg"
+    #DORS_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT DORS.jpg"
+    #FRON_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT FRON.jpg"
+    #CAUD_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT CAUD.jpg"
     ######
+
+    user_input = input("Enter a specimen ID to be evaluated: ")
+    filtered_images = dbr.dataframe[dbr.dataframe['SpecimenID'] == user_input]
+    file_name_substring = (
+        "dataset/" +
+        filtered_images.iloc[0]['Genus'] + " " +
+        filtered_images.iloc[0]['Species'] + " " +
+        filtered_images.iloc[0]['SpecimenID'] + " 5XEXT "
+                           )
+    LATE_PATH = file_name_substring + "LATE.jpg"
+    DORS_PATH = file_name_substring + "DORS.jpg"
+    FRON_PATH = file_name_substring + "FRON.jpg"
+    CAUD_PATH = file_name_substring + "CAUD.jpg"
 
     # Genus and Species Evaluation
     top_species, top_genus, genus_conf_score = evaluate_images(
         species_eval=species_evaluator,
         genus_eval=genus_evaluator,
-        late_path=LATE_PATH,
-        dors_path=DORS_PATH,
-        fron_path=FRON_PATH,
-        caud_path=CAUD_PATH)
+        late_path=LATE_PATH if os.path.exists(LATE_PATH) else None,
+        dors_path=DORS_PATH if os.path.exists(DORS_PATH) else None,
+        fron_path=FRON_PATH if os.path.exists(FRON_PATH) else None,
+        caud_path=CAUD_PATH if os.path.exists(CAUD_PATH) else None)
 
     print(f"1. Predicted Species: {top_species[0][0]}, Confidence: {top_species[0][1]:.2f}\n")
     print(f"2. Predicted Species: {top_species[1][0]}, Confidence: {top_species[1][1]:.2f}\n")
