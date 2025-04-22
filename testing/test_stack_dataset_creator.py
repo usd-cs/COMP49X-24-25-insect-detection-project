@@ -65,7 +65,7 @@ class TestStackDatasetCreator(unittest.TestCase):
         StackDatasetCreator.get_transformations = mock_transformations
 
         # Patch dictionary loading
-        def mock_dictionary(*args, **kwargs):
+        def mock_dictionary(*_, **__):
             return {0: "Acanthoscelides"}
         StackDatasetCreator.open_class_dictionary = mock_dictionary
 
