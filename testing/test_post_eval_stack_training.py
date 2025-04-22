@@ -23,7 +23,11 @@ class TestPostTrainingStacking(unittest.TestCase):
 
     @patch('torch.save')
     @patch('builtins.print')
-    def test_train_meta_model_saves_model(self, mock_print, mock_torch_save):
+    def test_train_meta_model_saves_model(self, _, mock_torch_save):
+        """
+        test to ensure the model is properly saved and does not raise any
+        errors while training
+        """
         stacker = PostTrainingStacking(self.df)
 
         # Train on 'Genus' label
@@ -34,13 +38,19 @@ class TestPostTrainingStacking(unittest.TestCase):
 
         # Validate that meta_model is trained and exists
         self.assertIsNotNone(stacker.meta_model, "meta_model should be set after training")
-        self.assertIsInstance(stacker.meta_model, torch.nn.Linear, "meta_model should be a torch.nn.Linear instance")
+        self.assertIsInstance(stacker.meta_model, torch.nn.Linear,
+                            "meta_model should be a torch.nn.Linear instance")
 
     def test_device_selection(self):
+        """
+        tests device selection to ensure the correct
+        device is used when available
+        """
         stacker = PostTrainingStacking(self.df)
 
         expected_device = 'mps' if torch.backends.mps.is_built() else 'cpu'
-        self.assertEqual(stacker.device.type, expected_device, f"Device should be {expected_device}")
+        self.assertEqual(stacker.device.type, expected_device,
+                         f"Device should be {expected_device}")
 
 if __name__ == '__main__':
     unittest.main()
