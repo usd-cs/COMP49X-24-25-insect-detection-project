@@ -99,7 +99,7 @@ class StackDatasetCreator:
             transformed_image = self.transform_input(image, self.transformations[1]).to(device)
             model = self.trained_models["dors"].to(device)
 
-        elif angle_int == 1:
+        elif angle_int == 2:
             transformed_image = self.transform_input(image, self.transformations[2]).to(device)
             model = self.trained_models["fron"].to(device)
 
