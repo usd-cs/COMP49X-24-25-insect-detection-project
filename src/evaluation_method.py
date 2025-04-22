@@ -285,7 +285,7 @@ class EvaluationMethod:
         return transformed_image
 
     def is_ood(self, probabilities, threshold=2.0):
-        entropy = -torch.sum(
-            probabilities * torch.log(probabilities + 1e-10), dim=1
-            )
+        if probabilities.dim() == 1:  # Handle single-sample case
+            probabilities = probabilities.unsqueeze(0)  # Shape: [1, num_classes]
+        entropy = -torch.sum(probabilities * torch.log(probabilities + 1e-10), dim=1)
         return entropy > threshold
