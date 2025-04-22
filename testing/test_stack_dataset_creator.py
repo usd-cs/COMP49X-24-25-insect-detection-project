@@ -1,5 +1,6 @@
 """test_stack_dataset_creator.py"""
 import unittest
+from unittest.mock import patch, mock_open
 import os
 import sys
 import json
@@ -74,7 +75,8 @@ class TestStackDatasetCreator(unittest.TestCase):
         if os.path.exists(cls.mock_dict_path):
             os.remove(cls.mock_dict_path)
 
-    def test_create_flat_stack_dataset(self):
+    @patch("builtins.open", new_callable=mock_open, read_data="224\n")
+    def test_create_flat_stack_dataset(self, mock_file):
         """test create flat stack dataset function"""
         config = StackDatasetConfig(
             height_filename="height.txt",
@@ -90,6 +92,7 @@ class TestStackDatasetCreator(unittest.TestCase):
 
         df = creator.create_flat_stack_dataset(label_column="Genus")
 
+        mock_file.assert_called_with('src/models/height.txt', 'r', encoding='utf-8')
         self.assertFalse(df.empty, "The dataset should not be empty")
         self.assertIn("Genus", df.columns, "The label column 'Genus' should exist")
         self.assertEqual(df.iloc[0]["Genus"], 0, "The label should be converted to integer 0")
