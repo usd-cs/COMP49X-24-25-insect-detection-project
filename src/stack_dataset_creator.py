@@ -1,13 +1,17 @@
 """stack_dataset_creator.py"""
+from io import BytesIO
+import json
 import dill
 import torch
 import pandas as pd
-from io import BytesIO
 from PIL import Image
-import json
 
 class StackDatsetCreator:
-    
+    """
+    Takes four models and creates a dataframe of their classifications of all images in
+    the dataset and their proper classifications
+    """
+
     def __init__(self, height_filename, models_dict, num_evals, dataframe, model_dict_file):
         """
         Load the trained models for evaluating test data inputs
@@ -67,7 +71,7 @@ class StackDatsetCreator:
             transformations.append(dill.load(f))
 
         return transformations
-    
+
     def get_classification(self, image, angle_int):
         """
         Get the classification for an image from a specified model
@@ -103,11 +107,21 @@ class StackDatsetCreator:
             certainty, predicted = torch.max(softmax_outputs, dim=1)
             return [(predicted.item(), certainty.item())]
 
-        else:
-            certainty, predicted = torch.topk(softmax_outputs, self.k, dim=1)
-            return list(zip(predicted.squeeze().tolist(), certainty.squeeze().tolist()))
-        
+        certainty, predicted = torch.topk(softmax_outputs, self.k, dim=1)
+        return list(zip(predicted.squeeze().tolist(), certainty.squeeze().tolist()))
+
     def create_flat_stack_dataset(self, label_column):
+        """
+        Creates a new pandas dataframe of classifications and certainties 
+        from the given model's classifications associated with the proper int
+        representation of what they should find.
+
+        args:
+            label_column: 'Genus' or 'Species' depending on which model is
+            being trained
+        
+        returns: pandas dataframe
+        """
         data_rows = []
         reverse_idx_dict = {v:k for k, v in self.idx_dict.items()}
 

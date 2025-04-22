@@ -1,34 +1,34 @@
 """test_stack_dataset_converter.py"""
 import unittest
-import torch
-import torch.nn as nn
-import pandas as pd
-from io import BytesIO
-from PIL import Image
-import json
-import dill
 import os
 import sys
+import json
+from io import BytesIO
+import torch
+import pandas as pd
+from PIL import Image
+import dill
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from stack_dataset_creator import StackDatsetCreator
 
-# Dummy transformation function
 def dummy_transform(image):
+    """returns a dummy transformation"""
     return torch.rand(3, 224, 224)
 
-# Dummy model class
-class DummyModel(nn.Module):
+class DummyModel(torch.nn.Module):
+    """Creates a dummy evaluation model"""
     def __init__(self, num_classes=3):
         super().__init__()
-        self.linear = nn.Linear(150528, num_classes)  # fake input size
+        self.linear = torch.nn.Linear(150528, num_classes)  # fake input size
 
     def forward(self, x):
+        """returns random data for testing"""
         batch_size = x.shape[0]
         return torch.rand(batch_size, 3)  # Random logits
 
 class TestStackDatasetCreator(unittest.TestCase):
-
+    """Test class for the stack dataset creator"""
     @classmethod
     def setUpClass(cls):
         # Create dummy image
@@ -55,7 +55,7 @@ class TestStackDatasetCreator(unittest.TestCase):
         # Create a mock dictionary JSON file
         cls.mock_dict_path = "mock_dict.json"
         label_dict = {0: "Acanthoscelides"}
-        with open(cls.mock_dict_path, 'w') as f:
+        with open(cls.mock_dict_path, 'w', encoding='utf8') as f:
             json.dump({str(k): v for k, v in label_dict.items()}, f)
 
         # Patch transformation loading
