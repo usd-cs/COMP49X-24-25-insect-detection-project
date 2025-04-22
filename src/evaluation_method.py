@@ -122,6 +122,7 @@ class EvaluationMethod:
             # Get the predicted top 5 species(or less if not enough outputs) and their indices
             softmax_scores = torch.nn.functional.softmax(late_output, dim=1)[0]
             top5_scores, top5_species = torch.topk(softmax_scores, self.k)
+            print(self.is_ood(softmax_scores))
 
             # Store top 5 confidence and species as a list to the correct dictionary entry
             # Index 0 is the highest and 4 is the lowest
@@ -137,6 +138,7 @@ class EvaluationMethod:
 
             softmax_scores = torch.nn.functional.softmax(dors_output, dim=1)[0]
             top5_scores, top5_species = torch.topk(softmax_scores, self.k)
+            print(self.is_ood(softmax_scores))
 
             predictions["dors"]["scores"] = top5_scores.tolist()
             predictions["dors"]["species"] = top5_species.tolist()
@@ -150,6 +152,7 @@ class EvaluationMethod:
 
             softmax_scores = torch.nn.functional.softmax(fron_output, dim=1)[0]
             top5_scores, top5_species = torch.topk(softmax_scores, self.k)
+            print(self.is_ood(softmax_scores))
 
             predictions["fron"]["scores"] = top5_scores.tolist()
             predictions["fron"]["species"] = top5_species.tolist()
@@ -163,6 +166,7 @@ class EvaluationMethod:
 
             softmax_scores = torch.nn.functional.softmax(caud_output, dim=1)[0]
             top5_scores, top5_species = torch.topk(softmax_scores, self.k)
+            print(self.is_ood(softmax_scores))
 
             predictions["caud"]["scores"] = top5_scores.tolist()
             predictions["caud"]["species"] = top5_species.tolist()
@@ -279,3 +283,9 @@ class EvaluationMethod:
         transformed_image = transformed_image.unsqueeze(0)
 
         return transformed_image
+
+    def is_ood(self, probabilities, threshold=2.0):
+        entropy = -torch.sum(
+            probabilities * torch.log(probabilities + 1e-10), dim=1
+            )
+        return entropy > threshold
