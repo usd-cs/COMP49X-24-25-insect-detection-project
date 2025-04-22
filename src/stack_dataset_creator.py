@@ -6,13 +6,20 @@ import torch
 import pandas as pd
 from PIL import Image
 
-class StackDatsetCreator:
+class StackDatasetConfig:
+    """Holds some arguments for dataset creator class"""
+    def __init__(self, height_filename, model_dict_file, num_evals):
+        self.height_filename = height_filename
+        self.model_dict_file = model_dict_file
+        self.num_evals = num_evals
+
+class StackDatasetCreator:
     """
     Takes four models and creates a dataframe of their classifications of all images in
     the dataset and their proper classifications
     """
 
-    def __init__(self, height_filename, models_dict, num_evals, dataframe, model_dict_file):
+    def __init__(self, config, dataframe, models_dict):
         """
         Load the trained models for evaluating test data inputs
         and prepare to use for creation of a new dataset
@@ -20,15 +27,15 @@ class StackDatsetCreator:
         self.trained_models = models_dict
 
         self.height = None
-        with open("src/models/" + height_filename, 'r', encoding='utf-8') as file:
+        with open("src/models/" + config.height_filename, 'r', encoding='utf-8') as file:
             self.height = int(file.readline().strip())
 
         self.transformations = self.get_transformations()
 
-        self.idx_dict = self.open_class_dictionary(model_dict_file)
+        self.idx_dict = self.open_class_dictionary(config.model_dict_file)
 
         #Stores 1 for Genus and 5 for Species
-        self.k = num_evals
+        self.k = config.num_evals
 
         self.dataframe = dataframe
         self.specimen_groups = dataframe.groupby("SpecimenID")
@@ -125,7 +132,7 @@ class StackDatsetCreator:
         data_rows = []
         reverse_idx_dict = {v:k for k, v in self.idx_dict.items()}
 
-        for specimen_id, group in self.specimen_groups:
+        for _, group in self.specimen_groups:
             row_features = []
             label = group.iloc[0][label_column]
             label = reverse_idx_dict[label]
