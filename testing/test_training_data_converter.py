@@ -58,7 +58,7 @@ class TestTrainingDataConverter(unittest.TestCase):
         # check that img is added to database
         cursor.execute.assert_called_once_with(
             '''
-            INSERT INTO TrainingData (Genus, Species, UniqueID, View, Image, SpecimenID) 
+            INSERT INTO TrainingData (Genus, Species, UniqueID, View, SpecimenID, Image) 
             VALUES (?, ?, ?, ?, ?, ?)
             ''', data + (image_binary,)
         )
