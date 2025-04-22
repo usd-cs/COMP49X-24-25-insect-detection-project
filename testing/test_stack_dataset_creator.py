@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 from stack_dataset_creator import StackDatasetCreator
 from stack_dataset_creator import StackDatasetConfig
 
-def dummy_transform(image):
+def dummy_transform(_):
     """returns a dummy transformation"""
     return torch.rand(3, 224, 224)
 
@@ -60,12 +60,12 @@ class TestStackDatasetCreator(unittest.TestCase):
             json.dump({str(k): v for k, v in label_dict.items()}, f)
 
         # Patch transformation loading
-        def mock_transformations(self):
+        def mock_transformations(_):
             return [dummy_transform] * 4
         StackDatasetCreator.get_transformations = mock_transformations
 
         # Patch dictionary loading
-        def mock_dictionary(self, filename):
+        def mock_dictionary(*args, **kwargs):
             return {0: "Acanthoscelides"}
         StackDatasetCreator.open_class_dictionary = mock_dictionary
 
@@ -75,6 +75,7 @@ class TestStackDatasetCreator(unittest.TestCase):
             os.remove(cls.mock_dict_path)
 
     def test_create_flat_stack_dataset(self):
+        """test create flat stack dataset function"""
         config = StackDatasetConfig(
             height_filename="height.txt",
             model_dict_file=self.mock_dict_path,
