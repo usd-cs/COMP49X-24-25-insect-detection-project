@@ -8,10 +8,24 @@ class TrainingDataConverter:
     """
     Converter from file directory of images to sqlite database
     """
-    def __init__(self, dataset_dir_path):
+    def __init__(self, dataset_dir_path, class_file_path=None):
         """ Initialize converter with file path reference to directory """
         self.dir_path = dataset_dir_path
         self.db = None
+        self.allowed_classes = set()
+        if class_file_path:
+            self.load_valid_classes(class_file_path)
+
+    def load_valid_classes(self, class_file_path):
+        """
+        Reads in a file containing the valid species entries and initializes the
+        allowed classes set.
+        Returns: None
+        """
+        with open(class_file_path, 'r') as file:
+            self.allowed_classes = {
+                line.strip() for line in file if line.strip()
+            }
 
     def img_to_binary(self, image_path):
         """
@@ -109,14 +123,19 @@ class TrainingDataConverter:
                 name_parts = self.parse_name(filename) # placeholder parsing
                 print(name_parts)
                 if name_parts:
-                    image_data = name_parts[:5]
-                    image_binary = self.img_to_binary(file_path)
-                    self.add_img(image_data, image_binary)
+                    genus_species = f"{name_parts[0]} {name_parts[1]}"
+                    if not self.allowed_classes or genus_species in self.allowed_classes:
+                        image_data = name_parts[:5]
+                        image_binary = self.img_to_binary(file_path)
+                        self.add_img(image_data, image_binary)
+                    else:
+                        print(f"Skipping {filename}: {genus_species} not in allowed class list.")
                 else:
                     print(f"File, {filename}, has invalid naming format.")
 
 if __name__ == "__main__":
     dir_path = input("Please input the file path of the data set directory: ")
-    tdc = TrainingDataConverter(dir_path)
+    class_file = input("Please input path to allowed classes text file (or leave blank to include all): ").strip()
+    tdc = TrainingDataConverter(dir_path, class_file if class_file else None)
     tdc.conversion("training.db")
     print("Process Completed")
