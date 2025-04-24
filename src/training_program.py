@@ -10,6 +10,7 @@ from torchvision import transforms, models
 import torch
 import dill
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
 from transformation_classes import HistogramEqualization
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
@@ -169,6 +170,8 @@ class TrainingProgram:
         self.caud_model.eval()
         correct = 0
         total = 0
+        all_predictions = []
+        all_labels = []
         with torch.no_grad():
             for inputs, labels in test_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -177,10 +180,15 @@ class TrainingProgram:
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
+                all_predictions.extend(predicted.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())
         if total != 0:
             accuracy = correct / total
-            self.model_accuracies["caud"] = accuracy
             print(f"Accuracy: {100 * accuracy:.2f}%")
+            # Compute and print F1 score
+            f1 = f1_score(all_labels, all_predictions, average='weighted')
+            self.model_accuracies["caud"] = f1
+            print(f"Weighted F1 Score: {100 * f1:.2f}%")
 
     def training_evaluation_dorsal(self, num_epochs, train_loader, test_loader):
         """
@@ -215,6 +223,8 @@ class TrainingProgram:
         self.dors_model.eval()
         correct = 0
         total = 0
+        all_predictions = []
+        all_labels = []
         with torch.no_grad():
             for inputs, labels in test_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -223,11 +233,16 @@ class TrainingProgram:
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
+                all_predictions.extend(predicted.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())
 
         if total != 0:
             accuracy = correct / total
-            self.model_accuracies["dors"] = accuracy
             print(f"Accuracy: {100 * accuracy:.2f}%")
+            # Compute and print F1 score
+            f1 = f1_score(all_labels, all_predictions, average='weighted')
+            self.model_accuracies["dors"] = f1
+            print(f"Weighted F1 Score: {100 * f1:.2f}%")
 
     def training_evaluation_frontal(self, num_epochs, train_loader, test_loader):
         """
@@ -262,6 +277,8 @@ class TrainingProgram:
         self.fron_model.eval()
         correct = 0
         total = 0
+        all_predictions = []
+        all_labels = []
         with torch.no_grad():
             for inputs, labels in test_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -270,11 +287,16 @@ class TrainingProgram:
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
+                all_predictions.extend(predicted.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())
 
         if total != 0:
             accuracy = correct / total
-            self.model_accuracies["fron"] = accuracy
             print(f"Accuracy: {100 * accuracy:.2f}%")
+            # Compute and print F1 score
+            f1 = f1_score(all_labels, all_predictions, average='weighted')
+            self.model_accuracies["fron"] = f1
+            print(f"Weighted F1 Score: {100 * f1:.2f}%")
 
     def training_evaluation_lateral(self, num_epochs, train_loader, test_loader):
         """
@@ -309,6 +331,8 @@ class TrainingProgram:
         self.late_model.eval()
         correct = 0
         total = 0
+        all_predictions = []
+        all_labels = []
         with torch.no_grad():
             for inputs, labels in test_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -317,11 +341,16 @@ class TrainingProgram:
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
+                all_predictions.extend(predicted.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())
 
         if total != 0:
             accuracy = correct / total
-            self.model_accuracies["late"] = accuracy
             print(f"Accuracy: {100 * accuracy:.2f}%")
+            # Compute and print F1 score
+            f1 = f1_score(all_labels, all_predictions, average='weighted')
+            self.model_accuracies["late"] = f1
+            print(f"Weighted F1 Score: {100 * f1:.2f}%")
 
     def train_caudal(self, num_epochs):
         """
