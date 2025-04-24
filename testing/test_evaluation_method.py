@@ -41,7 +41,7 @@ class TestEvaluationMethod(unittest.TestCase):
 
         self.assertEqual(evaluation.use_method, 1)
         # Change the weights to match the program's manually
-        self.assertEqual(evaluation.weights, [0.25, 0.25, 0.25, 0.25])
+        self.assertEqual(evaluation.weights, [])
         self.assertEqual(evaluation.trained_models, mock_models)
         self.assertEqual(evaluation.height, 224)
         self.assertEqual(evaluation.species_idx_dict, {0:"objectus"})
@@ -75,6 +75,7 @@ class TestEvaluationMethod(unittest.TestCase):
         test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
         test_species = [1, 4, 2, 3, 0]
         # Run heaviest_is_best method with test scores and species
+        evaluation.view_count = 4
         test_results = evaluation.heaviest_is_best(
             [test_conf_scores, test_conf_scores, test_conf_scores, test_conf_scores],
             [test_species, test_species, test_species, test_species])
@@ -110,6 +111,8 @@ class TestEvaluationMethod(unittest.TestCase):
 
         test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
         test_species = [1, 4, 2, 3, 0]
+        evaluation.view_count = 4
+        evaluation.weights = [0.25, 0.25, 0.25, 0.25]
         # Run weighted_eval with test scores and species
         test_results = evaluation.weighted_eval(
             [test_conf_scores, test_conf_scores, test_conf_scores, test_conf_scores],
