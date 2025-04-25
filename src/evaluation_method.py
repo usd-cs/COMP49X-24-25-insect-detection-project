@@ -90,7 +90,8 @@ class EvaluationMethod:
             sorted by confidence(index 0 being the highest).
             A return of None, -1 indicates an error
         """
-        device = torch.device('mps' if torch.backends.mps.is_built() else 'cpu')
+        device = torch.device('cuda' if torch.cuda.is_available()
+                              else 'mps' if torch.backends.mps.is_built() else 'cpu')
 
         # Define variables outside the if statements so they can be used in other method calls
         predictions = {
@@ -159,6 +160,19 @@ class EvaluationMethod:
             predictions["caud"]["scores"] = top5_scores.tolist()
             predictions["caud"]["species"] = top5_species.tolist()
 
+        return self.evaluation_handler(predictions, view_count)
+    
+    def evaluation_handler(self, predictions, view_count):
+        """
+        Creates an evaluation by taking the predictions from the models and creating two
+        nested lists of each angle and their top scores and species. With these lists
+        created and the view count the method correctly calls the desired evaluation
+        method and returns the predicted list.
+
+        Returns: List of tuples [(species_name, confidence_score), ...]
+            sorted by confidence(index 0 being the highest).
+            A return of None, -1 indicates an error
+        """
         # Create a nested list with each angles top scores(scores_list) and species(species_list)
         scores_list = []
         species_list = []
