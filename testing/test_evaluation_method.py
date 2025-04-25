@@ -75,10 +75,9 @@ class TestEvaluationMethod(unittest.TestCase):
         test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
         test_species = [1, 4, 2, 3, 0]
         # Run heaviest_is_best method with test scores and species
-        evaluation.view_count = 4
         test_results = evaluation.heaviest_is_best(
             [test_conf_scores, test_conf_scores, test_conf_scores, test_conf_scores],
-            [test_species, test_species, test_species, test_species])
+            [test_species, test_species, test_species, test_species], 4)
         # Assert top species is as expected
         self.assertEqual(test_results[0][0], "nubigens")
         self.assertEqual(round(test_results[0][1], 2), 0.6)
@@ -111,12 +110,11 @@ class TestEvaluationMethod(unittest.TestCase):
 
         test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
         test_species = [1, 4, 2, 3, 0]
-        evaluation.view_count = 4
         evaluation.weights = [0.25, 0.25, 0.25, 0.25]
         # Run weighted_eval with test scores and species
         test_results = evaluation.weighted_eval(
             [test_conf_scores, test_conf_scores, test_conf_scores, test_conf_scores],
-            [test_species, test_species, test_species, test_species])
+            [test_species, test_species, test_species, test_species], 4)
         # Assert top species is as expected
         self.assertEqual(test_results[0][0], "nubigens")
         self.assertEqual(round(test_results[0][1], 2),
