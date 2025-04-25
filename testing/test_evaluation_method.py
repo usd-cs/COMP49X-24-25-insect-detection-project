@@ -40,8 +40,6 @@ class TestEvaluationMethod(unittest.TestCase):
         mock_json.assert_called_once()
 
         self.assertEqual(evaluation.use_method, 1)
-        # Change the weights to match the program's manually
-        self.assertEqual(evaluation.weights, [0.25, 0.25, 0.25, 0.25])
         self.assertEqual(evaluation.trained_models, mock_models)
         self.assertEqual(evaluation.height, 224)
         self.assertEqual(evaluation.species_idx_dict, {0:"objectus"})
@@ -77,7 +75,7 @@ class TestEvaluationMethod(unittest.TestCase):
         # Run heaviest_is_best method with test scores and species
         test_results = evaluation.heaviest_is_best(
             [test_conf_scores, test_conf_scores, test_conf_scores, test_conf_scores],
-            [test_species, test_species, test_species, test_species])
+            [test_species, test_species, test_species, test_species], 4)
         # Assert top species is as expected
         self.assertEqual(test_results[0][0], "nubigens")
         self.assertEqual(round(test_results[0][1], 2), 0.6)
@@ -110,17 +108,18 @@ class TestEvaluationMethod(unittest.TestCase):
 
         test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
         test_species = [1, 4, 2, 3, 0]
+        weights = [0.25, 0.25, 0.25, 0.25]
         # Run weighted_eval with test scores and species
         test_results = evaluation.weighted_eval(
             [test_conf_scores, test_conf_scores, test_conf_scores, test_conf_scores],
-            [test_species, test_species, test_species, test_species])
+            [test_species, test_species, test_species, test_species], weights, 4)
         # Assert top species is as expected
         self.assertEqual(test_results[0][0], "nubigens")
         self.assertEqual(round(test_results[0][1], 2),
-                         (evaluation.weights[0] * test_conf_scores[1] +
-                          evaluation.weights[1] * test_conf_scores[1] +
-                          evaluation.weights[2] * test_conf_scores[1] +
-                          evaluation.weights[3] * test_conf_scores[1]))
+                         (weights[0] * test_conf_scores[1] +
+                          weights[1] * test_conf_scores[1] +
+                          weights[2] * test_conf_scores[1] +
+                          weights[3] * test_conf_scores[1]))
 
     @patch("json.load", return_value = {"0":"objectus"})
     def test_transform_input(self, mock_json):
