@@ -161,7 +161,7 @@ class EvaluationMethod:
             predictions["caud"]["species"] = top5_species.tolist()
 
         return self.evaluation_handler(predictions, view_count)
-    
+
     def evaluation_handler(self, predictions, view_count):
         """
         Creates an evaluation by taking the predictions from the models and creating two

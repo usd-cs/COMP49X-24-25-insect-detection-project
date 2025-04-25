@@ -39,7 +39,7 @@ class TestEvaluationMethod(unittest.TestCase):
 
         mock_json.assert_called_once()
 
-        self.assertEqual(evaluation.use_method, 1) 
+        self.assertEqual(evaluation.use_method, 1)
         self.assertEqual(evaluation.trained_models, mock_models)
         self.assertEqual(evaluation.height, 224)
         self.assertEqual(evaluation.species_idx_dict, {0:"objectus"})
