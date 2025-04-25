@@ -25,20 +25,7 @@ class EvaluationMethod:
         """
         self.use_method = eval_method     #1 = heaviest, 2 = weighted, 3 = stacked
 
-        # Initialize weights for use in weighted eval, using the species models accuracies
-        self.weights = []
-        if accuracies_filename:
-            with open(accuracies_filename, 'r', encoding='utf-8') as f:
-                accuracy_dict = json.load(f)
-
-            for key in ["fron", "dors", "late", "caud"]:
-                self.weights.append(accuracy_dict[key])
-        else:
-            self.weights = [0.25, 0.25, 0.25, 0.25]
-
-        # adjust weight percentages by normalizing to sum to 1
-        weights_sum = sum(self.weights)
-        self.weights = [weight / weights_sum for weight in self.weights]
+        self.accuracies_filename = accuracies_filename
 
         self.trained_models = models_dict
 
@@ -105,15 +92,17 @@ class EvaluationMethod:
         """
         device = torch.device('mps' if torch.backends.mps.is_built() else 'cpu')
 
-        #define variables outside the if statements so they can be used in other method calls
+        # Define variables outside the if statements so they can be used in other method calls
         predictions = {
-            "late" : {"scores" : 0, "species" : None},
-            "dors" : {"scores" : 0, "species" : None},
-            "fron" : {"scores" : 0, "species" : None},
-            "caud" : {"scores" : 0, "species" : None},
+            "late" : {"scores" : None, "species" : None},
+            "dors" : {"scores" : None, "species" : None},
+            "fron" : {"scores" : None, "species" : None},
+            "caud" : {"scores" : None, "species" : None},
         }
+        view_count = 0
 
         if late:
+            view_count += 1
             late_image = self.transform_input(late, self.transformations[3]).to(device)
 
             with torch.no_grad():
@@ -130,6 +119,7 @@ class EvaluationMethod:
 
         if dors:
             # Mirrors above usage but for the dors angle
+            view_count += 1
             dors_image = self.transform_input(dors, self.transformations[1]).to(device)
 
             with torch.no_grad():
@@ -143,6 +133,7 @@ class EvaluationMethod:
 
         if fron:
             # Mirrors above usage but for the fron angle
+            view_count += 1
             fron_image = self.transform_input(fron, self.transformations[2]).to(device)
 
             with torch.no_grad():
@@ -156,6 +147,7 @@ class EvaluationMethod:
 
         if caud:
             # Mirrors above usage but for the caud angle
+            view_count += 1
             caud_image = self.transform_input(caud, self.transformations[0]).to(device)
 
             with torch.no_grad():
@@ -168,25 +160,41 @@ class EvaluationMethod:
             predictions["caud"]["species"] = top5_species.tolist()
 
         # Create a nested list with each angles top scores(scores_list) and species(species_list)
-        scores_list = [list(predictions[key]["scores"])
-                       for key in ["fron", "dors", "late", "caud"]]
-        species_list = [list(predictions[key]["species"])
-                        for key in ["fron", "dors", "late", "caud"]]
-
+        scores_list = []
+        species_list = []
+        for key in ["fron", "dors", "late", "caud"]:
+            if predictions[key]["scores"]:
+                scores_list.append(list(predictions[key]["scores"]))
+            if predictions[key]["species"]:
+                species_list.append(list(predictions[key]["species"]))
 
         if self.use_method == 1:
             # Match uses the index returned from the method to decide which prediction to return
-            return self.heaviest_is_best(scores_list, species_list)
+            return self.heaviest_is_best(scores_list, species_list, view_count)
 
         if self.use_method == 2:
-            return self.weighted_eval(scores_list, species_list)
+            weights = []
+            if self.accuracies_filename:
+                with open(self.accuracies_filename, 'r', encoding='utf-8') as f:
+                    accuracy_dict = json.load(f)
+
+                for key in ["fron", "dors", "late", "caud"]:
+                    if predictions[key]["scores"]:
+                        weights.append(accuracy_dict[key])
+                # adjust weight percentages by normalizing to sum to 1
+                weights_sum = sum(weights)
+                weights = [weight / weights_sum for weight in weights]
+            else:
+                weights = [0.25 for i in range(view_count)]
+
+            return self.weighted_eval(scores_list, species_list, weights, view_count)
 
         if self.use_method == 3:
             return self.stacked_eval()
 
         return None, -1
 
-    def heaviest_is_best(self, conf_scores, species_predictions):
+    def heaviest_is_best(self, conf_scores, species_predictions, view_count):
         """
         Takes the certainties of the models and returns the top 5 most certain predictions
         from the models based on which scores were the highest throughout the 4 models.
@@ -197,7 +205,7 @@ class EvaluationMethod:
 
         top_species_scores = {}
 
-        for i in range(4):
+        for i in range(view_count):
             if species_predictions[i] is not None:  # Ensure predictions exist
                 for rank in range(self.k):  # Loop over the top 5 species per angle
                     species_idx = species_predictions[i][rank]
@@ -222,7 +230,7 @@ class EvaluationMethod:
         return top_5
 
 
-    def weighted_eval(self, conf_scores, species_predictions):
+    def weighted_eval(self, conf_scores, species_predictions, weights, view_count):
         """
         Takes the classifications of the models and combines them based on the normalized 
         weights from the programmer determined weights to create a list of tuples containing
@@ -234,11 +242,11 @@ class EvaluationMethod:
 
         top_species_scores = {}
         # Iterate through each model and perform the weighted algorithm on their top scores
-        for i in range(4):
+        for i in range(view_count):
             if species_predictions[i] is not None:
                 for rank in range(self.k):
                     species_idx = species_predictions[i][rank]
-                    weighted_score = self.weights[i] * conf_scores[i][rank]
+                    weighted_score = weights[i] * conf_scores[i][rank]
 
                     if species_idx in top_species_scores:
                         top_species_scores[species_idx] += weighted_score
