@@ -5,6 +5,7 @@ from unittest.mock import patch, MagicMock
 import sys
 import os
 from io import StringIO
+import pandas as pd
 import torch
 from torchvision import models
 
@@ -75,6 +76,40 @@ class TestModelLoader(unittest.TestCase):
         for key in weights_file_paths:
             mock_load_model_weights.assert_any_call(key)
         self.assertEqual(mock_load_model_weights.call_count, len(weights_file_paths))
+
+    @patch("torch.load")
+    @patch("builtins.open", new_callable=unittest.mock.mock_open,
+           read_data='{"0": "A", "1": "B", "2": "C"}')
+    def test_load_stack_model(self, mock_file, mock_torch_load):
+        """Test that load_stack_model loads meta model properly"""
+        # Create dummy input DataFrame
+        df = pd.DataFrame({
+            "f1": [0.1, 0.2],
+            "f2": [0.2, 0.3],
+            "f3": [0.3, 0.4],
+            "f4": [0.4, 0.5],
+            "f5": [0.5, 0.6],
+            "Genus": [0, 1]
+        })
+
+        # Remove label column
+        df_no_label = df.drop(columns=["Genus"])
+
+        # Mock loading the state dictionary
+        mock_state_dict = MagicMock()
+        mock_torch_load.return_value = mock_state_dict
+
+        loader = ModelLoader({}, 3, test=True)
+
+        with patch("torch.nn.Module.load_state_dict", return_value=None):
+            model = loader.load_stack_model("Genus", df, "genus_dict.json")
+
+        mock_file.assert_called_once_with("src/models/genus_dict.json", 'r', encoding='utf-8')
+        mock_torch_load.assert_called_once_with("src/models/Genus_meta.pth")
+        self.assertIsInstance(model, torch.nn.Linear)
+        self.assertEqual(model.in_features, df_no_label.shape[1])
+        self.assertEqual(model.out_features, 3)
+
 
 if __name__ == "__main__":
     unittest.main()
