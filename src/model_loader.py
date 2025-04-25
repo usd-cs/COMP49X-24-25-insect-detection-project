@@ -103,23 +103,22 @@ class ModelLoader:
         return self.models[key]
 
     def load_stack_model(self, label, df, dict_file):
-            """
-            Args:
-                label: "Genus" or "Species" depending on which is being loaded
-                df: pandas dataframe used for finding proper model dimensions
-                dict_file: associated dictionary filename to find the output dimension
-            Returns:
-                torch.nn.Module: stack model loaded from input file
-            """
-            with open("src/models/" + dict_file, 'r', encoding='utf-8') as json_file:
-                class_dict = json.load(json_file)
+        """
+        Args:
+            label: "Genus" or "Species" depending on which is being loaded
+            df: pandas dataframe used for finding proper model dimensions
+            dict_file: associated dictionary filename to find the output dimension
+        Returns:                torch.nn.Module: stack model loaded from input file
+        """
+        with open("src/models/" + dict_file, 'r', encoding='utf-8') as json_file:
+            class_dict = json.load(json_file)
 
-            #generate dataframe is needed for getting proper dimensions for the model
-            x = df.drop(columns=[label]).values
-            input_dim = x.shape[1]
-            output_dim = len(class_dict)
-            model = torch.nn.Linear(input_dim, output_dim)
-            model.load_state_dict(torch.load(f"src/models/{label}_meta.pth"))
-            model.eval()
+        #generate dataframe is needed for getting proper dimensions for the model
+        x = df.drop(columns=[label]).values
+        input_dim = x.shape[1]
+        output_dim = len(class_dict)
+        model = torch.nn.Linear(input_dim, output_dim)
+        model.load_state_dict(torch.load(f"src/models/{label}_meta.pth"))
+        model.eval()
 
-            return model
+        return model
