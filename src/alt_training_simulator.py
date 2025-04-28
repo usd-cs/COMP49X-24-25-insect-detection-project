@@ -68,7 +68,7 @@ if __name__ == '__main__':
         "alt_height.txt",
         "alt_gen_dict.json",
         "alt_gen_accuracies.json")
-    
+
     # Compare to dorsal mode
 
     # Species
