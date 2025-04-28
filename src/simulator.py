@@ -45,7 +45,7 @@ if __name__ == '__main__':
                 print("No Training Requested")
                 sys.exit(0)
     # Set up data converter
-    tdc = TrainingDataConverter("dataset")
+    tdc = TrainingDataConverter("dataset", "src/models/class_list.txt")
     tdc.conversion("training.db")
     # Read converted data
     dbr = DatabaseReader("training.db")
