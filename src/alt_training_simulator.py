@@ -10,15 +10,21 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../'
 
 
 class Tee:
+    """
+    Class to enable stdout to output to both a log file and stdout in terminal
+    """
     def __init__(self, *streams):
+        """ Stores streams """
         self.streams = streams
 
     def write(self, message):
+        """ Write to all output streams """
         for s in self.streams:
             s.write(message)
             s.flush()  # Ensure it gets written immediately
 
     def flush(self):
+        """ Flush after write to avoid buffering """
         for s in self.streams:
             s.flush()
 
