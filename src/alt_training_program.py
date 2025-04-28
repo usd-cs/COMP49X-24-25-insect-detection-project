@@ -30,9 +30,9 @@ class AltTrainingProgram:
         # subsets to save database reading to
         self.dors_caud_subset = pd.concat(
             [
-            self.get_subset("CAUD", self.dataframe), 
+            self.get_subset("CAUD", self.dataframe),
             self.get_subset("DORS", self.dataframe)
-            ], 
+            ],
             ignore_index = True
             )
         self.all_subset = self.dataframe
@@ -113,7 +113,7 @@ class AltTrainingProgram:
         image_binaries, labels, test_size=0.2, random_state=42)
         return [train_x, test_x, train_y, test_y]
 
-    def training_evaluation__dorsal_caudal(self, num_epochs, train_loader, test_loader):
+    def training_evaluation_dorsal_caudal(self, num_epochs, train_loader, test_loader):
         """
         Code for training algorithm and evaluating model
         """
@@ -131,7 +131,7 @@ class AltTrainingProgram:
                 optimizer.zero_grad()
 
                 # Forward pass
-                outputs = self.caud_model(inputs)
+                outputs = self.dors_caud_model(inputs)
                 loss = criterion(outputs, labels)
 
                 # Backpropagation pass
@@ -166,7 +166,7 @@ class AltTrainingProgram:
         self.all_model.train()
          # define loss function, optimization function, and image transformation
         criterion = torch.nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(self.dors_model.parameters(), lr=0.001)
+        optimizer = torch.optim.Adam(self.all_model.parameters(), lr=0.001)
         for epoch in range(num_epochs):
             running_loss = 0.0
             for inputs, labels in train_loader:
@@ -222,7 +222,7 @@ class AltTrainingProgram:
         training_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
         testing_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-        self.training_evaluation_caudal(num_epochs, training_loader, testing_loader)
+        self.training_evaluation_dorsal_caudal(num_epochs, training_loader, testing_loader)
 
     def train_all(self, num_epochs):
         """
@@ -241,7 +241,7 @@ class AltTrainingProgram:
         training_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
         testing_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-        self.training_evaluation_dorsal(num_epochs, training_loader, testing_loader)
+        self.training_evaluation_all(num_epochs, training_loader, testing_loader)
 
     def load_dors_caud_model(self):
         """
@@ -281,7 +281,11 @@ class AltTrainingProgram:
         # update_flags indicates which models weights need to be updated and saved
         update_flags = self.update_accuracies(accuracy_dict_filename)
 
-        if "dors_caud" in model_filenames and model_filenames["dors_caud"] and update_flags["dors_caud"]:
+        if (
+            "dors_caud" in model_filenames and
+            model_filenames["dors_caud"] and
+            update_flags["dors_caud"]
+        ):
             dors_caud_file = model_filenames["dors_caud"]
             dors_caud_filename = os.path.join("src/models", dors_caud_file)
             torch.save(self.dors_caud_model.state_dict(), dors_caud_filename)

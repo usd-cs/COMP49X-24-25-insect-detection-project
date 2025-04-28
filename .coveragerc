@@ -1,3 +1,6 @@
 [run]
 omit =
     src/simulator.py
+    src/eval_simulator.py
+    src/stack_simulator.py
+    src/alt_training_simulator.py
