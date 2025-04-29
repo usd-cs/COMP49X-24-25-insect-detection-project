@@ -159,7 +159,7 @@ class GenusEvaluationMethod:
             predictions["caud"]["score"] = torch.nn.functional.softmax(
                 caud_output, dim=1)[0, predicted_index].item()
             predictions["caud"]["genus"] = predicted_index.item()
-    
+
         return self.evaluation_handler(predictions, view_count)
 
     def evaluation_handler(self, predictions, view_count):
