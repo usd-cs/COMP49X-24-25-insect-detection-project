@@ -8,11 +8,31 @@ from training_program import TrainingProgram
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
+
+class Tee:
+    """
+    Class to enable stdout to output to both a log file and stdout in terminal
+    """
+    def __init__(self, *streams):
+        """ Stores streams """
+        self.streams = streams
+
+    def write(self, message):
+        """ Write to all output streams """
+        for s in self.streams:
+            s.write(message)
+            s.flush()  # Ensure it gets written immediately
+
+    def flush(self):
+        """ Flush after write to avoid buffering """
+        for s in self.streams:
+            s.flush()
+
 # simple simulation of end-to-end functionality of files
 
 if __name__ == '__main__':
     log_file = open("training_comparison_output.log", "w")
-    sys.stdout = log_file
+    sys.stdout = Tee(sys.__stdout__, log_file)
     # Set up data converter
     tdc = TrainingDataConverter("dataset")
     tdc.conversion("training.db")
@@ -37,11 +57,13 @@ if __name__ == '__main__':
     # Training
     alt_species_tp.train_dorsal_caudal(20)
     alt_species_tp.train_all(20)
+    alt_species_tp.train_dorsal_lateral(20)
 
     # Save models
     alt_species_model_filenames = {
             "dors_caud" : "alt_spec_dors_caud.pth",
-            "all" : "alt_spec_all.pth"
+            "all" : "alt_spec_all.pth",
+            "dors_late": "alt_spec_dors_late.pth"
         }
 
     alt_species_tp.save_models(
@@ -56,11 +78,13 @@ if __name__ == '__main__':
     # Training
     alt_genus_tp.train_dorsal_caudal(20)
     alt_genus_tp.train_all(20)
+    alt_genus_tp.train_dorsal_lateral(20)
 
     # Save models
     alt_genus_model_filenmaes = {
         "dors_caud" : "gen_dors_caud.pth", 
-        "all" : "gen_all.pth"
+        "all" : "gen_all.pth",
+        "dors_late" : "gen_dors_late.pth"
     }
 
     alt_genus_tp.save_models(
@@ -68,19 +92,5 @@ if __name__ == '__main__':
         "alt_height.txt",
         "alt_gen_dict.json",
         "alt_gen_accuracies.json")
-
-    # Compare to dorsal mode
-
-    # Species
-    species_tp = TrainingProgram(df, 1, SPECIES_OUTPUTS)
-
-    # Training
-    species_tp.train_dorsal(20)
-
-    # Genus
-    genus_tp = TrainingProgram(df, 0, GENUS_OUTPUTS)
-
-    # Training
-    genus_tp.train_dorsal(20)
 
     log_file.close()

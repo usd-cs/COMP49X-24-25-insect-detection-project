@@ -155,6 +155,41 @@ class TestAltTrainingProgram(unittest.TestCase):
         # Ensure training_evaluation_caudal was called once
         self.training_program.training_evaluation_all.assert_called_once()
 
+    @patch('training_program.DataLoader')
+    def test_training_evaluation_dorsal_lateral(self, mock_loader):
+        """ Test the caudal training and evaluation function """
+        # Mock DataLoader
+        mock_loader.__iter__.return_value = iter([
+        (torch.randn(4, 3, 224, 224), torch.tensor([0, 1, 0, 1])),  # 4 samples
+        (torch.randn(4, 3, 224, 224), torch.tensor([1, 0, 1, 0]))   # Another 4 samples
+        ])
+        mock_loader.__len__.return_value = 2  # Two batches
+
+        self.training_program.training_evaluation_dorsal_lateral(1, mock_loader, mock_loader)
+
+    def test_train_dorsal_lateral(self):
+        """ Test train_caudal method """
+       # Mock dataset with multiple samples
+        mock_train_x = ["img1.jpg", "img2.jpg", "img3.jpg", "img4.jpg"]
+        mock_test_x = ["img5.jpg", "img6.jpg"]
+        mock_train_y = [0, 1, 0, 1]
+        mock_test_y = [1, 0]
+
+        # Mock DataLoader
+        mock_loader = MagicMock(spec=DataLoader)
+        mock_loader.__iter__.return_value = iter([(torch.randn(2, 3, 224, 224),
+                                                torch.tensor([0, 1]))])
+        mock_loader.__len__.return_value = 2  # Mocked DataLoader length
+        # Mock train-test split
+        self.training_program.get_train_test_split = MagicMock(
+            return_value=[mock_train_x, mock_test_x, mock_train_y, mock_test_y])
+        # Mock evaluation function
+        self.training_program.training_evaluation_dorsal_lateral = MagicMock()
+        # Run train_caudal
+        self.training_program.train_dorsal_lateral(1)
+        # Ensure training_evaluation_caudal was called once
+        self.training_program.training_evaluation_dorsal_lateral.assert_called_once()
+
     @patch("torch.save")
     def test_save_models(self, mock_torch_save):
         """ Test that save_models writes to proper files """
@@ -162,12 +197,14 @@ class TestAltTrainingProgram(unittest.TestCase):
         # Mock previous model accuracies
         mock_accuracy_dict = {
             "dors_caud": 0.6,
-            "all": 0.4
+            "all": 0.4,
+            "dors_late": 0.9
         }
 
         self.training_program.model_accuracies = {
             "dors_caud": 0.5, # worse than previous
             "all": 0.6, # improved
+            "dors_late": 0.1 # worse
         }
 
         # Call the function with mocked json accuracy dump
@@ -175,7 +212,8 @@ class TestAltTrainingProgram(unittest.TestCase):
             self.training_program.save_models(
                 {
                     "dors_caud": "dors_caud.pth",
-                    "all": "all.pth"
+                    "all": "all.pth",
+                    "dors_late": "dors_late.pth"
                 },
                 "height.txt",
                 "alt_dict.json",

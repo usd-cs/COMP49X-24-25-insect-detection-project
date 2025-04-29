@@ -36,6 +36,13 @@ class AltTrainingProgram:
             ignore_index = True
             )
         self.all_subset = self.dataframe
+        self.dors_late_subset = pd.concat(
+            [
+            self.get_subset("LATE", self.dataframe),
+            self.get_subset("DORS", self.dataframe)
+            ],
+            ignore_index = True
+            )
         # Set device to a CUDA-compatible gpu, else mps, else cpu
         self.device = torch.device(
             'cuda' if torch.cuda.is_available()
@@ -43,6 +50,7 @@ class AltTrainingProgram:
             else 'cpu')
         self.dors_caud_model = self.load_dors_caud_model()
         self.all_model = self.load_all_model()
+        self.dors_late_model = self.load_dors_late_model()
         # Dictionary variables
         self.class_column = class_column
         self.class_index_dictionary = {}
@@ -50,8 +58,9 @@ class AltTrainingProgram:
         self.class_set = set()
         # model accuracy dictionary
         self.model_accuracies = {
-            "caud_dors" : 0,
+            "dors_caud" : 0,
             "all" : 0,
+            "dors_late": 0
         }
 
         classes = dataframe.iloc[:, self.class_column].values
@@ -70,6 +79,10 @@ class AltTrainingProgram:
         HistogramEqualization(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]),
             "all": transforms.Compose([
+        transforms.Resize((self.height, self.height)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]),
+            "dors_late": transforms.Compose([
         transforms.Resize((self.height, self.height)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
@@ -98,6 +111,13 @@ class AltTrainingProgram:
         Return: previously read dorsal subset
         """
         return self.all_subset
+
+    def get_dorsal_lateral_view(self):
+        """
+        Getter method for caudal view
+        Return: previously read caudal subset
+        """
+        return self.dors_late_subset
 
     def get_train_test_split(self, df):
         """
@@ -205,6 +225,51 @@ class AltTrainingProgram:
             self.model_accuracies["all"] = accuracy
             print(f"Accuracy: {100 * accuracy:.2f}%")
 
+    def training_evaluation_dorsal_lateral(self, num_epochs, train_loader, test_loader):
+        """
+        Code for training algorithm and evaluating model
+        """
+        # Model Training
+        self.dors_late_model.train()
+         # define loss function, optimization function, and image transformation
+        criterion = torch.nn.CrossEntropyLoss()
+        optimizer = torch.optim.Adam(self.dors_late_model.parameters(), lr=0.001)
+        for epoch in range(num_epochs):
+            running_loss = 0.0
+            for inputs, labels in train_loader:
+                inputs, labels = inputs.to(self.device), labels.to(self.device)
+
+                # Clear previous gradients
+                optimizer.zero_grad()
+
+                # Forward pass
+                outputs = self.dors_late_model(inputs)
+                loss = criterion(outputs, labels)
+
+                # Backpropagation pass
+                loss.backward()
+                optimizer.step()
+
+                running_loss += loss.item()
+            print(f"Epoch {epoch+1}/{num_epochs}, Loss: {running_loss/len(train_loader):.4f}")
+
+        # evaluate testing machine
+        self.dors_late_model.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for inputs, labels in test_loader:
+                inputs, labels = inputs.to(self.device), labels.to(self.device)
+
+                outputs = self.dors_late_model(inputs)
+                _, predicted = torch.max(outputs, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        if total != 0:
+            accuracy = correct / total
+            self.model_accuracies["dors_late"] = accuracy
+            print(f"Accuracy: {100 * accuracy:.2f}%")
+
     def train_dorsal_caudal(self, num_epochs):
         """
         Trains model with subset of caudal image views
@@ -243,6 +308,25 @@ class AltTrainingProgram:
 
         self.training_evaluation_all(num_epochs, training_loader, testing_loader)
 
+    def train_dorsal_lateral(self, num_epochs):
+        """
+        Trains model with subset of caudal image views
+        and save model to respective save file.
+        Return: None
+        """
+        # Get training and testing data
+        train_x, test_x, train_y, test_y = self.get_train_test_split(self.get_dorsal_lateral_view())
+        # Define image transformations, placeholder for preprocessing
+        transformation = self.transformations["dors_late"]
+
+        # Create DataLoaders
+        train_dataset = ImageDataset(train_x, train_y, transform=transformation)
+        test_dataset = ImageDataset(test_x, test_y, transform=transformation)
+        training_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+        testing_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+
+        self.training_evaluation_dorsal_lateral(num_epochs, training_loader, testing_loader)
+
     def load_dors_caud_model(self):
         """
         Loads model to be trained and saved for caudal image views
@@ -259,6 +343,19 @@ class AltTrainingProgram:
     def load_all_model(self):
         """
         Loads model to be trained and saved for dorsal image views
+        Return: ResNet model
+        """
+        model = models.resnet50()
+        num_features = model.fc.in_features
+        # number of classifications tentative
+        model.fc = torch.nn.Linear(num_features, self.num_classes)
+        model = model.to(self.device)
+
+        return model
+
+    def load_dors_late_model(self):
+        """
+        Loads model to be trained and saved for caudal image views
         Return: ResNet model
         """
         model = models.resnet50()
@@ -299,6 +396,17 @@ class AltTrainingProgram:
             self.save_transformation(self.transformations["all"], 1)
             print(f"All Model weights saved to {all_filename}")
 
+        if (
+            "dors_late" in model_filenames and
+            model_filenames["dors_late"] and
+            update_flags["dors_late"]
+        ):
+            dors_late_file = model_filenames["dors_late"]
+            dors_late_filename = os.path.join("src/models", dors_late_file)
+            torch.save(self.dors_late_model.state_dict(), dors_late_filename)
+            self.save_transformation(self.transformations["dors_late"], 2)
+            print(f"Dorsal Lateral Model weights saved to {dors_late_filename}")
+
         # Handle dict_filename similarly if needed
         if class_dict_filename:
             class_dict_filename = os.path.join("src/models", class_dict_filename)
@@ -322,7 +430,7 @@ class AltTrainingProgram:
         Returns: update_flags - dictionary that tracks which models should update their weights
         """
 
-        model_names = ["dors_caud", "all"]
+        model_names = ["dors_caud", "all", "dors_late"]
         update_flags = {}
         try:
             with open(accuracy_dict_filename, 'r') as f:
@@ -364,6 +472,10 @@ class AltTrainingProgram:
 
         elif angle == 1:
             with open("all_transformation.pth", "wb") as f:
+                dill.dump(transformation, f)
+
+        elif angle == 2:
+            with open("dors_late_transformation.pth", "wb") as f:
                 dill.dump(transformation, f)
 
 # Custom Dataset class for loading images from binary data
