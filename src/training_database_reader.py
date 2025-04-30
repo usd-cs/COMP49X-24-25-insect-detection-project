@@ -9,7 +9,8 @@ class DatabaseReader:
     """
     Reads from SQLite database, and creates a pandas dataframe
     """
-    def __init__(self, database, connection=None, table="TrainingData", query=None, class_file_path=None):
+    def __init__(self, database, connection=None,
+                 table="TrainingData", query=None, class_file_path=None):
         """
         Initialize DatabaseReader and loads data into a Pandas DataFrame. 
         
@@ -35,7 +36,8 @@ class DatabaseReader:
             """
         else:
             self.allowed_species = None
-            self.query = query or f"SELECT Genus, Species, UniqueID, View, SpecimenID, Image FROM {self.table}"
+            default_query = f"SELECT Genus, Species, UniqueID, View, SpecimenID, Image FROM {self.table}"
+            self.query = query or default_query
 
         self.dataframe = self.load_data()
 
