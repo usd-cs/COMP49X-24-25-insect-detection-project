@@ -37,7 +37,7 @@ if __name__ == '__main__':
     tdc = TrainingDataConverter("dataset")
     tdc.conversion("training.db")
     # Read converted data
-    dbr = DatabaseReader("training.db")
+    dbr = DatabaseReader("training.db", "src/models/class_list.txt")
     df = dbr.get_dataframe()
 
     # Display how many images we have for each angle

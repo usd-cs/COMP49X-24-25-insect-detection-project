@@ -45,10 +45,10 @@ if __name__ == '__main__':
                 print("No Training Requested")
                 sys.exit(0)
     # Set up data converter
-    tdc = TrainingDataConverter("dataset", "src/models/class_list.txt")
+    tdc = TrainingDataConverter("dataset")
     tdc.conversion("training.db")
     # Read converted data
-    dbr = DatabaseReader("training.db")
+    dbr = DatabaseReader(database="training.db", class_file_path="src/models/class_list.txt")
     df = dbr.get_dataframe()
 
     # Display how many images we have for each angle
