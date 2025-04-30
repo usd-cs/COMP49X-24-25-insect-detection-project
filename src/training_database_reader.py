@@ -95,5 +95,7 @@ class DatabaseReader:
 
 if __name__ == "__main__":
     db_path = input("Please input the file path of the SQLite database: ")
-    reader = DatabaseReader(db_path)
+    class_file = input(
+        "Please input path to allowed classes text file (or leave blank to include all): ").strip()
+    reader = DatabaseReader(db_path, class_file if class_file else None)
     print("Process Completed")

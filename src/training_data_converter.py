@@ -117,8 +117,6 @@ class TrainingDataConverter:
 
 if __name__ == "__main__":
     dir_path = input("Please input the file path of the data set directory: ")
-    class_file = input(
-        "Please input path to allowed classes text file (or leave blank to include all): ").strip()
-    tdc = TrainingDataConverter(dir_path, class_file if class_file else None)
+    tdc = TrainingDataConverter(dir_path)
     tdc.conversion("training.db")
     print("Process Completed")
