@@ -36,7 +36,9 @@ class DatabaseReader:
             """
         else:
             self.allowed_species = None
-            default_query = f"SELECT Genus, Species, UniqueID, View, SpecimenID, Image FROM {self.table}"
+            default_query = f"""
+                SELECT Genus, Species, UniqueID, View, SpecimenID, Image FROM {self.table}
+            """
             self.query = query or default_query
 
         self.dataframe = self.load_data()
