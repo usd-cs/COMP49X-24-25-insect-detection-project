@@ -35,13 +35,13 @@ class TestGenusEvaluationMethod(unittest.TestCase):
             return mock_text_file()
 
         with patch("builtins.open", new_callable=lambda: mock_mode):
-            evaluation = GenusEvaluationMethod("height_mock.txt", mock_models, 1, "json_mock.txt")
+            evaluation = GenusEvaluationMethod("height_mock.txt", mock_models, 1,
+                                               "json_mock.txt", "mock_accuracies.json")
 
         mock_json.assert_called_once()
 
         self.assertEqual(evaluation.use_method, 1)
-        #Change the weights to match the program's manually
-        self.assertEqual(evaluation.weights, [0.25, 0.25, 0.25, 0.25])
+        self.assertEqual(evaluation.accuracies_filename, "mock_accuracies.json")
         self.assertEqual(evaluation.trained_models, mock_models)
         self.assertEqual(evaluation.height, 224)
         self.assertEqual(evaluation.genus_idx_dict, {0:"acanthoscelides"})
@@ -108,7 +108,8 @@ class TestGenusEvaluationMethod(unittest.TestCase):
         conf_scores = [0.8, 0.6, 0.9, 0.7]
         genus_predictions = [1, 2, 2, 3]
 
-        prediction, score = evaluation.weighted_eval(conf_scores, genus_predictions)
+        prediction, score = evaluation.weighted_eval(
+            conf_scores, genus_predictions, given_weights, 4)
         self.assertEqual(prediction, "mimosae")
         assert score == given_weights[1] * conf_scores[1] + given_weights[2] * conf_scores[2]
 
