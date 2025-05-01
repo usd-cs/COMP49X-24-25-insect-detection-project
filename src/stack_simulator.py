@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     #tdc = TrainingDataConverter("dataset")
     #tdc.conversion("training.db")
-    dbr = DatabaseReader("training.db")
+    dbr = DatabaseReader("training.db", "src/models/class_list.txt")
     df = dbr.get_dataframe()
 
     GENUS_OUTPUTS = dbr.get_num_genus()
