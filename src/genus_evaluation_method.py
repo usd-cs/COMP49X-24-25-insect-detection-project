@@ -231,8 +231,14 @@ class GenusEvaluationMethod:
                     accs.append(accuracy_dict[angle_list[i]])
             use_angle = acc_dict_reverse[max(accs)]
 
-        else:
+        elif genus_predictions[1] != None:
             use_angle = "dors"
+        elif genus_predictions[3] != None:
+            use_angle = "caud"
+        elif genus_predictions[0] != None:
+            use_angle = "fron"
+        elif genus_predictions[2] != None:
+            use_angle = "late"
 
         match use_angle:
             case "fron":

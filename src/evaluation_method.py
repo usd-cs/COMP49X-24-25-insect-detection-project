@@ -197,8 +197,14 @@ class EvaluationMethod:
                 use_angle = acc_dict_reverse[max(accs)]
 
             #base case if accuracies aren't found based on best model from experience
-            else:
+            elif predictions["dors"]["scores"] != None:
                 use_angle = "dors"
+            elif predictions["caud"]["scores"] != None:
+                use_angle = "caud"
+            elif predictions["late"]["scores"] != None:
+                use_angle = "late"
+            elif predictions["fron"]["scores"] != None:
+                use_angle = "fron"
                 
             return self.heaviest_is_best(predictions, use_angle)
 
