@@ -185,6 +185,7 @@ class EvaluationMethod:
         if self.use_method == 1:
             # Match uses the index returned from the method to decide which prediction to return
             accs = []
+            use_angle = None
             if self.accuracies_filename:
                 with open(self.accuracies_filename, 'r', encoding='utf-8') as f:
                     accuracy_dict = json.load(f)
@@ -197,15 +198,15 @@ class EvaluationMethod:
                 use_angle = acc_dict_reverse[max(accs)]
 
             #base case if accuracies aren't found based on best model from experience
-            elif predictions["dors"]["scores"] != None:
+            elif predictions["dors"]["scores"] is not None:
                 use_angle = "dors"
-            elif predictions["caud"]["scores"] != None:
+            elif predictions["caud"]["scores"] is not None:
                 use_angle = "caud"
-            elif predictions["late"]["scores"] != None:
+            elif predictions["late"]["scores"] is not None:
                 use_angle = "late"
-            elif predictions["fron"]["scores"] != None:
+            elif predictions["fron"]["scores"] is not None:
                 use_angle = "fron"
-                
+
             return self.heaviest_is_best(predictions, use_angle)
 
         if self.use_method == 2:
@@ -241,7 +242,8 @@ class EvaluationMethod:
         top_species_scores = {}
 
         for i in range(0, 5):
-            top_species_scores[predictions[use_angle]["species"][i]] = predictions[use_angle]["scores"][i]
+            top_species_scores[
+                predictions[use_angle]["species"][i]] = predictions[use_angle]["scores"][i]
 
         # Create sorted list using sorted method (list with tuples nested inside(key, value))
         sorted_scores = sorted(top_species_scores.items(), key=lambda item: item[1], reverse=True)

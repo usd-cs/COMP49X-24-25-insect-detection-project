@@ -220,6 +220,7 @@ class GenusEvaluationMethod:
         Returns: specifies most certain model
         """
         accs = []
+        use_angle = None
         if self.accuracies_filename:
             with open(self.accuracies_filename, 'r', encoding='utf-8') as f:
                 accuracy_dict = json.load(f)
@@ -231,13 +232,13 @@ class GenusEvaluationMethod:
                     accs.append(accuracy_dict[angle_list[i]])
             use_angle = acc_dict_reverse[max(accs)]
 
-        elif genus_predictions[1] != None:
+        elif genus_predictions[1] is not None:
             use_angle = "dors"
-        elif genus_predictions[3] != None:
+        elif genus_predictions[3] is not None:
             use_angle = "caud"
-        elif genus_predictions[0] != None:
+        elif genus_predictions[0] is not None:
             use_angle = "fron"
-        elif genus_predictions[2] != None:
+        elif genus_predictions[2] is not None:
             use_angle = "late"
 
         match use_angle:
