@@ -183,31 +183,7 @@ class EvaluationMethod:
                 species_list.append(list(predictions[key]["species"]))
 
         if self.use_method == 1:
-            # Match uses the index returned from the method to decide which prediction to return
-            accs = []
-            use_angle = None
-            if self.accuracies_filename:
-                with open(self.accuracies_filename, 'r', encoding='utf-8') as f:
-                    accuracy_dict = json.load(f)
-
-                acc_dict_reverse = {v:k for k, v in accuracy_dict}
-
-                for key in ["fron", "dors", "late", "caud"]:
-                    if predictions[key]["scores"]:
-                        accs.append(accuracy_dict[key])
-                use_angle = acc_dict_reverse[max(accs)]
-
-            #base case if accuracies aren't found based on best model from experience
-            elif predictions["dors"]["scores"] is not None:
-                use_angle = "dors"
-            elif predictions["caud"]["scores"] is not None:
-                use_angle = "caud"
-            elif predictions["late"]["scores"] is not None:
-                use_angle = "late"
-            elif predictions["fron"]["scores"] is not None:
-                use_angle = "fron"
-
-            return self.heaviest_is_best(predictions, use_angle)
+            return self.heaviest_helper_func(predictions)
 
         if self.use_method == 2:
             weights = []
@@ -230,6 +206,42 @@ class EvaluationMethod:
             return self.stacked_eval()
 
         return None, -1
+    
+    def heaviest_helper_func(self, predictions):
+        """
+        Handles preprocessing for heaviest is best function by finding the most
+        accurate model of the input angles which is then passed to the heaviest
+        is best method to get a return value
+
+        Returns: List of tuples [(species_name, confidence_score), ...]
+            sorted by confidence(index 0 being the highest).
+            A return of None, -1 indicates an error
+        """
+        # Match uses the index returned from the method to decide which prediction to return
+        accs = []
+        use_angle = None
+        if self.accuracies_filename:
+            with open(self.accuracies_filename, 'r', encoding='utf-8') as f:
+                accuracy_dict = json.load(f)
+
+            acc_dict_reverse = {v:k for k, v in accuracy_dict}
+
+            for key in ["fron", "dors", "late", "caud"]:
+                if predictions[key]["scores"]:
+                    accs.append(accuracy_dict[key])
+            use_angle = acc_dict_reverse[max(accs)]
+
+        #base case if accuracies aren't found based on best model from experience
+        elif predictions["dors"]["scores"] is not None:
+            use_angle = "dors"
+        elif predictions["caud"]["scores"] is not None:
+            use_angle = "caud"
+        elif predictions["late"]["scores"] is not None:
+            use_angle = "late"
+        elif predictions["fron"]["scores"] is not None:
+            use_angle = "fron"
+
+        return self.heaviest_is_best(predictions, use_angle)
 
     def heaviest_is_best(self, predictions, use_angle):
         """
