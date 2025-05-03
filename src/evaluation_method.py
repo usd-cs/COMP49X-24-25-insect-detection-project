@@ -206,7 +206,7 @@ class EvaluationMethod:
             return self.stacked_eval()
 
         return None, -1
-    
+
     def heaviest_helper_func(self, predictions):
         """
         Handles preprocessing for heaviest is best function by finding the most
