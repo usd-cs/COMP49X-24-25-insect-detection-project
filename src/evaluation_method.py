@@ -184,7 +184,23 @@ class EvaluationMethod:
 
         if self.use_method == 1:
             # Match uses the index returned from the method to decide which prediction to return
-            return self.heaviest_is_best(scores_list, species_list, view_count)
+            accs = []
+            if self.accuracies_filename:
+                with open(self.accuracies_filename, 'r', encoding='utf-8') as f:
+                    accuracy_dict = json.load(f)
+
+                acc_dict_reverse = {v:k for k, v in accuracy_dict}
+
+                for key in ["fron", "dors", "late", "caud"]:
+                    if predictions[key]["scores"]:
+                        accs.append(accuracy_dict[key])
+                use_angle = acc_dict_reverse[max(accs)]
+
+            #base case if accuracies aren't found based on best model from experience
+            else:
+                use_angle = "dors"
+                
+            return self.heaviest_is_best(predictions, use_angle)
 
         if self.use_method == 2:
             weights = []
@@ -208,7 +224,7 @@ class EvaluationMethod:
 
         return None, -1
 
-    def heaviest_is_best(self, conf_scores, species_predictions, view_count):
+    def heaviest_is_best(self, predictions, use_angle):
         """
         Takes the certainties of the models and returns the top 5 most certain predictions
         from the models based on which scores were the highest throughout the 4 models.
@@ -216,20 +232,10 @@ class EvaluationMethod:
         Returns: List of tuples [(species_name, confidence_score), ...]
             sorted by confidence(index 0 being the highest).
         """
-
         top_species_scores = {}
 
-        for i in range(view_count):
-            if species_predictions[i] is not None:  # Ensure predictions exist
-                for rank in range(self.k):  # Loop over the top 5 species per angle
-                    species_idx = species_predictions[i][rank]
-                    score = conf_scores[i][rank]
-
-                    if species_idx in top_species_scores:
-                        top_species_scores[species_idx] = max(
-                            top_species_scores[species_idx], score)
-                    else:
-                        top_species_scores[species_idx] = score
+        for i in range(0, 5):
+            top_species_scores[predictions[use_angle]["species"][i]] = predictions[use_angle]["scores"][i]
 
         # Create sorted list using sorted method (list with tuples nested inside(key, value))
         sorted_scores = sorted(top_species_scores.items(), key=lambda item: item[1], reverse=True)

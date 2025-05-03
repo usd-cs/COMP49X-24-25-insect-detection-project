@@ -70,12 +70,14 @@ class TestEvaluationMethod(unittest.TestCase):
 
         mock_json.assert_called_once()
 
-        test_conf_scores = [0.3, 0.6, 0.1, 0.4, 0.5]
-        test_species = [1, 4, 2, 3, 0]
+        test_predictions = {
+            "late" : {"scores" : [0.3, 0.6, 0.1, 0.4, 0.5], "species" : [1, 4, 2, 3, 0]},
+            "dors" : {"scores" : [0.3, 0.6, 0.1, 0.4, 0.5], "species" : [1, 4, 2, 3, 0]},
+            "fron" : {"scores" : [0.3, 0.6, 0.1, 0.4, 0.5], "species" : [1, 4, 2, 3, 0]},
+            "caud" : {"scores" : [0.3, 0.6, 0.1, 0.4, 0.5], "species" : [1, 4, 2, 3, 0]},
+        }
         # Run heaviest_is_best method with test scores and species
-        test_results = evaluation.heaviest_is_best(
-            [test_conf_scores, test_conf_scores, test_conf_scores, test_conf_scores],
-            [test_species, test_species, test_species, test_species], 4)
+        test_results = evaluation.heaviest_is_best(test_predictions, "caud")
         # Assert top species is as expected
         self.assertEqual(test_results[0][0], "nubigens")
         self.assertEqual(round(test_results[0][1], 2), 0.6)
