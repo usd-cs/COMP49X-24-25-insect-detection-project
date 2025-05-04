@@ -6,6 +6,7 @@ from training_database_reader import DatabaseReader
 from model_loader import ModelLoader
 from evaluation_method import EvaluationMethod
 from genus_evaluation_method import GenusEvaluationMethod
+import globals
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
@@ -41,7 +42,7 @@ def evaluate_images(species_eval,
 
 if __name__ == '__main__':
     # Get Species and Genus Class Number
-    dbr = DatabaseReader("training.db")
+    dbr = DatabaseReader(globals.training_database)
     SPECIES_OUTPUTS = dbr.get_num_species()
     GENUS_OUTPUTS = dbr.get_num_genus()
 
@@ -64,15 +65,15 @@ if __name__ == '__main__':
     genus_ml = ModelLoader(genus_model_paths, GENUS_OUTPUTS)
     genus_models = genus_ml.get_models()
 
-    genus_evaluator = GenusEvaluationMethod("height.txt", genus_models, 1,
-                                            "gen_dict.json", "gen_accuracies.json")
+    genus_evaluator = GenusEvaluationMethod(globals.img_height, genus_models, 1,
+                                            globals.gen_class_dictionary, globals.gen_accuracy_list)
 
     # Load Species Evaluator
     species_ml = ModelLoader(species_model_paths, SPECIES_OUTPUTS)
     species_models = species_ml.get_models()
 
-    species_evaluator = EvaluationMethod("height.txt", species_models, 1,
-                                         "spec_dict.json", "spec_accuracies.json")
+    species_evaluator = EvaluationMethod(globals.img_height, species_models, 1,
+                                         globals.spec_class_dictionary, globals.spec_accuracy_list)
 
     ###### TO BE CHANGED FOR MULTIPLE TESTS
     #LATE_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT LATE.jpg"

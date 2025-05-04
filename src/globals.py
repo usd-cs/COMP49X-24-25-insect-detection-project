@@ -19,3 +19,19 @@ gen_fron_model = "gen_fron.pth"
 gen_late_model = "gen_late.pth"
 gen_class_dictionary = "gen_dict.json"
 gen_accuracy_list = "gen_accuracies.json"
+
+# Alternate Species Files
+alt_img_height = "alt_height.txt"
+
+spec_dors_caud_model = "alt_spec_dors_caud.pth"
+spec_all_model = "alt_spec_all.pth"
+spec_dors_late_model = "alt_spec_dors_late.pth"
+alt_spec_class_dictionary = "alt_spec_dict.json"
+alt_spec_accuracy_list =  "alt_spec_accuracies.json"
+
+# Alternate Genus Files
+gen_dors_caud_model = "alt_gen_dors_caud.pth"
+gen_all_model = "alt_gen_all.pth"
+gen_dors_late_model = "alt_gen_dors_late.pth"
+alt_gen_class_dictionary = "alt_gen_dict.json"
+alt_gen_accuracy_list =  "alt_gen_accuracies.json"
