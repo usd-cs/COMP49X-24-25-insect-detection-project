@@ -4,7 +4,7 @@ import os
 from training_data_converter import TrainingDataConverter
 from training_database_reader import DatabaseReader
 from alt_training_program import AltTrainingProgram
-from training_program import TrainingProgram
+import globals
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
@@ -35,9 +35,9 @@ if __name__ == '__main__':
     sys.stdout = Tee(sys.__stdout__, log_file)
     # Set up data converter
     tdc = TrainingDataConverter("dataset")
-    tdc.conversion("training.db")
+    tdc.conversion(globals.training_database)
     # Read converted data
-    dbr = DatabaseReader("training.db", "src/models/class_list.txt")
+    dbr = DatabaseReader(globals.training_database, globals.class_list)
     df = dbr.get_dataframe()
 
     # Display how many images we have for each angle
@@ -61,16 +61,16 @@ if __name__ == '__main__':
 
     # Save models
     alt_species_model_filenames = {
-            "dors_caud" : "alt_spec_dors_caud.pth",
-            "all" : "alt_spec_all.pth",
-            "dors_late": "alt_spec_dors_late.pth"
+            "dors_caud" : globals.spec_dors_caud_model,
+            "all" : globals.spec_all_model,
+            "dors_late": globals.spec_dors_late_model
         }
 
     alt_species_tp.save_models(
         alt_species_model_filenames,
-        "alt_height.txt",
-        "alt_spec_dict.json",
-        "alt_spec_accuracies.json")
+        globals.alt_img_height,
+        globals.alt_spec_class_dictionary,
+        globals.alt_spec_accuracy_list)
 
     # Run training with dataframe
     alt_genus_tp = AltTrainingProgram(df, 0, GENUS_OUTPUTS)
@@ -82,15 +82,15 @@ if __name__ == '__main__':
 
     # Save models
     alt_genus_model_filenmaes = {
-        "dors_caud" : "gen_dors_caud.pth", 
-        "all" : "gen_all.pth",
-        "dors_late" : "gen_dors_late.pth"
+        "dors_caud" : globals.gen_dors_caud_model, 
+        "all" : globals.gen_all_model,
+        "dors_late" : globals.gen_dors_late_model
     }
 
     alt_genus_tp.save_models(
         alt_genus_model_filenmaes,
-        "alt_height.txt",
-        "alt_gen_dict.json",
-        "alt_gen_accuracies.json")
+        globals.alt_img_height,
+        globals.alt_gen_class_dictionary,
+        globals.alt_gen_accuracy_list)
 
     log_file.close()

@@ -8,6 +8,7 @@ from training_program import TrainingProgram
 from model_loader import ModelLoader
 from evaluation_method import EvaluationMethod
 from genus_evaluation_method import GenusEvaluationMethod
+import globals
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
@@ -46,9 +47,9 @@ if __name__ == '__main__':
                 sys.exit(0)
     # Set up data converter
     tdc = TrainingDataConverter("dataset")
-    tdc.conversion("training.db")
+    tdc.conversion(globals.training_database)
     # Read converted data
-    dbr = DatabaseReader(database="training.db", class_file_path="src/models/class_list.txt")
+    dbr = DatabaseReader(database=globals.training_database, class_file_path=globals.class_list)
     df = dbr.get_dataframe()
 
     # Display how many images we have for each angle
@@ -77,17 +78,17 @@ if __name__ == '__main__':
 
     # Save models
     species_model_filenames = {
-            "caud" : "spec_caud.pth" if train_caud else None, 
-            "dors" : "spec_dors.pth" if train_dors else None,
-            "fron" : "spec_fron.pth" if train_fron else None,
-            "late" : "spec_late.pth" if train_late else None
+            "caud" : globals.spec_caud_model if train_caud else None, 
+            "dors" : globals.spec_dors_model if train_dors else None,
+            "fron" : globals.spec_fron_model if train_fron else None,
+            "late" : globals.spec_late_model if train_late else None
         }
 
     species_tp.save_models(
         species_model_filenames,
-        "height.txt",
-        "spec_dict.json",
-        "spec_accuracies.json")
+        globals.img_height,
+        globals.spec_class_dictionary,
+        globals.spec_accuracy_list)
 
     # Run training with dataframe
     genus_tp = TrainingProgram(df, 0, GENUS_OUTPUTS)
@@ -104,24 +105,24 @@ if __name__ == '__main__':
 
     # Save models
     genus_model_filenmaes = {
-        "caud" : "gen_caud.pth" if train_caud else None, 
-        "dors" : "gen_dors.pth" if train_dors else None,
-        "fron" : "gen_fron.pth" if train_fron else None,
-        "late" : "gen_late.pth" if train_late else None
+        "caud" : globals.gen_caud_model if train_caud else None, 
+        "dors" : globals.gen_dors_model if train_dors else None,
+        "fron" : globals.gen_fron_model if train_fron else None,
+        "late" : globals.gen_late_model if train_late else None
     }
 
     genus_tp.save_models(
         genus_model_filenmaes,
-        "height.txt",
-        "gen_dict.json",
-        "gen_accuracies.json")
+        globals.img_height,
+        globals.gen_class_dictionary,
+        globals.gen_accuracy_list)
 
     # Load Genus models
     genus_model_paths = {
-            "caud" : "src/models/gen_caud.pth", 
-            "dors" : "src/models/gen_dors.pth",
-            "fron" : "src/models/gen_fron.pth",
-            "late" : "src/models/gen_late.pth"
+            "caud" : "src/models/" + globals.gen_caud_model, 
+            "dors" : "src/models/" + globals.gen_dors_model,
+            "fron" : "src/models/" + globals.gen_fron_model,
+            "late" : "src/models/" + globals.gen_late_model
         }
 
     genus_ml = ModelLoader(genus_model_paths, GENUS_OUTPUTS)
@@ -131,8 +132,9 @@ if __name__ == '__main__':
     print(genus_ml.get_model("caud").named_parameters())
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
-    genus_evaluator = GenusEvaluationMethod("height.txt", genus_models, 1,
-                                            "gen_dict.json", "gen_accuracies.json")
+    genus_evaluator = GenusEvaluationMethod(globals.img_height, genus_models, 1,
+                                            globals.gen_class_dictionary,
+                                            globals.gen_accuracy_list)
 
     # Get the images to be evaluated through user input
     LATE_PATH = "dataset/Callosobruchus chinensis GEM_187686348 5XEXT LATE.jpg"
@@ -156,10 +158,10 @@ if __name__ == '__main__':
 
     # Load species models
     species_model_paths = {
-            "caud" : "src/models/spec_caud.pth", 
-            "dors" : "src/models/spec_dors.pth",
-            "fron" : "src/models/spec_fron.pth",
-            "late" : "src/models/spec_late.pth"
+            "caud" : "src/models/" + globals.spec_caud_model, 
+            "dors" : "src/models/" + globals.spec_dors_model,
+            "fron" : "src/models/" + globals.spec_fron_model,
+            "late" : "src/models/" + globals.spec_late_model
         }
     species_ml = ModelLoader(species_model_paths, SPECIES_OUTPUTS)
     species_models = species_ml.get_models()
@@ -168,8 +170,9 @@ if __name__ == '__main__':
     print(species_ml.get_model("caud").named_parameters())
 
     # Inititialize the EvaluationMethod object with the heaviest eval method set
-    species_evaluator = EvaluationMethod("height.txt", species_models, 1,
-                                         "dict.json", "spec_accuracies.json")
+    species_evaluator = EvaluationMethod(globals.img_height, species_models, 1,
+                                         globals.spec_class_dictionary,
+                                         globals.spec_accuracy_list)
 
     # Run the evaluation method
     top_5_species = species_evaluator.evaluate_image(

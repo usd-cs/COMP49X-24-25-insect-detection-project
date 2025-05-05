@@ -5,3 +5,4 @@ omit =
     src/stack_simulator.py
     src/alt_training_simulator.py
     src/transformation_classes.py
+    src/globals.py
