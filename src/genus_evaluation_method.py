@@ -219,24 +219,36 @@ class GenusEvaluationMethod:
 
         Returns: specifies most certain model
         """
-        highest = 0
-        index = 0
-        ind_tracker = 0
-        for i in conf_scores:
-            if i > highest:
-                highest = i
-                index = ind_tracker
+        accs = []
+        use_angle = None
+        if self.accuracies_filename:
+            with open(self.accuracies_filename, 'r', encoding='utf-8') as f:
+                accuracy_dict = json.load(f)
 
-            ind_tracker += 1
+            angle_list = ["fron", "dors", "late", "caud"]
+            acc_dict_reverse = {v:k for k, v in accuracy_dict}
+            for i in conf_scores:
+                if i != 0:
+                    accs.append(accuracy_dict[angle_list[i]])
+            use_angle = acc_dict_reverse[max(accs)]
 
-        match index:
-            case 0:
+        elif genus_predictions[1] is not None:
+            use_angle = "dors"
+        elif genus_predictions[3] is not None:
+            use_angle = "caud"
+        elif genus_predictions[0] is not None:
+            use_angle = "fron"
+        elif genus_predictions[2] is not None:
+            use_angle = "late"
+
+        match use_angle:
+            case "fron":
                 return self.genus_idx_dict[genus_predictions[0]], conf_scores[0]
-            case 1:
+            case "dors":
                 return self.genus_idx_dict[genus_predictions[1]], conf_scores[1]
-            case 2:
+            case "late":
                 return self.genus_idx_dict[genus_predictions[2]], conf_scores[2]
-            case 3:
+            case "caud":
                 return self.genus_idx_dict[genus_predictions[3]], conf_scores[3]
 
 

@@ -71,11 +71,11 @@ class TestGenusEvaluationMethod(unittest.TestCase):
 
         mock_json.assert_called_once()
 
-        evaluation.genus_idx_dict = {6:"chinensis"}
+        evaluation.genus_idx_dict = {4:"chinensis"}
 
         genus, conf = evaluation.heaviest_is_best([0.1, 0.3, 0.5, 0.4],[1, 4, 6, 3])
         self.assertEqual(genus, "chinensis")
-        self.assertEqual(conf, 0.5)
+        self.assertEqual(conf, 0.3)
 
     @patch("json.load", return_value = {"0":"acanthoscelides"})
     def test_weighted_eval(self, mock_json):
@@ -179,7 +179,7 @@ class TestGenusEvaluationMethod(unittest.TestCase):
         mock_transform = MagicMock(return_value = torch.rand(1, 3, 224, 224))
         evaluation.transform_input = mock_transform
 
-        result_genus, result_conf = evaluation.evaluate_image(late=Image.new("RGB", (224, 224)))
+        result_genus, result_conf = evaluation.evaluate_image(dors=Image.new("RGB", (224, 224)))
 
         self.assertEqual(result_genus, "acanthoscelides")
         self.assertEqual(round(result_conf, 2), 0.8)
