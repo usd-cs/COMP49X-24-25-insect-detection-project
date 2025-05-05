@@ -42,7 +42,7 @@ def evaluate_images(species_eval,
 
 if __name__ == '__main__':
     # Get Species and Genus Class Number
-    dbr = DatabaseReader(globals.training_database)
+    dbr = DatabaseReader(globals.training_database, class_file_path=globals.class_list)
     SPECIES_OUTPUTS = dbr.get_num_species()
     GENUS_OUTPUTS = dbr.get_num_genus()
 
