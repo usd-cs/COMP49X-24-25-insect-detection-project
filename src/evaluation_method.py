@@ -224,7 +224,7 @@ class EvaluationMethod:
             with open(self.accuracies_filename, 'r', encoding='utf-8') as f:
                 accuracy_dict = json.load(f)
 
-            acc_dict_reverse = {v:k for k, v in accuracy_dict}
+            acc_dict_reverse = {v:k for k, v in accuracy_dict.items()}
 
             for key in ["fron", "dors", "late", "caud"]:
                 if predictions[key]["scores"]:
