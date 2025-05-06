@@ -226,7 +226,7 @@ class GenusEvaluationMethod:
                 accuracy_dict = json.load(f)
 
             angle_list = ["fron", "dors", "late", "caud"]
-            acc_dict_reverse = {v:k for k, v in accuracy_dict}
+            acc_dict_reverse = {v:k for k, v in accuracy_dict.items()}
             for i in conf_scores:
                 if i != 0:
                     accs.append(accuracy_dict[angle_list[i]])
